@@ -1,0 +1,20 @@
+{
+    "PackageDirectoryName": "C:\\Home\\Projects\\NuGet\\packages",
+    "NuGetConfigName": "C:\\Home\\Projects\\NuGet\\NuGet.config",
+    "Version": "1.0.22",
+    "IsPrerelease": false,
+    "MsBuild": {
+        "Target": "Rebuild",
+        "NoLogo": true,
+        "Properties": {
+            "Configuration": "Release"
+            //"TargetFrameworkVersion": "v4.5.2",
+            //"Platform": "Any CPU",
+            //"OutDir": "_nuget\\{PackageId}\\net452"
+        },
+        "ProjectFile": null
+    },
+    "pack": {
+        "outputdirectory": "{packageDir}"
+    }
+}
