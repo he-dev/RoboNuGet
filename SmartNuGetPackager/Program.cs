@@ -426,6 +426,12 @@ namespace SmartNuGetPackager.Data
     {
         private PackagesConfig(string fileName)
         {
+            if (!File.Exists(fileName))
+            {
+                Packages = Enumerable.Empty<PackageElement>();
+                return;
+            }
+
             var packagesConfig = XDocument.Load(FileName = fileName);
 
             var packages = ((IEnumerable)packagesConfig.XPathEvaluate(@"packages/package"))?.Cast<XElement>();
@@ -436,14 +442,14 @@ namespace SmartNuGetPackager.Data
             }).ToList();
         }
 
-        public string FileName { get; }
+        private string FileName { get; }
 
         public IEnumerable<PackageElement> Packages { get; }
 
         public static PackagesConfig From(string dirName)
         {
             var packagesConfigFileName = Path.Combine(dirName, "packages.config");
-            return !File.Exists(packagesConfigFileName) ? null : new PackagesConfig(packagesConfigFileName);
+            return new PackagesConfig(packagesConfigFileName);
         }
 
         internal class PackageElement
