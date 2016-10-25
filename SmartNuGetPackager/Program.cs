@@ -56,6 +56,7 @@ namespace SmartNuGetPackager
                 .Execute();
             }
 
+            // todo: move to a new multipack command
             if (commandName.Equals(PackCommand.Name, StringComparison.OrdinalIgnoreCase))
             {
                 if (IncrementPatchVersionEnabled)
@@ -89,6 +90,13 @@ namespace SmartNuGetPackager
             {
                 IncrementPatchVersionEnabled = commandArg == null || bool.Parse(commandArg);
                 return true;
+            }
+
+            if (commandName.Equals(".version", StringComparison.OrdinalIgnoreCase))
+            {
+                // todo: needs validation
+                Config.Version = commandArg;
+                Config.Save();
             }
 
             if (commandName.Equals(".exit", StringComparison.OrdinalIgnoreCase))
@@ -304,6 +312,7 @@ namespace SmartNuGetPackager.Commands
 
         private string CreatePackCommand()
         {
+            // todo: move to config
             return
                 $"pack " +
                 $"\"{PackageNuspec.FileName}\" " +
@@ -331,6 +340,7 @@ namespace SmartNuGetPackager.Commands
 
         private string CreatePushCommand()
         {
+            // todo: move to config
             var nupkgFileName = $"{Path.Combine(PackagesDirectoryName, $"{PackageId}.{Version}.nupkg")}";
             return
                 $"push " +
