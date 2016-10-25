@@ -4,12 +4,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using Newtonsoft.Json;
+using Reusable;
 
 namespace SmartNuGetPackager
 {
@@ -20,20 +22,31 @@ namespace SmartNuGetPackager
     {
         private static Config Config { get; set; }
 
+        private static IEnumerable<PackageNuspec> PackageNuspecs { get; set; }
+
+        internal static bool IncrementPatchVersionEnabled { get; set; }
+
         private static void Main(string[] args)
         {
+            EmbededAssemblyLoader.LoadEmbededAssemblies();
             Config = Config.Load();
-            var menu = new Menu(Config)
+            PackageNuspecs = GetPackageNuspecs();
+
+            var menu = new Menu
             {
-                Execute = Execute
+                SolutionFileName = Config.MsBuild.CurrentProjectFile,
+                NuspecFileCount = PackageNuspecs.Count(),
+                Execute = ExecuteCommand
             };
             menu.Start();
-            Console.WriteLine("Done. (Press any key to exit)");
-            Console.ReadKey();
         }
 
-        private static bool Execute(string commandName)
+        private static bool ExecuteCommand(string command)
         {
+            var commandParts = command.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+            var commandName = commandParts.ElementAt(0);
+            var commandArg = commandParts.ElementAtOrDefault(1);
+
             if (commandName.Equals(BuildCommand.Name, StringComparison.OrdinalIgnoreCase))
             {
                 return new BuildCommand
@@ -43,28 +56,50 @@ namespace SmartNuGetPackager
                 .Execute();
             }
 
-            if (commandName.StartsWith(PackCommand.Name, StringComparison.OrdinalIgnoreCase))
+            if (commandName.Equals(PackCommand.Name, StringComparison.OrdinalIgnoreCase))
             {
-                var packageNuspecs = GetNuspecs();
-
-                if (commandName.EndsWith(":autover"))
+                if (IncrementPatchVersionEnabled)
                 {
-                    Config.Version = Config.Version.IncreasePatchVersion();
+                    Config.IncrementPatchVersion();
                     Config.Save();
-                }                
-
-                return UpdateNuspecs(packageNuspecs, Config.FullVersion).All(packageNuspec => new PackCommand
-                {
-                    NuspecFileName = packageNuspec.FileName,
-                    Outputdirectory = Config.PackageDirectoryName
                 }
-                .Execute());
+
+                var packResults = PackageNuspecs.Select(packageNuspec => new PackCommand
+                {
+                    PackageNuspec = packageNuspec,
+                    Version = Config.FullVersion,
+                    Outputdirectory = Config.PackageDirectoryName,
+                }
+                .Execute())
+                .ToList();
+
+                ConsoleColorizer.Render($"<text>&gt;<color fg=\"darkgray\">---</color></text>");
+
+                var all = packResults.All(x => x);
+
+                ConsoleColorizer.Render(all
+                    ? $"<text>&gt;<color fg=\"green\">All packages successfuly created.</color> <color fg=\"darkyellow\">(Press Enter to continue)</color></text>"
+                    : $"<text>&gt;<color fg=\"green\">Some packages could not be created.</color> <color fg=\"darkyellow\">(Press Enter to continue)</color></text>");
+                Console.ReadKey();
+
+                return all;
+            }
+
+            if (commandName.Equals(".autover", StringComparison.OrdinalIgnoreCase))
+            {
+                IncrementPatchVersionEnabled = commandArg == null || bool.Parse(commandArg);
+                return true;
+            }
+
+            if (commandName.Equals(".exit", StringComparison.OrdinalIgnoreCase))
+            {
+                Environment.Exit(0);
             }
 
             return false;
         }
 
-        private static IEnumerable<PackageNuspec> GetNuspecs()
+        private static IEnumerable<PackageNuspec> GetPackageNuspecs()
         {
             var directories = Directory.GetDirectories(Directory.GetCurrentDirectory());
             foreach (var directory in directories)
@@ -73,45 +108,17 @@ namespace SmartNuGetPackager
                 if (packageNuspec == null)
                 {
                     continue;
-                }                
-                yield return packageNuspec;
-            }
-        }
-
-        private static IEnumerable<PackageNuspec> UpdateNuspecs(IEnumerable<PackageNuspec> nuspecs, string packagesVersion)
-        {
-            foreach (var packageNuspec in nuspecs)
-            {
-                var directory = Path.GetDirectoryName(packageNuspec.FileName);
-                var packagesConfig = PackagesConfig.From(directory);
-                var csProj = CsProj.From(directory);
-
-                foreach (var package in packagesConfig.Packages)
-                {
-                    packageNuspec.AddDependency(package.Id, package.Version);
                 }
-
-                foreach (var projectReferenceName in csProj.ProjectReferenceNames)
-                {
-                    packageNuspec.AddDependency(projectReferenceName, packagesVersion);
-                }
-
-                packageNuspec.SetVersion(packagesVersion);
-                packageNuspec.Save();
-
                 yield return packageNuspec;
             }
         }
     }
 
-    internal static class PackageVersionExtensions
+    internal static class CommandFactory
     {
-        public static string IncreasePatchVersion(this string version)
+        public static Command CreateCommand()
         {
-            return Regex.Replace(version, @"^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)", m =>
-                $"{m.Groups["major"].Value}." +
-                $"{m.Groups["minor"]}." +
-                $"{int.Parse(m.Groups["patch"].Value) + 1}");
+            return null;
         }
     }
 
@@ -125,46 +132,47 @@ namespace SmartNuGetPackager
             "pack",
             "push",
             ".exit",
+            ".autover"
         };
 
-        public Menu(Config config)
-        {
-            Config = config;
-        }
+        public string SolutionFileName { get; set; }
 
-        public Config Config { get; }
+        public int NuspecFileCount { get; set; }
 
         public Func<string, bool> Execute { get; set; }
 
         public void Start()
         {
-            var command = string.Empty;
             do
             {
                 Console.Clear();
-                Console.WriteLine($"Project: {Path.GetFileNameWithoutExtension(Config.MsBuild.CurrentProjectFile)}");
-                Console.WriteLine($"What do you want to do: {string.Join(", ", _commands)}?");
-                if (!string.IsNullOrEmpty(_lastCommand))
-                {
-                    Console.WriteLine($"Last command: {_lastCommand} (Press Enter to use)");
-                }
+
+                ConsoleColorizer.Render($"<text>&gt;<color fg=\"darkgray\">SmartNuGetPackager v1.0.2</color></text>");
+                var solutionName = Path.GetFileNameWithoutExtension(SolutionFileName);
+                ConsoleColorizer.Render($"<text>&gt;Solution '<color fg=\"yellow\">{solutionName}</color>' ({NuspecFileCount} nuspec{(NuspecFileCount != 1 ? "s" : string.Empty)})</text>");
+                ConsoleColorizer.Render($"<text>&gt;<color fg=\"darkgray\">.autover '{Program.IncrementPatchVersionEnabled}'</color></text>");
+                ConsoleColorizer.Render($"<text>&gt;<color fg=\"darkgray\">Last command '{(string.IsNullOrEmpty(_lastCommand) ? "N/A" : _lastCommand)}'</color> <color fg=\"darkyellow\">(Press Enter to reuse)</color></text>");
                 Console.Write(">");
-                command = Console.ReadLine();
+
+                var command = Console.ReadLine();
+
                 if (string.IsNullOrEmpty(command))
                 {
                     command = _lastCommand;
                 }
+
                 if (string.IsNullOrEmpty(command))
                 {
-                    Console.WriteLine("Command must not be empty. (Press Enter to continue)");
+                    ConsoleColorizer.Render($"<text>&gt;<color fg=\"red\">Command must not be empty.</color> <color fg=\"darkyellow\">(Press Enter to continue)</color></text>");
+                    Console.Write(">");
+                    Console.ReadKey();
+                    continue;
                 }
 
-                if (command.Trim().Equals(".exit", StringComparison.OrdinalIgnoreCase))
+                if (!command.StartsWith("."))
                 {
-                    break;
+                    _lastCommand = command;
                 }
-
-                _lastCommand = command;
 
                 var commands = command.Split(' ');
                 foreach (var cmd in commands)
@@ -176,6 +184,28 @@ namespace SmartNuGetPackager
                 }
 
             } while (true);
+            // ReSharper disable once FunctionNeverReturns
+        }
+    }
+
+    internal class EmbededAssemblyLoader
+    {
+        public static void LoadEmbededAssemblies()
+        {
+            AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
+            {
+                var executingAssembly = Assembly.GetExecutingAssembly();
+
+                var resourceName = $"{new AssemblyName(args.Name).Name}.dll";
+                var fullResourceName = executingAssembly.GetManifestResourceNames().SingleOrDefault(x => x.EndsWith(resourceName));
+                using (var stream = executingAssembly.GetManifestResourceStream(fullResourceName))
+                {
+                    if (stream == null) { throw new ApplicationException($"Could not find resource '{fullResourceName}'."); }
+                    var assemblyData = new byte[stream.Length];
+                    stream.Read(assemblyData, 0, assemblyData.Length);
+                    return Assembly.Load(assemblyData);
+                }
+            };
         }
     }
 }
@@ -191,14 +221,23 @@ namespace SmartNuGetPackager.Commands
 
     internal abstract class StartProcessCommand : Command
     {
+        protected bool RedirectStandardOutput { get; set; }
+
         protected bool Execute(string fileName, string arguments)
         {
             var processStartInfo = new ProcessStartInfo
             {
                 FileName = "cmd",
-                Arguments = $"/Q /C pause | {fileName} {arguments}",
+                Arguments = RedirectStandardOutput ? $"/Q /C {fileName} {arguments}" : $"/Q /C pause | {fileName} {arguments}",
+                RedirectStandardOutput = RedirectStandardOutput,
+                UseShellExecute = !RedirectStandardOutput
             };
+
             var process = Process.Start(processStartInfo);
+            if (RedirectStandardOutput)
+            {
+                Console.WriteLine(process.StandardOutput.ReadToEnd());
+            }
             process.WaitForExit();
             return process.ExitCode == 0;
         }
@@ -213,27 +252,61 @@ namespace SmartNuGetPackager.Commands
         public override bool Execute()
         {
             return Execute("msbuild", MsBuild.ToString());
-        }        
+        }
     }
 
     internal class PackCommand : StartProcessCommand
     {
+        public PackCommand()
+        {
+            RedirectStandardOutput = true;
+        }
+
         public const string Name = "pack";
 
-        public string NuspecFileName { get; set; }
+        public PackageNuspec PackageNuspec { get; set; }
+
+        public string Version { get; set; }
 
         public string Outputdirectory { get; set; }
 
         public override bool Execute()
         {
+            //Console.WriteLine("> PACK ---");
+            //Console.Write("Packaging");
+            //Console.ForegroundColor = ConsoleColor.DarkYellow;
+            //Console.WriteLine("---");
+
+            UpdatePackageNuspec(PackageNuspec, Version);
+
             return Execute("nuget", CreatePackCommand());
+        }
+
+        private static void UpdatePackageNuspec(PackageNuspec packageNuspec, string packagesVersion)
+        {
+            var directory = Path.GetDirectoryName(packageNuspec.FileName);
+            var packagesConfig = PackagesConfig.From(directory);
+            var csProj = CsProj.From(directory);
+
+            foreach (var package in packagesConfig.Packages)
+            {
+                packageNuspec.AddDependency(package.Id, package.Version);
+            }
+
+            foreach (var projectReferenceName in csProj.ProjectReferenceNames)
+            {
+                packageNuspec.AddDependency(projectReferenceName, packagesVersion);
+            }
+
+            packageNuspec.SetVersion(packagesVersion);
+            packageNuspec.Save();
         }
 
         private string CreatePackCommand()
         {
             return
                 $"pack " +
-                $"\"{NuspecFileName}\" " +
+                $"\"{PackageNuspec.FileName}\" " +
                 $"-properties Configuration=Release " +
                 $"-outputdirectory {Outputdirectory}";
         }
@@ -304,6 +377,14 @@ namespace SmartNuGetPackager.Data
         {
             var json = JsonConvert.SerializeObject(this, Formatting.Indented);
             File.WriteAllText(FileName, json);
+        }
+
+        public void IncrementPatchVersion()
+        {
+            Version = Regex.Replace(Version, @"^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)", m =>
+                $"{m.Groups["major"].Value}." +
+                $"{m.Groups["minor"]}." +
+                $"{int.Parse(m.Groups["patch"].Value) + 1}");
         }
     }
 
