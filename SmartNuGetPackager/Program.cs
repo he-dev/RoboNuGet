@@ -20,28 +20,32 @@ namespace SmartNuGetPackager
 
     internal class Program
     {
-        internal static Config Config { get; set; }
+        internal Config Config { get; set; }
 
-        private static IEnumerable<PackageNuspec> PackageNuspecs { get; set; }
+        internal IEnumerable<PackageNuspec> PackageNuspecs { get; set; }
 
         internal static bool IncrementPatchVersionEnabled { get; set; }
 
         private static void Main(string[] args)
         {
-            EmbededAssemblyLoader.LoadEmbededAssemblies();
-            Config = Config.Load();
-            PackageNuspecs = GetPackageNuspecs();
+            new Program().Start();
+        }
 
-            var menu = new Menu
+        private void Start()
+        {
+            Config = Config.Load();
+
+            PackageNuspecs = GetPackageNuspecs(Path.GetDirectoryName(Config.MsBuild.ActualProjectFile));
+
+            var menu = new Menu(this)
             {
-                SolutionFileName = Config.MsBuild.CurrentProjectFile,
-                NuspecFileCount = PackageNuspecs.Count(),
                 Execute = ExecuteCommand
             };
+
             menu.Start();
         }
 
-        private static bool ExecuteCommand(string command)
+        private bool ExecuteCommand(string command)
         {
             var commandParts = command.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
             var commandName = commandParts.ElementAt(0);
@@ -86,6 +90,20 @@ namespace SmartNuGetPackager
                 return all;
             }
 
+            if (commandName.Equals("push", StringComparison.OrdinalIgnoreCase))
+            {
+                var pushResults = PackageNuspecs.Select(packageNuspec => new PushCommand
+                {
+                    NuGetConfigFileName = Config.NuGetConfigName,
+                    PackageId = packageNuspec.Id,
+                    PackagesDirectoryName = Config.PackageDirectoryName,
+                    Version = Config.FullVersion
+                }
+                .Execute())
+                .ToList();
+                return pushResults.All(x => x);
+            }
+
             if (commandName.Equals(".autover", StringComparison.OrdinalIgnoreCase))
             {
                 IncrementPatchVersionEnabled = commandArg == null || bool.Parse(commandArg);
@@ -107,9 +125,9 @@ namespace SmartNuGetPackager
             return false;
         }
 
-        private static IEnumerable<PackageNuspec> GetPackageNuspecs()
+        private static IEnumerable<PackageNuspec> GetPackageNuspecs(string workingDirectory)
         {
-            var directories = Directory.GetDirectories(Directory.GetCurrentDirectory());
+            var directories = Directory.GetDirectories(workingDirectory);
             foreach (var directory in directories)
             {
                 var packageNuspec = PackageNuspec.From(directory);
@@ -143,9 +161,12 @@ namespace SmartNuGetPackager
             ".autover"
         };
 
-        public string SolutionFileName { get; set; }
+        public Menu(Program program)
+        {
+            Program = program;
+        }
 
-        public int NuspecFileCount { get; set; }
+        public Program Program { get; }
 
         public Func<string, bool> Execute { get; set; }
 
@@ -156,8 +177,17 @@ namespace SmartNuGetPackager
                 Console.Clear();
 
                 ConsoleColorizer.Render($"<text>&gt;<color fg=\"darkgray\">SmartNuGetPackager v1.0.2</color></text>");
-                var solutionName = Path.GetFileNameWithoutExtension(SolutionFileName);
-                ConsoleColorizer.Render($"<text>&gt;Solution '<color fg=\"yellow\">{solutionName}</color>' <color fg=\"magenta\">v{Program.Config.FullVersion}</color> ({NuspecFileCount} nuspec{(NuspecFileCount != 1 ? "s" : string.Empty)})</text>");
+
+                if (string.IsNullOrEmpty(Program.Config.MsBuild.ActualProjectFile))
+                {
+                    ConsoleColorizer.Render("<text>&gt;<color fg=\"red\">ERROR:</color> Solution file not found.</text>");
+                    Console.ReadKey();
+                    break;
+                }
+
+                var solutionName = Path.GetFileNameWithoutExtension(Program.Config.MsBuild.ActualProjectFile);
+                var nuspecFileCount = Program.PackageNuspecs.Count();
+                ConsoleColorizer.Render($"<text>&gt;Solution '<color fg=\"yellow\">{solutionName}</color>' <color fg=\"magenta\">v{Program.Config.FullVersion}</color> ({nuspecFileCount} nuspec{(nuspecFileCount != 1 ? "s" : string.Empty)})</text>");
                 ConsoleColorizer.Render($"<text>&gt;<color fg=\"darkgray\">.autover '{Program.IncrementPatchVersionEnabled}'</color></text>");
                 ConsoleColorizer.Render($"<text>&gt;<color fg=\"darkgray\">Last command '{(string.IsNullOrEmpty(_lastCommand) ? "N/A" : _lastCommand)}'</color> <color fg=\"darkyellow\">(Press Enter to reuse)</color></text>");
                 Console.Write(">");
@@ -325,6 +355,11 @@ namespace SmartNuGetPackager.Commands
     {
         public const string Name = "push";
 
+        public PushCommand()
+        {
+            RedirectStandardOutput = true;
+        }
+
         public string PackagesDirectoryName { get; set; }
 
         public string PackageId { get; set; }
@@ -400,6 +435,8 @@ namespace SmartNuGetPackager.Data
 
     internal class MsBuild
     {
+        private readonly Lazy<string> _lazyProjectFile = new Lazy<string>(FindSolutionFileName);
+
         public string Target { get; set; }
 
         public bool NoLogo { get; set; }
@@ -409,28 +446,27 @@ namespace SmartNuGetPackager.Data
         public string ProjectFile { get; set; }
 
         [JsonIgnore]
-        public string CurrentProjectFile
+        public string ActualProjectFile => string.IsNullOrEmpty(ProjectFile) ? _lazyProjectFile.Value : ProjectFile;
+
+        private static string FindSolutionFileName()
         {
-            get
+            var directory = Directory.GetParent(Directory.GetCurrentDirectory());
+            do
             {
-                if (!string.IsNullOrEmpty(ProjectFile))
+                var files = Directory.GetFiles(directory.FullName, "*.sln");
+                if (files.Any())
                 {
-                    return ProjectFile;
+                    return files.First();
                 }
-
-                var sln = Directory.GetFiles(Directory.GetCurrentDirectory(), "*.sln").SingleOrDefault();
-                if (string.IsNullOrEmpty(sln))
-                {
-                    throw new InvalidOperationException($"Solution file not found in \"{Directory.GetCurrentDirectory()}\".");
-                }
-
-                return sln;
-            }
+                directory = Directory.GetParent(directory.FullName);
+            } while (directory.Parent != null);
+            return null;
         }
 
         public override string ToString()
         {
             var arguments = new List<string>();
+
             if (!string.IsNullOrEmpty(Target))
             {
                 arguments.Add($"/target:{Target}");
@@ -441,12 +477,9 @@ namespace SmartNuGetPackager.Data
                 arguments.Add("/nologo");
             }
 
-            foreach (var property in Properties)
-            {
-                arguments.Add($"/property:{property.Key}=\"{property.Value}\"");
-            }
+            arguments.AddRange(Properties.Select(property => $"/property:{property.Key}=\"{property.Value}\""));
 
-            arguments.Add(ProjectFile);
+            arguments.Add(ActualProjectFile);
 
             return string.Join(" ", arguments);
         }
@@ -470,7 +503,7 @@ namespace SmartNuGetPackager.Data
         public static PackageNuspec From(string dirName)
         {
             var packageNuspecFileName = Directory.GetFiles(dirName, "*.nuspec").SingleOrDefault();
-            return packageNuspecFileName == null ? null : new PackageNuspec(packageNuspecFileName);
+            return string.IsNullOrEmpty(packageNuspecFileName) ? null : new PackageNuspec(packageNuspecFileName);
         }
 
         public string FileName { get; }
