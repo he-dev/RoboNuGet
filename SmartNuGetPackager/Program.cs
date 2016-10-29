@@ -20,7 +20,7 @@ namespace SmartNuGetPackager
 
     internal class Program
     {
-        private static Config Config { get; set; }
+        internal static Config Config { get; set; }
 
         private static IEnumerable<PackageNuspec> PackageNuspecs { get; set; }
 
@@ -157,7 +157,7 @@ namespace SmartNuGetPackager
 
                 ConsoleColorizer.Render($"<text>&gt;<color fg=\"darkgray\">SmartNuGetPackager v1.0.2</color></text>");
                 var solutionName = Path.GetFileNameWithoutExtension(SolutionFileName);
-                ConsoleColorizer.Render($"<text>&gt;Solution '<color fg=\"yellow\">{solutionName}</color>' ({NuspecFileCount} nuspec{(NuspecFileCount != 1 ? "s" : string.Empty)})</text>");
+                ConsoleColorizer.Render($"<text>&gt;Solution '<color fg=\"yellow\">{solutionName}</color>' <color fg=\"magenta\">v{Program.Config.FullVersion}</color> ({NuspecFileCount} nuspec{(NuspecFileCount != 1 ? "s" : string.Empty)})</text>");
                 ConsoleColorizer.Render($"<text>&gt;<color fg=\"darkgray\">.autover '{Program.IncrementPatchVersionEnabled}'</color></text>");
                 ConsoleColorizer.Render($"<text>&gt;<color fg=\"darkgray\">Last command '{(string.IsNullOrEmpty(_lastCommand) ? "N/A" : _lastCommand)}'</color> <color fg=\"darkyellow\">(Press Enter to reuse)</color></text>");
                 Console.Write(">");
