@@ -7,11 +7,12 @@
     <ProjectGuid>{2C00331C-3D9F-4E9B-82DD-F85A1AA58D3D}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SmartNuGetPackager</RootNamespace>
-    <AssemblyName>SmartNuGetPackager</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <RootNamespace>RoboNuGet</RootNamespace>
+    <AssemblyName>RoboNuGet</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -24,9 +25,9 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -53,7 +54,15 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Reusable.ConsoleColorizer, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Reusable.ConsoleColorizer.1.0.8\lib\net452\Reusable.ConsoleColorizer.dll</HintPath>
+      <HintPath>..\packages\Reusable.ConsoleColorizer.2.0.0\lib\net452\Reusable.ConsoleColorizer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Reusable.Fuse, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Reusable.Fuse.2.0.0\lib\net452\Reusable.Fuse.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Reusable.Utils, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Reusable.Utils.2.0.0\lib\net452\Reusable.Utils.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -66,13 +75,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\BuildCommand.cs" />
+    <Compile Include="Commands\PackCommand.cs" />
+    <Compile Include="Commands\IncrementPathVersionCommand.cs" />
+    <Compile Include="IIdentifiable.cs" />
+    <Compile Include="Commands\UpdateNuspecCommand.cs" />
+    <Compile Include="Commands\PushCommand.cs" />
+    <Compile Include="Commands\StartProcessCommand.cs" />
+    <Compile Include="Menu.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="SmartNuGetPackager.json">
+    <None Include="RoboNuGet.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

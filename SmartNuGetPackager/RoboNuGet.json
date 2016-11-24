@@ -1,8 +1,12 @@
 {
     "PackageDirectoryName": "C:\\Home\\Projects\\NuGet\\packages",
     "NuGetConfigName": "C:\\Home\\Projects\\NuGet\\NuGet.config",
-    "Version": "1.0.22",
+    "PackageVersion": "1.0.22",
     "IsPrerelease": false,
+    "TargetFrameworkVersions": [
+        "v4.5.2",
+        "v4.6.2"
+    ],
     "MsBuild": {
         "Target": "Rebuild",
         "NoLogo": true,
@@ -14,10 +18,8 @@
         },
         "ProjectFile": null
     },
-    "NuGet": {
-        "pack": ""
-    },
-    "pack": {
-        "outputdirectory": "{packageDir}"
-    }
+    "NuGet": [
+        "pack {FileName} -outputdirectory {OutputDirectory}",
+        "push {nupkgFileName} -configfile {ConfigFileName}"
+    ]
 }
