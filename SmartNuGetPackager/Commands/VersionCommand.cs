@@ -1,24 +1,26 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Windows.Input;
-using RoboNuGet.Data;
 
 namespace RoboNuGet.Commands
 {
-    internal class IncrementPathVersionCommand : ICommand
+    internal class VersionCommand : ICommand, IIdentifiable
     {
+        public string Name => "patch";
+
         public event EventHandler CanExecuteChanged;
 
         public bool CanExecute(object parameter)
         {
-            return ((dynamic)parameter).AutoIncrementPatchVersion;
+            return true;
         }
 
         public void Execute(object parameter)
         {
-            var config = (Config)parameter;
-            config.IncrementPatchVersion();
-            config.Save();
+            // todo: needs validation with semantic version
+            //Config.PackageVersion = commandArg;
+            //Config.Save();
+
         }
 
     }

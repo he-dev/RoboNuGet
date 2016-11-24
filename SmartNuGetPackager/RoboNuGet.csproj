@@ -76,8 +76,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\BuildCommand.cs" />
+    <Compile Include="Commands\NuGetCommand.cs" />
     <Compile Include="Commands\PackCommand.cs" />
-    <Compile Include="Commands\IncrementPathVersionCommand.cs" />
+    <Compile Include="Commands\ExitCommand.cs" />
+    <Compile Include="Commands\VersionCommand.cs" />
+    <Compile Include="Commands\PatchCommand.cs" />
+    <Compile Include="Data\Config.cs" />
+    <Compile Include="Data\CsProj.cs" />
+    <Compile Include="Data\MsBuild.cs" />
+    <Compile Include="Data\PackageNuspec.cs" />
+    <Compile Include="Data\PackagesConfig.cs" />
     <Compile Include="IIdentifiable.cs" />
     <Compile Include="Commands\UpdateNuspecCommand.cs" />
     <Compile Include="Commands\PushCommand.cs" />

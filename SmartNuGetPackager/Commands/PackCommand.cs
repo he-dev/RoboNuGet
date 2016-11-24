@@ -1,41 +1,34 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using RoboNuGet.Data;
+using Reusable;
 
 namespace RoboNuGet.Commands
 {
-    internal class PackCommand : StartProcessCommand
+    internal class PackCommand : NuGetCommand
     {
-        public PackCommand()
+        public PackCommand(IEnumerable<string> commandLines) : base(commandLines)
         {
             RedirectStandardOutput = true;
         }
 
-        public const string Name = "pack";
+        public override string Name => "pack";
 
-        public PackageNuspec PackageNuspec { get; set; }
+        //public PackageNuspec PackageNuspec { get; set; }
 
-        public string Version { get; set; }
+        //public string Version { get; set; }
 
-        public string Outputdirectory { get; set; }
+        //public string Outputdirectory { get; set; }
 
-        public override void Execute(object parameter)
+        public override void Execute(dynamic parameter)
         {
-            base.Execute(new
+            var arguments = CommandLine.Format(new
             {
-                FileName = "nuget",
-                Arguments = CreatePackCommand()
+                FileName = parameter.FileName,
+                OutputDirectory = parameter.OutputDirectory,
             });
-        }
 
-        private string CreatePackCommand()
-        {
-            // todo: move to config
-            return
-                $"pack " +
-                $"\"{PackageNuspec.FileName}\" " +
-                $"-properties Configuration=Release " +
-                $"-outputdirectory {Outputdirectory}";
-        }
+            base.Execute(arguments);
+        }        
     }
 }

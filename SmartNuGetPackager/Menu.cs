@@ -6,7 +6,6 @@ using System.Windows.Input;
 using Reusable;
 using Reusable.Commands;
 using RoboNuGet.Commands;
-using RoboNuGet.Data;
 
 namespace RoboNuGet
 {
@@ -16,22 +15,23 @@ namespace RoboNuGet
 
         private string _lastCommandName;
 
-        private readonly ICommand[] _commands =
-        {
-            //.exit
-            //.autover
-            //.version
-            new BuildCommand(),
-            new PackCommand().Pre(new UpdateNuspecCommand().Pre(new IncrementPathVersionCommand())),
-            new PushCommand(),
-        };
+        private readonly ICommand[] _commands;
 
         public Menu(Program program)
         {
             _program = program;
-        }
 
-        public Func<string, bool> Execute { get; set; }
+            _commands = new []
+            {
+                    //.exit
+                    //.autover
+                    //.version
+                new BuildCommand(),
+                new PatchCommand(),
+                new PackCommand(_program.Config.NuGet).Pre(new UpdateNuspecCommand()),
+                new PushCommand(_program.Config.NuGet),
+            };
+        }
 
         public void Start()
         {
@@ -50,8 +50,8 @@ namespace RoboNuGet
 
                 var solutionName = Path.GetFileNameWithoutExtension(_program.Config.MsBuild.ActualProjectFile);
                 var nuspecFileCount = _program.PackageNuspecs.Count();
-                ConsoleColorizer.Render($"<text>&gt;Solution '<color fg=\"yellow\">{solutionName}</color>' <color fg=\"magenta\">v{Program.Config.FullVersion}</color> ({nuspecFileCount} nuspec{(nuspecFileCount != 1 ? "s" : string.Empty)})</text>");
-                ConsoleColorizer.Render($"<text>&gt;<color fg=\"darkgray\">.autover '{Program.AutoIncrementPatchVersion}'</color></text>");
+                ConsoleColorizer.Render($"<text>&gt;Solution '<color fg=\"yellow\">{solutionName}</color>' <color fg=\"magenta\">v{_program.Config.FullVersion}</color> ({nuspecFileCount} nuspec{(nuspecFileCount != 1 ? "s" : string.Empty)})</text>");
+                //ConsoleColorizer.Render($"<text>&gt;<color fg=\"darkgray\">.autover '{Program.AutoIncrementPatchVersion}'</color></text>");
                 ConsoleColorizer.Render($"<text>&gt;<color fg=\"darkgray\">Last command '{(string.IsNullOrEmpty(_lastCommandName) ? "N/A" : _lastCommandName)}'</color> <color fg=\"darkyellow\">(Press Enter to reuse)</color></text>");
                 Console.Write(">");
 
@@ -107,17 +107,34 @@ namespace RoboNuGet
                     {
                         command.Execute(new
                         {
-                            _program.AutoIncrementPatchVersion,
-                            _program.Config.FullVersion,
-                            _program.Config.PackageDirectoryName,
                             PackageNuspec = packageNuspec,
+                            FullVersion = _program.Config.FullVersion,
+                            OutputDirectory = _program.Config.PackageDirectoryName,
                         });
                     }
+
+                    //ConsoleColorizer.Render($"<text>&gt;<color fg=\"darkgray\">---</color></text>");
+
+                    // ConsoleColorizer.Render(all
+                    //? $"<text>&gt;<color fg=\"green\">All packages successfuly created.</color> <color fg=\"darkyellow\">(Press Enter to continue)</color></text>"
+                    //: $"<text>&gt;<color fg=\"green\">Some packages could not be created.</color> <color fg=\"darkyellow\">(Press Enter to continue)</color></text>");
+                    // Console.ReadKey();
+
                     continue;
                 }
 
                 if (command is PushCommand)
                 {
+                    foreach (var packageNuspec in _program.PackageNuspecs)
+                    {
+                        command.Execute(new
+                        {
+                            NuGetConfigFileName = _program.Config.NuGetConfigName,
+                            PackageId = packageNuspec.Id,
+                            OutputDirectory = _program.Config.PackageDirectoryName,
+                            FullVersion = _program.Config.FullVersion,
+                        });
+                    }
                     continue;
                 }
             }

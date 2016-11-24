@@ -20,6 +20,6 @@
     },
     "NuGet": [
         "pack {FileName} -outputdirectory {OutputDirectory}",
-        "push {nupkgFileName} -configfile {ConfigFileName}"
+        "push {NupkgFileName} -configfile {ConfigFileName}"
     ]
 }
