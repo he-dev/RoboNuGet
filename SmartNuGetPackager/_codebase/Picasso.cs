@@ -7,9 +7,9 @@ using Reusable;
 
 namespace RoboNuGet
 {
-    internal static class ConsoleTemplates
+    internal static class Picasso
     {
-        public static void RenderError(string message)
+        public static void WriteError(string message)
         {
             ConsoleColorizer.Render($"<p>&gt;<span fg=\"red\">ERROR:</span> {message} <span fg=\"darkyellow\">(Press Enter to exit)</span></p>");
             Console.ReadKey();

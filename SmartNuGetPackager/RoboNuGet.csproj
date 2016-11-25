@@ -85,23 +85,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\BuildCommand.cs" />
-    <Compile Include="Commands\NuGetCommand.cs" />
-    <Compile Include="Commands\PackCommand.cs" />
-    <Compile Include="Commands\ExitCommand.cs" />
-    <Compile Include="Commands\VersionCommand.cs" />
-    <Compile Include="Commands\PatchCommand.cs" />
-    <Compile Include="ConsoleTemplates.cs" />
-    <Compile Include="Data\Config.cs" />
-    <Compile Include="Data\CsProj.cs" />
-    <Compile Include="Data\MsBuild.cs" />
-    <Compile Include="Data\PackageNuspec.cs" />
-    <Compile Include="Data\PackagesConfig.cs" />
-    <Compile Include="Commands\UpdateNuspecCommand.cs" />
-    <Compile Include="Commands\PushCommand.cs" />
-    <Compile Include="Commands\StartProcessCommand.cs" />
-    <Compile Include="Menu.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="_codebase\Commands\BuildCommand.cs" />
+    <Compile Include="_codebase\Commands\NuGetCommand.cs" />
+    <Compile Include="_codebase\Commands\PackCommand.cs" />
+    <Compile Include="_codebase\Commands\ExitCommand.cs" />
+    <Compile Include="_codebase\Commands\ListCommand.cs" />
+    <Compile Include="_codebase\Commands\VersionCommand.cs" />
+    <Compile Include="_codebase\Commands\PatchCommand.cs" />
+    <Compile Include="_codebase\Data\PackageNuspecDependency.cs" />
+    <Compile Include="_codebase\Picasso.cs" />
+    <Compile Include="_codebase\Data\Config.cs" />
+    <Compile Include="_codebase\Data\CsProj.cs" />
+    <Compile Include="_codebase\Data\MsBuild.cs" />
+    <Compile Include="_codebase\Data\PackageNuspec.cs" />
+    <Compile Include="_codebase\Data\PackagesConfig.cs" />
+    <Compile Include="_codebase\Commands\UpdateNuspecCommand.cs" />
+    <Compile Include="_codebase\Commands\PushCommand.cs" />
+    <Compile Include="_codebase\Commands\StartProcessCommand.cs" />
+    <Compile Include="_codebase\Menu.cs" />
+    <Compile Include="_codebase\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

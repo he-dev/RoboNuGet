@@ -14,12 +14,11 @@ namespace RoboNuGet.Commands
             return true;
         }
 
-        public void Execute(object parameter)
+        public void Execute(dynamic parameter)
         {
-            var config = (Config)parameter;
+            var config = (Config)parameter.Config;
             config.IncrementPatchVersion();
             config.Save();
         }
-
     }
 }

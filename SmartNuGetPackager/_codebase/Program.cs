@@ -52,7 +52,7 @@ namespace RoboNuGet
             }
         }
 
-        // --- Commands
+        // --- APIs
 
         internal void Build(string[] args)
         {
@@ -65,6 +65,10 @@ namespace RoboNuGet
 
         internal void Patch(string[] args)
         {
+            new PatchCommand().Execute(new
+            {
+                Config = Config
+            });
         }
 
         internal void Pack(string[] args)
@@ -89,7 +93,7 @@ namespace RoboNuGet
             catch (Exception ex)
             {
                 ConsoleColorizer.Render($"<p>&gt;<span fg=\"green\">Some packages could not be created.</span> <span fg=\"darkyellow\">(Press Enter to continue)</span></p>");
-                ConsoleTemplates.RenderError(ex.Message);
+                Picasso.WriteError(ex.Message);
             }
         }
 
@@ -114,6 +118,14 @@ namespace RoboNuGet
             {
                 Config = Config,
                 Version = args[0]
+            });
+        }
+
+        internal void List(string[] args)
+        {
+            new ListCommand().Execute(new
+            {
+                PackageNuspecs
             });
         }
     }

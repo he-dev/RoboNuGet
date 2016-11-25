@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -13,7 +14,6 @@ namespace RoboNuGet.Data
         public PackageNuspec(string fileName)
         {
             _packageNuspec = XDocument.Load(FileName = fileName);
-            RemoveDependencies();
         }
 
         public static PackageNuspec From(string dirName)
@@ -47,6 +47,20 @@ namespace RoboNuGet.Data
             }
         }
 
+        public IEnumerable<PackageNuspecDependency> Dependencies
+        {
+            get
+            {
+                var xDependencies = ((IEnumerable)_packageNuspec.XPathEvaluate(@"package/metadata/dependencies")).Cast<XElement>().SingleOrDefault();
+                return xDependencies?.Elements().Select(x => new PackageNuspecDependency
+                (
+                    id: x.Attribute("id").Value,
+                    version: x.Attribute("version").Value)
+                ) 
+                ?? Enumerable.Empty<PackageNuspecDependency>();
+            }
+        }
+
         public void AddDependency(string id, string version)
         {
             var xDependencies = ((IEnumerable)_packageNuspec.XPathEvaluate(@"package/metadata/dependencies")).Cast<XElement>().SingleOrDefault();
@@ -58,7 +72,7 @@ namespace RoboNuGet.Data
             xDependencies.Add(new XElement("dependency", new XAttribute("id", id), new XAttribute("version", version)));
         }
 
-        private void RemoveDependencies()
+        public void ClearDependencies()
         {
             var xDependencies = ((IEnumerable)_packageNuspec.XPathEvaluate(@"package/metadata/dependencies")).Cast<XElement>().SingleOrDefault();
             xDependencies?.Remove();

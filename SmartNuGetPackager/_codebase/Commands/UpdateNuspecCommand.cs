@@ -31,6 +31,7 @@ namespace RoboNuGet.Commands
             var packagesConfig = PackagesConfig.From(directory);
             var csProj = CsProj.From(directory);
 
+            packageNuspec.ClearDependencies();
             foreach (var package in packagesConfig.Packages)
             {
                 packageNuspec.AddDependency(package.Id, package.Version);

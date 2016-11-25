@@ -2,11 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows.Input;
 using Reusable;
-using Reusable.Commands;
-using Reusable.Fuse;
-using RoboNuGet.Commands;
 
 namespace RoboNuGet
 {
@@ -28,7 +24,8 @@ namespace RoboNuGet
                 ["patch"] = _program.Patch,
                 ["pack"] = _program.Pack,
                 ["push"] = _program.Push,
-                ["version"] = _program.Version
+                ["version"] = _program.Version,
+                ["List"] = _program.List,
             };
         }
 
@@ -49,7 +46,7 @@ namespace RoboNuGet
 
                 if (string.IsNullOrEmpty(commandLine))
                 {
-                    ConsoleTemplates.RenderError("Command must not be empty");
+                    Picasso.WriteError("Command must not be empty");
                     continue;
                 }
 
@@ -60,7 +57,7 @@ namespace RoboNuGet
                 }
                 catch (Exception ex)
                 {
-                    ConsoleTemplates.RenderError(ex.Message);
+                    Picasso.WriteError(ex.Message);
                 }
 
             } while (true);
@@ -73,7 +70,7 @@ namespace RoboNuGet
 
             if (string.IsNullOrEmpty(_program.Config.SolutionFileNameActual))
             {
-                ConsoleTemplates.RenderError("Solution file not found.");
+                Picasso.WriteError("Solution file not found.");
                 return;
             }
 
