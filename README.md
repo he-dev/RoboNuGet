@@ -1,6 +1,6 @@
 # RoboNuGet v2.0.0
 
-RoboNuGet is a tool that automates multiple NuGet package cretion.
+RoboNuGet is a tool that automates multiple NuGet package creation.
 
 ## How does it work?
 
