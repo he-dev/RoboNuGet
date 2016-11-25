@@ -24,8 +24,8 @@ namespace RoboNuGet.Commands
 
         public void Execute(dynamic parameter)
         {
-            dynamic packageNuspec = parameter.PackageNuspec;
-            dynamic packageVersion = parameter.PackageVersion;
+            var packageNuspec = (PackageNuspec)parameter.PackageNuspec;
+            var packageVersion = (string)parameter.PackageVersion;
 
             var directory = Path.GetDirectoryName(packageNuspec.FileName);
             var packagesConfig = PackagesConfig.From(directory);

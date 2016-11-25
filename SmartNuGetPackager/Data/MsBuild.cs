@@ -8,33 +8,14 @@ namespace RoboNuGet.Data
 {
     internal class MsBuild
     {
-        private readonly Lazy<string> _lazyProjectFile = new Lazy<string>(FindSolutionFileName);
-
         public string Target { get; set; }
 
         public bool NoLogo { get; set; }
 
         public Dictionary<string, string> Properties { get; set; }
 
-        public string ProjectFile { get; set; }
-
         [JsonIgnore]
-        public string ActualProjectFile => string.IsNullOrEmpty(ProjectFile) ? _lazyProjectFile.Value : ProjectFile;
-
-        private static string FindSolutionFileName()
-        {
-            var directory = Directory.GetParent(Directory.GetCurrentDirectory());
-            do
-            {
-                var files = Directory.GetFiles(directory.FullName, "*.sln");
-                if (files.Any())
-                {
-                    return files.First();
-                }
-                directory = Directory.GetParent(directory.FullName);
-            } while (directory.Parent != null);
-            return null;
-        }
+        public string ProjectFile { get; set; }
 
         public override string ToString()
         {
@@ -52,7 +33,7 @@ namespace RoboNuGet.Data
 
             arguments.AddRange(Properties.Select(property => $"/property:{property.Key}=\"{property.Value}\""));
 
-            arguments.Add(ActualProjectFile);
+            arguments.Add(ProjectFile);
 
             return string.Join(" ", arguments);
         }

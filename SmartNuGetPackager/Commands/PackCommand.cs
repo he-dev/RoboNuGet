@@ -14,17 +14,11 @@ namespace RoboNuGet.Commands
 
         public override string Name => "pack";
 
-        //public PackageNuspec PackageNuspec { get; set; }
-
-        //public string Version { get; set; }
-
-        //public string Outputdirectory { get; set; }
-
         public override void Execute(dynamic parameter)
         {
             var arguments = CommandLine.Format(new
             {
-                FileName = parameter.FileName,
+                FileName = parameter.PackageNuspec.FileName,
                 OutputDirectory = parameter.OutputDirectory,
             });
 

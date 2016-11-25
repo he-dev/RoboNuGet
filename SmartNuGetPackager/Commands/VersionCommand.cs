@@ -4,10 +4,8 @@ using System.Windows.Input;
 
 namespace RoboNuGet.Commands
 {
-    internal class VersionCommand : ICommand, IIdentifiable
+    internal class VersionCommand : ICommand
     {
-        public string Name => "patch";
-
         public event EventHandler CanExecuteChanged;
 
         public bool CanExecute(object parameter)
@@ -15,13 +13,13 @@ namespace RoboNuGet.Commands
             return true;
         }
 
-        public void Execute(object parameter)
+        public void Execute(dynamic parameter)
         {
             // todo: needs validation with semantic version
-            //Config.PackageVersion = commandArg;
-            //Config.Save();
+            
+            parameter.Config.PackageVersion = parameter.Version;
+            parameter.Config.Save();
 
         }
-
     }
 }

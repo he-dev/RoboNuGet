@@ -3,18 +3,18 @@ using RoboNuGet.Data;
 
 namespace RoboNuGet.Commands
 {
-    internal class BuildCommand : StartProcessCommand, IIdentifiable
+    internal class BuildCommand : StartProcessCommand
     {
-        public string Name => "build";
+        //public MsBuild MsBuild { get; set; }
 
-        public MsBuild MsBuild { get; set; }
-
-        public override void Execute(object parameter)
+        public override void Execute(dynamic parameter)
         {
+            parameter.MsBuild.ProjectFile = parameter.SolutionFile;
+
             base.Execute(new
             {
                 FileName = "msbuild",
-                Arguments = MsBuild.ToString()
+                Arguments = parameter.MsBuild.ToString()
             });
         }
 

@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 
@@ -8,19 +11,17 @@ namespace RoboNuGet.Data
     {
         private const string DefaultFileName = "RoboNuGet.json";
 
-        [JsonIgnore]
-        public string FileName { get; private set; }
+        private readonly Lazy<string> _lazySolutionFileName = new Lazy<string>(FindSolutionFileName);
 
         public string PackageDirectoryName { get; set; }
 
         public string NuGetConfigName { get; set; }
 
+        public string SolutionFileName { get; set; }
+
         public string PackageVersion { get; set; }
 
         public string[] TargetFrameworkVersions { get; set; }
-
-        [JsonIgnore]
-        public string FullVersion => IsPrerelease ? $"{PackageVersion}-pre" : PackageVersion;
 
         public bool IsPrerelease { get; set; }
 
@@ -28,14 +29,29 @@ namespace RoboNuGet.Data
 
         public string[] NuGet { get; set; }
 
+        // Computed properties
+
+        [JsonIgnore]
+        public string FullVersion => IsPrerelease ? $"{PackageVersion}-pre" : PackageVersion;
+
+        [JsonIgnore]
+        public string SolutionFileNameActual => string.IsNullOrEmpty(SolutionFileName) ? _lazySolutionFileName.Value : SolutionFileName;
+
+        [JsonIgnore]
+        public static string FileName
+        {
+            get
+            {
+                var currentDirectory = Directory.GetCurrentDirectory();
+                var fileName = Path.Combine(currentDirectory, DefaultFileName);
+                return fileName;
+            }
+        }
+
         public static Config Load()
         {
-            var currentDirectory = Directory.GetCurrentDirectory();
-            var fileName = Path.Combine(currentDirectory, DefaultFileName);
-
-            var json = File.ReadAllText(fileName);
+            var json = File.ReadAllText(FileName);
             var config = JsonConvert.DeserializeObject<Config>(json);
-            config.FileName = fileName;
             return config;
         }
 
@@ -51,6 +67,21 @@ namespace RoboNuGet.Data
                 $"{m.Groups["major"].Value}." +
                 $"{m.Groups["minor"]}." +
                 $"{int.Parse(m.Groups["patch"].Value) + 1}");
+        }
+
+        private static string FindSolutionFileName()
+        {
+            var directory = Directory.GetParent(Directory.GetCurrentDirectory());
+            do
+            {
+                var files = Directory.GetFiles(directory.FullName, "*.sln");
+                if (files.Any())
+                {
+                    return files.First();
+                }
+                directory = Directory.GetParent(directory.FullName);
+            } while (directory.Parent != null);
+            return null;
         }
     }
 }

@@ -4,10 +4,8 @@ using System.Windows.Input;
 
 namespace RoboNuGet.Commands
 {
-    internal class ExitCommand : ICommand, IIdentifiable
+    internal class ExitCommand : ICommand
     {
-        public string Name => "patch";
-
         public event EventHandler CanExecuteChanged;
 
         public bool CanExecute(object parameter)

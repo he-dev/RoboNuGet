@@ -1,6 +1,7 @@
 {
     "PackageDirectoryName": "C:\\Home\\Projects\\NuGet\\packages",
     "NuGetConfigName": "C:\\Home\\Projects\\NuGet\\NuGet.config",
+    "SolutionFileName": null,
     "PackageVersion": "1.0.22",
     "IsPrerelease": false,
     "TargetFrameworkVersions": [

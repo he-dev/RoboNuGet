@@ -48,6 +48,16 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug.Reusable|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\Reusable\_nuget\RoboNuGet\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -81,12 +91,12 @@
     <Compile Include="Commands\ExitCommand.cs" />
     <Compile Include="Commands\VersionCommand.cs" />
     <Compile Include="Commands\PatchCommand.cs" />
+    <Compile Include="ConsoleTemplates.cs" />
     <Compile Include="Data\Config.cs" />
     <Compile Include="Data\CsProj.cs" />
     <Compile Include="Data\MsBuild.cs" />
     <Compile Include="Data\PackageNuspec.cs" />
     <Compile Include="Data\PackagesConfig.cs" />
-    <Compile Include="IIdentifiable.cs" />
     <Compile Include="Commands\UpdateNuspecCommand.cs" />
     <Compile Include="Commands\PushCommand.cs" />
     <Compile Include="Commands\StartProcessCommand.cs" />
@@ -97,9 +107,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="RoboNuGet.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="RoboNuGet.json" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">

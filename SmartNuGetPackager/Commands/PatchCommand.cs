@@ -5,10 +5,8 @@ using RoboNuGet.Data;
 
 namespace RoboNuGet.Commands
 {
-    internal class PatchCommand : ICommand, IIdentifiable
+    internal class PatchCommand : ICommand
     {
-        public string Name => "patch";
-
         public event EventHandler CanExecuteChanged;
 
         public bool CanExecute(object parameter)

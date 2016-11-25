@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Input;
 using Reusable;
 using Reusable.Commands;
+using Reusable.Fuse;
 using RoboNuGet.Commands;
 
 namespace RoboNuGet
@@ -13,23 +14,21 @@ namespace RoboNuGet
     {
         private readonly Program _program;
 
-        private string _lastCommandName;
+        private string _lastCommandLine;
 
-        private readonly ICommand[] _commands;
+        private readonly Dictionary<string, Action<string[]>> _commands;
 
         public Menu(Program program)
         {
             _program = program;
 
-            _commands = new []
+            _commands = new Dictionary<string, Action<string[]>>(StringComparer.OrdinalIgnoreCase)
             {
-                    //.exit
-                    //.autover
-                    //.version
-                new BuildCommand(),
-                new PatchCommand(),
-                new PackCommand(_program.Config.NuGet).Pre(new UpdateNuspecCommand()),
-                new PushCommand(_program.Config.NuGet),
+                ["build"] = _program.Build,
+                ["patch"] = _program.Patch,
+                ["pack"] = _program.Pack,
+                ["push"] = _program.Push,
+                ["version"] = _program.Version
             };
         }
 
@@ -39,104 +38,82 @@ namespace RoboNuGet
             {
                 Console.Clear();
 
-                ConsoleColorizer.Render($"<text>&gt;<color fg=\"darkgray\">RoboNuGet v2.0.0</color></text>");
-
-                if (string.IsNullOrEmpty(_program.Config.MsBuild.ActualProjectFile))
-                {
-                    ConsoleColorizer.Render("<text>&gt;<color fg=\"red\">ERROR:</color> Solution file not found.</text>");
-                    Console.ReadKey();
-                    break;
-                }
-
-                var solutionName = Path.GetFileNameWithoutExtension(_program.Config.MsBuild.ActualProjectFile);
-                var nuspecFileCount = _program.PackageNuspecs.Count();
-                ConsoleColorizer.Render($"<text>&gt;Solution '<color fg=\"yellow\">{solutionName}</color>' <color fg=\"magenta\">v{_program.Config.FullVersion}</color> ({nuspecFileCount} nuspec{(nuspecFileCount != 1 ? "s" : string.Empty)})</text>");
-                //ConsoleColorizer.Render($"<text>&gt;<color fg=\"darkgray\">.autover '{Program.AutoIncrementPatchVersion}'</color></text>");
-                ConsoleColorizer.Render($"<text>&gt;<color fg=\"darkgray\">Last command '{(string.IsNullOrEmpty(_lastCommandName) ? "N/A" : _lastCommandName)}'</color> <color fg=\"darkyellow\">(Press Enter to reuse)</color></text>");
-                Console.Write(">");
+                RenderHeader();
 
                 var commandLine = Console.ReadLine();
 
                 if (string.IsNullOrEmpty(commandLine))
                 {
-                    commandLine = _lastCommandName;
+                    commandLine = _lastCommandLine;
                 }
 
                 if (string.IsNullOrEmpty(commandLine))
                 {
-                    ConsoleColorizer.Render($"<text>&gt;<color fg=\"red\">Command must not be empty.</color> <color fg=\"darkyellow\">(Press Enter to continue)</color></text>");
-                    Console.Write(">");
-                    Console.ReadKey();
+                    ConsoleTemplates.RenderError("Command must not be empty");
                     continue;
                 }
 
-                var commandNames = commandLine.Split(' ');
-
-                var commands = _commands
-                    .Cast<IIdentifiable>()
-                    .Where(x => commandNames.Contains(x.Name, StringComparer.OrdinalIgnoreCase))
-                    .ToList();
-
-                if (!commands.Any())
+                try
                 {
-                    ConsoleColorizer.Render($"<text>&gt;<color fg=\"red\">Invalid command name.</color> <color fg=\"darkyellow\">(Press Enter to continue)</color></text>");
-                    Console.Write(">");
-                    Console.ReadKey();
-                    continue;
+                    InvokeCommandLine(commandLine);
+                    _lastCommandLine = commandLine;
                 }
-
-                ExecuteCommands(commands.Cast<ICommand>());
+                catch (Exception ex)
+                {
+                    ConsoleTemplates.RenderError(ex.Message);
+                }
 
             } while (true);
             // ReSharper disable once FunctionNeverReturns
         }
 
-        private void ExecuteCommands(IEnumerable<ICommand> commands)
+        private void RenderHeader()
         {
-            foreach (var command in commands)
+            ConsoleColorizer.Render($"<p>&gt;<span fg=\"darkgray\">RoboNuGet v2.0.0</span></p>");
+
+            if (string.IsNullOrEmpty(_program.Config.SolutionFileNameActual))
             {
-                if (command is BuildCommand)
+                ConsoleTemplates.RenderError("Solution file not found.");
+                return;
+            }
+
+            var solutionName = Path.GetFileNameWithoutExtension(_program.Config.SolutionFileNameActual);
+            var nuspecFileCount = _program.PackageNuspecs.Count();
+            ConsoleColorizer.Render($"<p>&gt;Solution '<span fg=\"yellow\">{solutionName}</span>' <span fg=\"magenta\">v{_program.Config.FullVersion}</span> ({nuspecFileCount} nuspec{(nuspecFileCount != 1 ? "s" : string.Empty)})</p>");
+            ConsoleColorizer.Render($"<p>&gt;<span fg=\"darkgray\">Directory '{Path.GetDirectoryName(_program.Config.SolutionFileNameActual)}'</span></p>");
+            ConsoleColorizer.Render($"<p>&gt;<span fg=\"darkgray\">Packages '{_program.Config.PackageDirectoryName}'</span></p>");
+            ConsoleColorizer.Render($"<p>&gt;<span fg=\"darkgray\">Last command '{(string.IsNullOrEmpty(_lastCommandLine) ? "N/A" : _lastCommandLine)}'</span> <span fg=\"darkyellow\">(Press Enter to reuse)</span></p>");
+            Console.Write(">");
+        }
+
+        private void InvokeCommandLine(string commandLine)
+        {
+            var actions = new List<Action>();
+
+            var expressions = commandLine.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var expression in expressions)
+            {
+                var subExpressions = expression.Split(':');
+                var commandName = subExpressions.ElementAt(0);
+                var arguments = subExpressions.ElementAtOrDefault(1);
+
+                var command = (Action<string[]>)null;
+                if (!_commands.TryGetValue(commandName, out command))
                 {
-                    command.Execute(_program.Config.MsBuild);
-                    continue;
+                    throw new Exception($"\"{expression}\" is not a valid command.");
                 }
 
-                if (command is PackCommand)
-                {
-                    foreach (var packageNuspec in _program.PackageNuspecs)
-                    {
-                        command.Execute(new
-                        {
-                            PackageNuspec = packageNuspec,
-                            FullVersion = _program.Config.FullVersion,
-                            OutputDirectory = _program.Config.PackageDirectoryName,
-                        });
-                    }
+                actions.Add(() => { command(new[] { arguments }); });
+            }
 
-                    //ConsoleColorizer.Render($"<text>&gt;<color fg=\"darkgray\">---</color></text>");
+            if (!actions.Any())
+            {
+                throw new Exception("Invalid command name");
+            }
 
-                    // ConsoleColorizer.Render(all
-                    //? $"<text>&gt;<color fg=\"green\">All packages successfuly created.</color> <color fg=\"darkyellow\">(Press Enter to continue)</color></text>"
-                    //: $"<text>&gt;<color fg=\"green\">Some packages could not be created.</color> <color fg=\"darkyellow\">(Press Enter to continue)</color></text>");
-                    // Console.ReadKey();
-
-                    continue;
-                }
-
-                if (command is PushCommand)
-                {
-                    foreach (var packageNuspec in _program.PackageNuspecs)
-                    {
-                        command.Execute(new
-                        {
-                            NuGetConfigFileName = _program.Config.NuGetConfigName,
-                            PackageId = packageNuspec.Id,
-                            OutputDirectory = _program.Config.PackageDirectoryName,
-                            FullVersion = _program.Config.FullVersion,
-                        });
-                    }
-                    continue;
-                }
+            foreach (var action in actions)
+            {
+                action();
             }
         }
     }

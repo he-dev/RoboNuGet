@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace RoboNuGet.Commands
 {
-    internal abstract class NuGetCommand : StartProcessCommand, IIdentifiable
+    internal abstract class NuGetCommand : StartProcessCommand
     {
         protected NuGetCommand(IEnumerable<string> commandsLines)
         {

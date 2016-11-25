@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Reusable;
+using Reusable.Commands;
 using RoboNuGet.Commands;
 using RoboNuGet.Data;
 
@@ -26,7 +27,7 @@ namespace RoboNuGet
         private static void Main(string[] args)
         {
             var config = Config.Load();
-            var packageNuspecs = GetPackageNuspecs(Path.GetDirectoryName(config.MsBuild.ActualProjectFile));
+            var packageNuspecs = GetPackageNuspecs(Path.GetDirectoryName(config.SolutionFileNameActual));
 
             new Program(config, packageNuspecs).Start();
         }
@@ -35,7 +36,7 @@ namespace RoboNuGet
         {
             var menu = new Menu(this);
             menu.Start();
-        }       
+        }
 
         private static IEnumerable<PackageNuspec> GetPackageNuspecs(string workingDirectory)
         {
@@ -50,7 +51,74 @@ namespace RoboNuGet
                 yield return packageNuspec;
             }
         }
+
+        // --- Commands
+
+        internal void Build(string[] args)
+        {
+            new BuildCommand().Execute(new
+            {
+                Config.MsBuild,
+                SolutionFile = Config.SolutionFileNameActual
+            });
+        }
+
+        internal void Patch(string[] args)
+        {
+        }
+
+        internal void Pack(string[] args)
+        {
+            var cmd = new PackCommand(Config.NuGet).Pre(new UpdateNuspecCommand());
+
+            try
+            {
+                foreach (var packageNuspec in PackageNuspecs)
+                {
+                    cmd.Execute(new
+                    {
+                        PackageNuspec = packageNuspec,
+                        PackageVersion = Config.FullVersion,
+                        OutputDirectory = Config.PackageDirectoryName,
+                    });
+                }
+
+                ConsoleColorizer.Render($"<p>&gt;<span fg=\"green\">All packages successfuly created.</span> <span fg=\"darkyellow\">(Press Enter to continue)</span></p>");
+                Console.ReadKey();
+            }
+            catch (Exception ex)
+            {
+                ConsoleColorizer.Render($"<p>&gt;<span fg=\"green\">Some packages could not be created.</span> <span fg=\"darkyellow\">(Press Enter to continue)</span></p>");
+                ConsoleTemplates.RenderError(ex.Message);
+            }
+        }
+
+        internal void Push(string[] args)
+        {
+            var cmd = new PushCommand(Config.NuGet);
+            foreach (var packageNuspec in PackageNuspecs)
+            {
+                cmd.Execute(new
+                {
+                    NuGetConfigFileName = Config.NuGetConfigName,
+                    PackageId = packageNuspec.Id,
+                    OutputDirectory = Config.PackageDirectoryName,
+                    FullVersion = Config.FullVersion,
+                });
+            }
+        }
+
+        internal void Version(string[] args)
+        {
+            new VersionCommand().Execute(new
+            {
+                Config = Config,
+                Version = args[0]
+            });
+        }
     }
+
+
 
     internal class EmbededAssemblyLoader
     {
