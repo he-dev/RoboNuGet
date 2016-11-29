@@ -24,12 +24,12 @@ namespace RoboNuGet.Commands
 
         public override void Execute(dynamic parameter)
         {
-            var nupkgFileName = $"{Path.Combine(parameter.PackagesDirectoryName, $"{parameter.PackageId}.{parameter.Version}.nupkg")}";
+            var nupkgFileName = $"{Path.Combine(parameter.OutputDirectory, $"{parameter.PackageId}.{parameter.FullVersion}.nupkg")}";
 
             var arguments = CommandLine.Format(new
             {
                 NupkgFileName = nupkgFileName,
-                ConfigFileName = parameter.PackageDirectoryName,
+                ConfigFileName = parameter.NuGetConfigFileName,
             });
 
             base.Execute(arguments);            
