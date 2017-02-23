@@ -77,7 +77,7 @@ namespace RoboNuGet
 
             try
             {
-                foreach (var packageNuspec in PackageNuspecs)
+                Parallel.ForEach(PackageNuspecs, packageNuspec =>
                 {
                     cmd.Execute(new
                     {
@@ -85,7 +85,7 @@ namespace RoboNuGet
                         PackageVersion = Config.FullVersion,
                         OutputDirectory = Config.PackageDirectoryName,
                     });
-                }
+                });
 
                 ConsoleColorizer.Render($"<p>&gt;<span fg=\"green\">All packages successfuly created.</span> <span fg=\"darkyellow\">(Press Enter to continue)</span></p>");
                 Console.ReadKey();
