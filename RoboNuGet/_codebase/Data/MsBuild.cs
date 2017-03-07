@@ -14,6 +14,8 @@ namespace RoboNuGet.Data
 
         public Dictionary<string, string> Properties { get; set; }
 
+        public Dictionary<string, string> Switches { get; set; } = new Dictionary<string, string>();
+
         [JsonIgnore]
         public string ProjectFile { get; set; }
 
@@ -31,6 +33,7 @@ namespace RoboNuGet.Data
                 arguments.Add("/nologo");
             }
 
+            arguments.AddRange(Switches.Select(x => $"/{x.Key}{(string.IsNullOrEmpty(x.Value) ? string.Empty : $":{x.Value}")}"));
             arguments.AddRange(Properties.Select(property => $"/property:{property.Key}=\"{property.Value}\""));
 
             arguments.Add(ProjectFile);
