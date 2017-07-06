@@ -87,12 +87,12 @@ namespace RoboNuGet
                     });
                 });
 
-                ConsoleColorizer.Render($"<p>&gt;<span fg=\"green\">All packages successfuly created.</span> <span fg=\"darkyellow\">(Press Enter to continue)</span></p>");
+                ConsoleColorizer.RenderLine($"<p>&gt;<span color='green'>All packages successfuly created.</span> <span color='darkyellow'>(Press Enter to continue)</span></p>");
                 Console.ReadKey();
             }
             catch (Exception ex)
             {
-                ConsoleColorizer.Render($"<p>&gt;<span fg=\"green\">Some packages could not be created.</span> <span fg=\"darkyellow\">(Press Enter to continue)</span></p>");
+                ConsoleColorizer.RenderLine($"<p>&gt;<span color='green'>Some packages could not be created.</span> <span color='darkyellow'>(Press Enter to continue)</span></p>");
                 Picasso.WriteError(ex.Message);
             }
         }

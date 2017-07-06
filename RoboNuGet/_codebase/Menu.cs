@@ -66,7 +66,7 @@ namespace RoboNuGet
 
         private void RenderHeader()
         {
-            ConsoleColorizer.Render($"<p>&gt;<span fg=\"darkgray\">RoboNuGet v2.0.0</span></p>");
+            ConsoleColorizer.RenderLine($"<p>&gt;<span color='darkgray'>RoboNuGet v3.0.0</span></p>");
 
             if (string.IsNullOrEmpty(_program.Config.SolutionFileNameActual))
             {
@@ -76,10 +76,10 @@ namespace RoboNuGet
 
             var solutionName = Path.GetFileNameWithoutExtension(_program.Config.SolutionFileNameActual);
             var nuspecFileCount = _program.PackageNuspecs.Count();
-            ConsoleColorizer.Render($"<p>&gt;Solution '<span fg=\"yellow\">{solutionName}</span>' <span fg=\"magenta\">v{_program.Config.FullVersion}</span> ({nuspecFileCount} nuspec{(nuspecFileCount != 1 ? "s" : string.Empty)})</p>");
-            ConsoleColorizer.Render($"<p>&gt;<span fg=\"darkgray\">Directory '{Path.GetDirectoryName(_program.Config.SolutionFileNameActual)}'</span></p>");
-            ConsoleColorizer.Render($"<p>&gt;<span fg=\"darkgray\">Packages '{_program.Config.PackageDirectoryName}'</span></p>");
-            ConsoleColorizer.Render($"<p>&gt;<span fg=\"darkgray\">Last command '{(string.IsNullOrEmpty(_lastCommandLine) ? "N/A" : _lastCommandLine)}'</span> <span fg=\"darkyellow\">(Press Enter to reuse)</span></p>");
+            ConsoleColorizer.RenderLine($"<p>&gt;Solution '<span color='yellow'>{solutionName}</span>' <span color='magenta'>v{_program.Config.FullVersion}</span> ({nuspecFileCount} nuspec{(nuspecFileCount != 1 ? "s" : string.Empty)})</p>");
+            ConsoleColorizer.RenderLine($"<p>&gt;<span color='darkgray'>Directory '{Path.GetDirectoryName(_program.Config.SolutionFileNameActual)}'</span></p>");
+            ConsoleColorizer.RenderLine($"<p>&gt;<span color='darkgray'>Packages '{_program.Config.PackageDirectoryName}'</span></p>");
+            ConsoleColorizer.RenderLine($"<p>&gt;<span color='darkgray'>Last command '{(string.IsNullOrEmpty(_lastCommandLine) ? "N/A" : _lastCommandLine)}'</span> <span color='darkyellow'>(Press Enter to reuse)</span></p>");
             Console.Write(">");
         }
 

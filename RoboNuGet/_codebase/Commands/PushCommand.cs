@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Reusable;
+using Reusable.Extensions;
 
 namespace RoboNuGet.Commands
 {
