@@ -1,6 +1,4 @@
 {
-    "PackageDirectoryName": "C:\\Home\\Projects\\NuGet\\packages",
-    "NuGetConfigName": "C:\\Home\\Projects\\NuGet\\NuGet.config",
     "SolutionFileName": null,
     "PackageVersion": "1.0.22",
     "IsPrerelease": false,
@@ -19,8 +17,12 @@
         },
         "ProjectFile": null
     },
-    "NuGet": [
-        "pack {FileName} -outputdirectory {OutputDirectory}",
-        "push {NupkgFileName} -configfile {ConfigFileName}"
-    ]
+    "NuGet": {
+        "OutputDirectoryName": "C:\\Home\\Projects\\NuGet\\packages",
+        "NuGetConfigName": "C:\\Home\\Projects\\NuGet\\NuGet.config",
+        "Commands": {
+            "pack": "pack {NuspecFileName} -outputdirectory {OutputDirectoryName}",
+            "push": "push {NupkgFileName} -configfile {NuGetConfigName}"
+        }
+    }
 }

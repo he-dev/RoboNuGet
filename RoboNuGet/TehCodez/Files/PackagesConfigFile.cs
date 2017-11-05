@@ -5,11 +5,11 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
-namespace RoboNuGet.Data
+namespace RoboNuGet.Files
 {
-    internal class PackagesConfig
+    internal class PackagesConfigFile
     {
-        private PackagesConfig(string fileName)
+        private PackagesConfigFile(string fileName)
         {
             if (!File.Exists(fileName))
             {
@@ -31,10 +31,10 @@ namespace RoboNuGet.Data
 
         public IEnumerable<PackageElement> Packages { get; }
 
-        public static PackagesConfig From(string dirName)
+        public static PackagesConfigFile From(string dirName)
         {
             var packagesConfigFileName = Path.Combine(dirName, "packages.config");
-            return new PackagesConfig(packagesConfigFileName);
+            return new PackagesConfigFile(packagesConfigFileName);
         }
 
         internal class PackageElement

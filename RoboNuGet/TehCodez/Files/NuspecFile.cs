@@ -4,22 +4,23 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using RoboNuGet.Data;
 
-namespace RoboNuGet.Data
+namespace RoboNuGet.Files
 {
-    internal class PackageNuspec
+    internal class NuspecFile
     {
         private readonly XDocument _packageNuspec;
 
-        public PackageNuspec(string fileName)
+        public NuspecFile(string fileName)
         {
             _packageNuspec = XDocument.Load(FileName = fileName);
         }
 
-        public static PackageNuspec From(string dirName)
+        public static NuspecFile From(string dirName)
         {
             var packageNuspecFileName = Directory.GetFiles(dirName, "*.nuspec").SingleOrDefault();
-            return string.IsNullOrEmpty(packageNuspecFileName) ? null : new PackageNuspec(packageNuspecFileName);
+            return string.IsNullOrEmpty(packageNuspecFileName) ? null : new NuspecFile(packageNuspecFileName);
         }
 
         public string FileName { get; }
