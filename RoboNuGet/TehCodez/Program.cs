@@ -19,18 +19,8 @@ using Version = RoboNuGet.Commands.Version;
 
 namespace RoboNuGet
 {
-    internal class Program
+    internal static class Program
     {
-        internal RoboNuGetFile RoboNuGetFile { get; }
-
-        internal IEnumerable<NuspecFile> PackageNuspecs { get; }
-
-        private Program(RoboNuGetFile roboNuGetFile, IEnumerable<NuspecFile> packageNuspecs)
-        {
-            RoboNuGetFile = roboNuGetFile;
-            PackageNuspecs = packageNuspecs;
-        }
-
         private static async Task Main(string[] args)
         {
             var configuration = RoboNuGetFile.Load();
@@ -50,6 +40,8 @@ namespace RoboNuGet
             var registrations =
                 CommandRegistrationContainer
                     .Empty
+                    .Register<UpdateNuspec>()
+                    .Register<Clear>()
                     .Register<Patch>()
                     .Register<Build>()
                     .Register<Pack>()
@@ -80,6 +72,8 @@ namespace RoboNuGet
 
                 // main loop
 
+                await executor.ExecuteAsync("cls", CancellationToken.None);
+
                 do
                 {
                     var commandLine = Console.ReadLine();
@@ -94,90 +88,7 @@ namespace RoboNuGet
                 } while (true);
             }
             // ReSharper disable once FunctionNeverReturns
-        }
-
-        private void Start()
-        {
-            var menu = new Menu(this);
-            menu.Start();
-        }
-
-        // --- APIs
-
-        internal void Build(string[] args)
-        {
-            new Build().Execute(new
-            {
-                RoboNuGetFile.MsBuild,
-                SolutionFile = RoboNuGetFile.SolutionFileNameActual
-            });
-        }
-
-        internal void Patch(string[] args)
-        {
-            new Patch().Execute(new
-            {
-                Config = RoboNuGetFile
-            });
-        }
-
-        internal void Pack(string[] args)
-        {
-            var cmd = new Pack(RoboNuGetFile.NuGetCommands).Pre(new UpdateNuspec());
-
-            try
-            {
-                Parallel.ForEach(PackageNuspecs, packageNuspec =>
-                {
-                    cmd.Execute(new
-                    {
-                        PackageNuspec = packageNuspec,
-                        PackageVersion = RoboNuGetFile.FullVersion,
-                        OutputDirectory = RoboNuGetFile.PackageDirectoryName,
-                    });
-                });
-
-                ConsoleColorizer.RenderLine($"<p>&gt;<span color='green'>All packages successfuly created.</span> <span color='darkyellow'>(Press Enter to continue)</span></p>");
-                Console.ReadKey();
-            }
-            catch (Exception ex)
-            {
-                ConsoleColorizer.RenderLine($"<p>&gt;<span color='green'>Some packages could not be created.</span> <span color='darkyellow'>(Press Enter to continue)</span></p>");
-                Picasso.WriteError(ex.Message);
-            }
-        }
-
-        internal void Push(string[] args)
-        {
-            var cmd = new Push(RoboNuGetFile.NuGetCommands);
-            foreach (var packageNuspec in PackageNuspecs)
-            {
-                cmd.Execute(new
-                {
-                    NuGetConfigFileName = RoboNuGetFile.NuGetConfigName,
-                    PackageId = packageNuspec.Id,
-                    OutputDirectory = RoboNuGetFile.PackageDirectoryName,
-                    FullVersion = RoboNuGetFile.FullVersion,
-                });
-            }
-        }
-
-        internal void Version(string[] args)
-        {
-            new Version().Execute(new
-            {
-                Config = RoboNuGetFile,
-                Version = args[0]
-            });
-        }
-
-        internal void List(string[] args)
-        {
-            new List().Execute(new
-            {
-                PackageNuspecs
-            });
-        }
+        }        
     }
 
 

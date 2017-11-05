@@ -11,7 +11,7 @@ namespace RoboNuGet
     {
         public static void WriteError(string message)
         {
-            ConsoleColorizer.Render($"<p>&gt;<span fg=\"red\">ERROR:</span> {message} <span fg=\"darkyellow\">(Press Enter to exit)</span></p>");
+            //ConsoleColorizer.Render($"<p>&gt;<span fg=\"red\">ERROR:</span> {message} <span fg=\"darkyellow\">(Press Enter to exit)</span></p>");
             Console.ReadKey();
         }
     }

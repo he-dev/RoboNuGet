@@ -4,12 +4,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Reusable.Commander;
+using Reusable.CommandLine;
 using Reusable.OmniLog;
 using RoboNuGet.Data;
 using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
+    [Alias("update", "u")]
     internal class UpdateNuspec : ConsoleCommand
     {
         public UpdateNuspec(ILoggerFactory loggerFactory) : base(loggerFactory)

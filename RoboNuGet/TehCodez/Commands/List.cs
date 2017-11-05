@@ -36,8 +36,6 @@ namespace RoboNuGet.Commands
                 }
             }
 
-            Console.ReadKey();
-
             return Task.CompletedTask;
         }
     }

@@ -8,18 +8,26 @@ using Reusable.Extensions;
 using Reusable.Flawless;
 using Reusable.OmniLog;
 using RoboNuGet.Data;
+using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
     internal class Push : NuGet
     {
+        private readonly IEnumerable<NuspecFile> _nuspecFiles;
+
         private static readonly Validator<Push> ParameterValidator =
             Validator<Push>.Empty
                 .IsNotValidWhen(cmd => cmd.PackageId.IsNullOrEmpty())
                 .IsNotValidWhen(cmd => cmd.Version.IsNullOrEmpty());
 
-        public Push(ILoggerFactory loggerFactory, RoboNuGetFile roboNuGetFile) : base(loggerFactory, roboNuGetFile)
+        public Push(
+            ILoggerFactory loggerFactory,
+            RoboNuGetFile roboNuGetFile,
+            IEnumerable<NuspecFile> nuspecFiles
+        ) : base(loggerFactory, roboNuGetFile)
         {
+            _nuspecFiles = nuspecFiles;
             RedirectStandardOutput = true;
         }
 
@@ -32,19 +40,17 @@ namespace RoboNuGet.Commands
         public override Task ExecuteAsync(CancellationToken cancellationToken)
         {
             this.ValidateWith(ParameterValidator).ThrowIfNotValid();
-            
-            // ReSharper disable once InconsistentNaming - we make an excepiton to avoid additional properties.
-            var NupkgFileName = Path.Combine(
-                RoboNuGetFile.NuGet.OutputDirectoryName,
-                $"{PackageId}.{Version}.nupkg");
 
-            Arguments = Command.Format(new
+            foreach (var nuspecFile in _nuspecFiles)
             {
-                NupkgFileName,
-                RoboNuGetFile.NuGet.NuGetConfigName,
-            });
-
-            return base.ExecuteAsync(cancellationToken);
+                Arguments = Command.Format(new
+                {
+                    NupkgFileName = Path.Combine(RoboNuGetFile.NuGet.OutputDirectoryName, $"{nuspecFile.Id}.{nuspecFile.Version}.nupkg"),
+                    RoboNuGetFile.NuGet.NuGetConfigName,
+                });                
+            }
+            
+            return Task.CompletedTask;
         }
     }
 }
