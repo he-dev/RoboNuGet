@@ -14,7 +14,7 @@ namespace RoboNuGet.Commands
 {
     internal class Push : NuGet
     {
-        private readonly IEnumerable<NuspecFile> _nuspecFiles;
+        private readonly IFileService _fileService;
 
         private static readonly Validator<Push> ParameterValidator =
             Validator<Push>.Empty
@@ -24,10 +24,10 @@ namespace RoboNuGet.Commands
         public Push(
             ILoggerFactory loggerFactory,
             RoboNuGetFile roboNuGetFile,
-            IEnumerable<NuspecFile> nuspecFiles
+            IFileService fileService
         ) : base(loggerFactory, roboNuGetFile)
         {
-            _nuspecFiles = nuspecFiles;
+            _fileService = fileService;
             RedirectStandardOutput = true;
         }
 
@@ -41,7 +41,11 @@ namespace RoboNuGet.Commands
         {
             this.ValidateWith(ParameterValidator).ThrowIfNotValid();
 
-            foreach (var nuspecFile in _nuspecFiles)
+            var solutionFileName = _fileService.GetSolutionFileName(RoboNuGetFile.SolutionFileName);
+            var nuspecFiles = _fileService.GetNuspecFiles(Path.GetDirectoryName(solutionFileName));
+            
+            // We're not pushing packages in parallel.
+            foreach (var nuspecFile in nuspecFiles)
             {
                 Arguments = Command.Format(new
                 {

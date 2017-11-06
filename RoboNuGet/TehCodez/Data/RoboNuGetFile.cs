@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -16,13 +17,14 @@ namespace RoboNuGet.Data
         private static readonly JsonSerializerSettings DefaultSerializerSettings = new JsonSerializerSettings
         {
             Converters = {new JsonOverridableConverter()},
-            Formatting = Formatting.Indented
+            Formatting = Formatting.Indented,
+            DefaultValueHandling = DefaultValueHandling.Populate
         };
 
         private const string DefaultFileName = "RoboNuGet.json";
 
-
-        public Overrideable<string> SolutionFileName { get; set; }
+        [DefaultValue("*.sln")]
+        public string SolutionFileName { get; set; }
 
         public string PackageVersion { get; set; }
 

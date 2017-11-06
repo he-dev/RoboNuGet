@@ -16,21 +16,26 @@ namespace RoboNuGet.Commands
 {
     internal class List : ConsoleCommand
     {
-        private readonly IEnumerable<NuspecFile> _packageNuspecs;
+        private readonly RoboNuGetFile _roboNuGetFile;
+        private readonly IFileService _fileService;
 
-        public List(ILoggerFactory loggerFactory, IEnumerable<NuspecFile> packageNuspecs) : base(loggerFactory)
+        public List(ILoggerFactory loggerFactory, RoboNuGetFile roboNuGetFile, IFileService fileService) : base(loggerFactory)
         {
-            _packageNuspecs = packageNuspecs;
+            _roboNuGetFile = roboNuGetFile;
+            _fileService = fileService;
         }
 
         public override Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            foreach (var packageNuspec in _packageNuspecs)
+            var solutionFileName = _fileService.GetSolutionFileName(_roboNuGetFile.SolutionFileName);
+            var nuspecFiles = _fileService.GetNuspecFiles(Path.GetDirectoryName(solutionFileName));
+
+            foreach (var nuspecFile in nuspecFiles)
             {
                 Logger.ConsoleParagraph(p => { });
-                Logger.ConsoleParagraph(p => p.ConsoleText($"{Path.GetFileNameWithoutExtension(packageNuspec.FileName)} ({packageNuspec.Dependencies.Count()})"));
+                Logger.ConsoleParagraph(p => p.ConsoleText($"{Path.GetFileNameWithoutExtension(nuspecFile.FileName)} ({nuspecFile.Dependencies.Count()})"));
 
-                foreach (var nuspecDependency in packageNuspec.Dependencies)
+                foreach (var nuspecDependency in nuspecFile.Dependencies)
                 {
                     Logger.ConsoleParagraph(p => p.ConsoleText($"- {nuspecDependency.Id} v{nuspecDependency.Version}"));
                 }

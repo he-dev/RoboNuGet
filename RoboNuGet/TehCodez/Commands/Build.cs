@@ -11,16 +11,19 @@ namespace RoboNuGet.Commands
     internal class Build : StartProcess
     {
         private readonly RoboNuGetFile _roboNuGetFile;
+        private readonly IFileService _fileService;
 
-        public Build(ILoggerFactory loggerFactory, RoboNuGetFile roboNuGetFile) : base(loggerFactory)
+        public Build(ILoggerFactory loggerFactory, RoboNuGetFile roboNuGetFile, IFileService fileService) : base(loggerFactory)
         {
             _roboNuGetFile = roboNuGetFile;
+            _fileService = fileService;
             FileName = "msbuild";
         }
         
         public override Task  ExecuteAsync(CancellationToken cancellationToken)
         {
-            Arguments = _roboNuGetFile.MsBuild.ToString(_roboNuGetFile.SolutionFileName);
+            var solutionFileName = _fileService.GetSolutionFileName(_roboNuGetFile.SolutionFileName);
+            Arguments = _roboNuGetFile.MsBuild.ToString(solutionFileName);
             return base.ExecuteAsync(cancellationToken);
         }
 

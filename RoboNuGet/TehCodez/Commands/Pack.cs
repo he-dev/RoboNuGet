@@ -15,18 +15,17 @@ namespace RoboNuGet.Commands
 {
     internal class Pack : NuGet
     {
-        private readonly IEnumerable<NuspecFile> _nuspecFiles;
+        private readonly IFileService _fileService;
         private readonly IIndex<SoftKeySet, IConsoleCommand> _commands;
 
         public Pack(
             ILoggerFactory loggerFactory,
             RoboNuGetFile roboNuGetFile,
-            IEnumerable<NuspecFile> nuspecFiles,
-            IIndex<SoftKeySet,
-                IConsoleCommand> commands
+            IFileService fileService,
+            IIndex<SoftKeySet, IConsoleCommand> commands
         ) : base(loggerFactory, roboNuGetFile)
         {
-            _nuspecFiles = nuspecFiles;
+            _fileService = fileService;
             _commands = commands;
             RedirectStandardOutput = true;
         }
@@ -37,11 +36,14 @@ namespace RoboNuGet.Commands
 
         public string OutputDirectory { get; set; }
 
-        public override async Task ExecuteAsync(CancellationToken cancellationToken)
+        public override Task ExecuteAsync(CancellationToken cancellationToken)
         {
+            var solutionFileName = _fileService.GetSolutionFileName(RoboNuGetFile.SolutionFileName);
+            var nuspecFiles = _fileService.GetNuspecFiles(Path.GetDirectoryName(solutionFileName));
+            
             try
             {
-                Parallel.ForEach(_nuspecFiles, async nuspecFile =>
+                Parallel.ForEach(nuspecFiles, async nuspecFile =>
                 {
                     var updateNuspec = (UpdateNuspec) _commands[nameof(UpdateNuspec)];
                     updateNuspec.NuspecFile = nuspecFile;
@@ -65,6 +67,8 @@ namespace RoboNuGet.Commands
                 //ConsoleColorizer.RenderLine($"<p>&gt;<span color='green'>Some packages could not be created.</span> <span color='darkyellow'>(Press Enter to continue)</span></p>");
                 Picasso.WriteError(ex.Message);
             }
+            
+            return Task.CompletedTask;
         }
     }
 }

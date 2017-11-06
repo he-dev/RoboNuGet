@@ -1,9 +1,8 @@
 {
-    "SolutionFileName": null,
+    "SolutionFileName": "*.sln",
     "PackageVersion": "1.0.22",
     "IsPrerelease": false,
     "TargetFrameworkVersions": [
-        "v4.5.2",
         "v4.6.2"
     ],
     "MsBuild": {
