@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Commander;
 using Reusable.OmniLog;
-using RoboNuGet.Data;
+using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {

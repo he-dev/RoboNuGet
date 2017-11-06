@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Reusable;
 
-namespace RoboNuGet.Data
+namespace RoboNuGet.Files
 {
     internal class RoboNuGetFile
     {

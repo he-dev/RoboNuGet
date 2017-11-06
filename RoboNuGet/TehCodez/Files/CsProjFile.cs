@@ -9,22 +9,27 @@ namespace RoboNuGet.Files
 {
     internal class CsProjFile
     {
-        private CsProjFile(IEnumerable<string> projectReferenceNames)
+        public const string DefaultExtension = ".csproj";
+        
+        private CsProjFile(IEnumerable<string> projectReferences)
         {
-            ProjectReferenceNames = projectReferenceNames;
+            ProjectReferences = projectReferences;
         }
 
-        public IEnumerable<string> ProjectReferenceNames { get; }
+        public IEnumerable<string> ProjectReferences { get; }
 
-        public static CsProjFile From(string dirName)
+        public static CsProjFile Load(string fileName)
         {
-            var csprojFileName = Directory.GetFiles(dirName, "*.csproj").Single();
-            var csproj = XDocument.Load(csprojFileName);
+            if (!File.Exists(fileName))
+            {
+                return new CsProjFile(Enumerable.Empty<string>());
+            }
+            
+            var csproj = XDocument.Load(fileName);
             var projectReferenceNames =
-                ((IEnumerable)csproj.XPathEvaluate("//*[contains(local-name(), 'ProjectReference')]"))
-                    .Cast<XElement>()
-                    .Select(x => x.Element(XName.Get("Name", csproj.Root.GetDefaultNamespace().NamespaceName)).Value)
-                    .ToList();
+                csproj.XPathSelectElements("//*[contains(local-name(), 'ProjectReference')]")
+                      .Select(x => x.Element(XName.Get("Name", csproj.Root.GetDefaultNamespace().NamespaceName)).Value)
+                      .ToList();
 
             return new CsProjFile(projectReferenceNames);
         }

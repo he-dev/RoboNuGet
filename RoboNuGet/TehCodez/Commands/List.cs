@@ -9,7 +9,6 @@ using JetBrains.Annotations;
 using Reusable.Commander;
 using Reusable.ConsoleColorizer;
 using Reusable.OmniLog;
-using RoboNuGet.Data;
 using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands

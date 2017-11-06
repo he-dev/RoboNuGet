@@ -12,7 +12,7 @@ using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog;
 using RoboNuGet.Commands;
-using RoboNuGet.Data;
+using RoboNuGet.Files;
 using Version = RoboNuGet.Commands.Version;
 
 namespace RoboNuGet
@@ -21,13 +21,45 @@ namespace RoboNuGet
     {
         private static async Task Main(string[] args)
         {
+            using (var container = InitializeContainer())
+            using (var scope = container.BeginLifetimeScope())
+            {
+                var logger = scope.Resolve<ILoggerFactory>().CreateLogger("ConsoleTemplateTest");
+                var executor = scope.Resolve<ICommandLineExecutor>();
+
+                // main loop
+
+                await executor.ExecuteAsync("cls", CancellationToken.None);
+
+                do
+                {
+                    logger.ConsoleSpan(null, null, s => s.Prompt());
+                    var commandLine = Console.ReadLine();
+
+                    if (commandLine.IsNullOrEmpty())
+                    {
+                        logger.ConsoleParagraph(p => p.ConsoleSpan(ConsoleColor.Red, null, _ => "Invalid command name."));
+                        continue;
+                    }
+
+                    try
+                    {
+                        await executor.ExecuteAsync(commandLine, CancellationToken.None);
+                    }
+                    catch (DynamicException exception) when (exception.NameEquals("CommandNotFoundException"))
+                    {
+                        logger.ConsoleParagraph(p => p.ConsoleSpan(ConsoleColor.Red, null, _ => "Invalid command name."));
+                    }
+                } while (true);
+            }
+            // ReSharper disable once FunctionNeverReturns - it does renturn when you execute the 'exit' command
+        }
+
+        private static IContainer InitializeContainer()
+        {
             var configuration = RoboNuGetFile.Load();
-
-            //var solutionDirectoryName = Path.GetDirectoryName(configuration.SolutionFileName);
-            //var nuspecFiles = FileFinder.FindNuspecFiles(solutionDirectoryName);
-
             var loggerFactory = new LoggerFactory();
-            var logger = loggerFactory.CreateLogger("ConsoleTemplateTest");
+            var logger = loggerFactory.CreateLogger("RoboNuGet");
             loggerFactory.Subscribe(ConsoleTemplateRx.Create(new ConsoleTemplateRenderer()));
 
             var registrations =
@@ -59,38 +91,7 @@ namespace RoboNuGet
             builder
                 .RegisterModule(new CommanderModule(registrations));
 
-
-            using (var container = builder.Build())
-            using (var scope = container.BeginLifetimeScope())
-            {
-                var executor = scope.Resolve<ICommandLineExecutor>();
-
-                // main loop
-
-                await executor.ExecuteAsync("cls", CancellationToken.None);
-
-                do
-                {
-                    logger.ConsoleSpan(null, null, s => s.Prompt());
-                    var commandLine = Console.ReadLine();
-
-                    if (commandLine.IsNullOrEmpty())
-                    {
-                        logger.ConsoleParagraph(p => p.ConsoleSpan(ConsoleColor.Red, null, _ => "Invalid command name."));
-                        continue;
-                    }
-
-                    try
-                    {
-                        await executor.ExecuteAsync(commandLine, CancellationToken.None);
-                    }
-                    catch (DynamicException exception) when (exception.NameEquals("CommandNotFoundException"))
-                    {
-                        logger.ConsoleParagraph(p => p.ConsoleSpan(ConsoleColor.Red, null, _ => "Invalid command name."));
-                    }
-                } while (true);
-            }
-            // ReSharper disable once FunctionNeverReturns
+            return builder.Build();
         }
     }
 }

@@ -4,43 +4,52 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using JetBrains.Annotations;
 
 namespace RoboNuGet.Files
 {
     internal class PackagesConfigFile
     {
-        private PackagesConfigFile(string fileName)
+        private const string DefaultFileName = "packages.config";
+
+        private PackagesConfigFile(string fileName, IEnumerable<PackageElement> packages)
         {
-            if (!File.Exists(fileName))
-            {
-                Packages = Enumerable.Empty<PackageElement>();
-                return;
-            }
-
-            var packagesConfig = XDocument.Load(FileName = fileName);
-
-            var packages = ((IEnumerable)packagesConfig.XPathEvaluate(@"packages/package"))?.Cast<XElement>();
-            Packages = packages.Select(x => new PackageElement
-            {
-                Id = x.Attribute("id").Value,
-                Version = x.Attribute("version").Value
-            }).ToList();
+            FileName = fileName;
+            Packages = packages;
         }
 
+        [NotNull]
         private string FileName { get; }
 
+        [NotNull, ItemNotNull]
         public IEnumerable<PackageElement> Packages { get; }
 
-        public static PackagesConfigFile From(string dirName)
+        [NotNull]
+        public static PackagesConfigFile Load(string directoryName)
         {
-            var packagesConfigFileName = Path.Combine(dirName, "packages.config");
-            return new PackagesConfigFile(packagesConfigFileName);
-        }
+            var fileName = Path.Combine(directoryName, DefaultFileName);
+            if (!File.Exists(fileName))
+            {
+                return new PackagesConfigFile(fileName, Enumerable.Empty<PackageElement>());
+            }
 
-        internal class PackageElement
-        {
-            public string Id { get; set; }
-            public string Version { get; set; }
+            var packagesConfig = XDocument.Load(fileName);
+            var packages =
+                ((IEnumerable) packagesConfig.XPathEvaluate(@"packages/package"))
+                .Cast<XElement>()
+                .Select(x => new PackageElement
+                {
+                    Id = x.Attribute("id").Value,
+                    Version = x.Attribute("version").Value
+                }).ToList();
+
+            return new PackagesConfigFile(fileName, packages);
         }
+    }
+
+    internal class PackageElement
+    {
+        public string Id { get; set; }
+        public string Version { get; set; }
     }
 }

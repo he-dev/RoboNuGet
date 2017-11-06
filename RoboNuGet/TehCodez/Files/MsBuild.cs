@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Newtonsoft.Json;
+using Reusable.Extensions;
 
-namespace RoboNuGet.Data
+namespace RoboNuGet.Files
 {
     [UsedImplicitly, PublicAPI]
     internal class MsBuild
@@ -22,7 +20,7 @@ namespace RoboNuGet.Data
         {
             var arguments = new List<string>();
 
-            if (!string.IsNullOrEmpty(Target))
+            if (Target.IsNotNullOrEmpty())
             {
                 arguments.Add($"/target:{Target}");
             }
@@ -40,9 +38,9 @@ namespace RoboNuGet.Data
             return string.Join(" ", arguments);
         }
 
-        public static implicit operator string(MsBuild msBuild)
-        {
-            return msBuild.ToString();
-        }
+//        public static implicit operator string(MsBuild msBuild)
+//        {
+//            return msBuild.ToString();
+//        }
     }
 }

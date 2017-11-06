@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
+using Reusable.Extensions;
 using RoboNuGet.Files;
 
 namespace RoboNuGet
@@ -16,7 +17,7 @@ namespace RoboNuGet
         [NotNull, ItemNotNull]
         IEnumerable<NuspecFile> GetNuspecFiles([NotNull] string solutionDirectoryName);
     }
-    
+
     [UsedImplicitly]
     internal class FileService : IFileService
     {
@@ -50,15 +51,25 @@ namespace RoboNuGet
 
         public IEnumerable<NuspecFile> GetNuspecFiles(string solutionDirectoryName)
         {
-            var directories = Directory.GetDirectories(solutionDirectoryName);
-            foreach (var directory in directories)
+            const int notFound = 0;
+            const int singleFile = 1;
+
+            // Searching for *.nuspec only one level deep.
+            foreach (var directory in Directory.GetDirectories(solutionDirectoryName))
             {
-                var packageNuspec = NuspecFile.From(directory);
-                if (packageNuspec == null)
+                var files = Directory.GetFiles(directory, $"*{NuspecFile.DefaultExtension}");
+                switch (files.Length)
                 {
-                    continue;
+                    case notFound:
+                        break;
+
+                    case singleFile:
+                        yield return NuspecFile.Load(files.Single());
+                        break;
+
+                    default:
+                        throw DynamicException.Factory.CreateDynamicException($"MultipleNuspecFiles{nameof(Exception)}", $"There can be only a single *.nuspec file. Directory: {directory.QuoteWith("'")}", null);
                 }
-                yield return packageNuspec;
             }
         }
     }

@@ -7,7 +7,6 @@ using Reusable.Commander;
 using Reusable.Extensions;
 using Reusable.Flawless;
 using Reusable.OmniLog;
-using RoboNuGet.Data;
 using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands

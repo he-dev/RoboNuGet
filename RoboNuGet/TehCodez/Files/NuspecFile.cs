@@ -1,87 +1,101 @@
-﻿using System.Collections;
+﻿using System;
+using System.CodeDom;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 using System.Xml.XPath;
-using RoboNuGet.Data;
+using JetBrains.Annotations;
 
 namespace RoboNuGet.Files
 {
     internal class NuspecFile
     {
-        private readonly XDocument _packageNuspec;
+        public const string DefaultExtension = ".nuspec";
 
-        public NuspecFile(string fileName)
-        {
-            _packageNuspec = XDocument.Load(FileName = fileName);
-        }
+        private readonly XDocument _xNuspec;
 
-        public static NuspecFile From(string dirName)
+        private NuspecFile(string fileName, XDocument xNuspec)
         {
-            var packageNuspecFileName = Directory.GetFiles(dirName, "*.nuspec").SingleOrDefault();
-            return string.IsNullOrEmpty(packageNuspecFileName) ? null : new NuspecFile(packageNuspecFileName);
+            FileName = fileName;
+            _xNuspec = xNuspec;
         }
 
         public string FileName { get; }
 
-        public string Id
-        {
-            get
-            {
-                var xId = ((IEnumerable)_packageNuspec.XPathEvaluate(@"package/metadata/id")).Cast<XElement>().Single();
-                return xId.Value;
-            }
-        }
+        [XPath(@"package/metadata/id")]
+        public string Id => XPathSelectElements().Single().Value;
 
+        [XPath(@"package/metadata/version")]
         public string Version
         {
+            get => XPathSelectElements().Single().Value;
+            set => XPathSelectElements().Single().Value = value;
+        }
+
+        [XPath(@"package/metadata/dependencies")]
+        public IEnumerable<NuspecDependency> Dependencies
+        {
             get
             {
-                var xVersion = ((IEnumerable)_packageNuspec.XPathEvaluate(@"package/metadata/version")).Cast<XElement>().Single();
-                return xVersion.Value;
+                return
+                    from xDependency in XPathSelectElements().SingleOrDefault()?.Elements() ?? Enumerable.Empty<XElement>()
+                    select new NuspecDependency(
+                        xDependency.Attribute("id").Value,
+                        xDependency.Attribute("version").Value
+                    );
             }
             set
             {
-                var xVersion = ((IEnumerable)_packageNuspec.XPathEvaluate(@"package/metadata/version")).Cast<XElement>().Single();
-                xVersion.Value = value;
+                var xDependencies = XPathSelectElements().SingleOrDefault();
+
+                if (xDependencies is null)
+                {
+                    var xMetadata = _xNuspec.XPathSelectElements(@"package/metadata").Single();
+                    xMetadata.Add(xDependencies = new XElement("dependencies"));
+                }
+                else
+                {
+                    xDependencies.Remove();
+                }
+
+                foreach (var dependency in value)
+                {
+                    xDependencies.Add(dependency.ToXElement());
+                }
             }
         }
 
-        public IEnumerable<PackageNuspecDependency> Dependencies
+        public static NuspecFile Load(string fileName)
         {
-            get
-            {
-                var xDependencies = ((IEnumerable)_packageNuspec.XPathEvaluate(@"package/metadata/dependencies")).Cast<XElement>().SingleOrDefault();
-                return xDependencies?.Elements().Select(x => new PackageNuspecDependency
-                (
-                    id: x.Attribute("id").Value,
-                    version: x.Attribute("version").Value)
-                ) 
-                ?? Enumerable.Empty<PackageNuspecDependency>();
-            }
-        }
-
-        public void AddDependency(string id, string version)
-        {
-            var xDependencies = ((IEnumerable)_packageNuspec.XPathEvaluate(@"package/metadata/dependencies")).Cast<XElement>().SingleOrDefault();
-            if (xDependencies == null)
-            {
-                var xMetadata = ((IEnumerable)_packageNuspec.XPathEvaluate(@"package/metadata")).Cast<XElement>().Single();
-                xMetadata.Add(xDependencies = new XElement("dependencies"));
-            }
-            xDependencies.Add(new XElement("dependency", new XAttribute("id", id), new XAttribute("version", version)));
-        }
-
-        public void ClearDependencies()
-        {
-            var xDependencies = ((IEnumerable)_packageNuspec.XPathEvaluate(@"package/metadata/dependencies")).Cast<XElement>().SingleOrDefault();
-            xDependencies?.Remove();
+            var xNuspec = XDocument.Load(fileName);
+            return new NuspecFile(fileName, xNuspec);
         }
 
         public void Save()
         {
-            _packageNuspec.Save(FileName, SaveOptions.None);
+            _xNuspec.Save(FileName, SaveOptions.None);
         }
+
+        private IEnumerable<XElement> XPathSelectElements([CallerMemberName] string memeberName = null)
+        {
+            var xPath = typeof(NuspecFile).GetProperty(memeberName).GetCustomAttribute<XPathAttribute>();
+            return _xNuspec.XPathSelectElements(xPath);
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Property)]
+    internal class XPathAttribute : Attribute
+    {
+        private readonly string _xPath;
+
+        public XPathAttribute(string xPath) => _xPath = xPath;
+
+        public override string ToString() => _xPath;
+
+        public static implicit operator string(XPathAttribute xPathAttribute) => xPathAttribute.ToString();
     }
 }

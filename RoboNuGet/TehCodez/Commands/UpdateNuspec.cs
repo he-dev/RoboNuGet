@@ -1,12 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Reusable.Commander;
 using Reusable.CommandLine;
 using Reusable.OmniLog;
-using RoboNuGet.Data;
 using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
@@ -19,30 +19,23 @@ namespace RoboNuGet.Commands
         }
 
         public NuspecFile NuspecFile { get; set; }
-        
+
         public string Version { get; set; }
 
-        public override Task  ExecuteAsync(CancellationToken cancellationToken)
+        public override Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            var directory = Path.GetDirectoryName(NuspecFile.FileName);
-            var packagesConfig = PackagesConfigFile.From(directory);
-            var csProj = CsProjFile.From(directory);
+            var nuspecDirectoryName = Path.GetDirectoryName(NuspecFile.FileName);
+            var packagesConfig = PackagesConfigFile.Load(nuspecDirectoryName);
+            var csProj = CsProjFile.Load(Path.Combine(nuspecDirectoryName, $"{NuspecFile.Id}{CsProjFile.DefaultExtension}"));
 
-            NuspecFile.ClearDependencies();
-            foreach (var package in packagesConfig.Packages)
-            {
-                NuspecFile.AddDependency(package.Id, package.Version);
-            }
+            var packageDependencies = packagesConfig.Packages.Select(package => new NuspecDependency(package.Id, package.Version));
+            var projectDependencies = csProj.ProjectReferences.Select(projectReferenceName => new NuspecDependency(projectReferenceName, Version));
 
-            foreach (var projectReferenceName in csProj.ProjectReferenceNames)
-            {
-                NuspecFile.AddDependency(projectReferenceName, Version);
-            }
-
+            NuspecFile.Dependencies = packageDependencies.Concat(projectDependencies);
             NuspecFile.Version = Version;
             NuspecFile.Save();
-            
+
             return Task.CompletedTask;
-        }        
+        }
     }
 }

@@ -9,7 +9,7 @@ using Reusable.CommandLine;
 using Reusable.ConsoleColorizer;
 using Reusable.Extensions;
 using Reusable.OmniLog;
-using RoboNuGet.Data;
+using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
@@ -35,7 +35,7 @@ namespace RoboNuGet.Commands
 
         private void RenderSplashScreen(RoboNuGetFile roboNuGetFile)
         {
-            Logger.ConsoleParagraph(p => p.Prompt().ConsoleSpan(ConsoleColor.DarkGray, null, s => s.ConsoleText("RoboNuGet v4.0.0")));
+            Logger.ConsoleParagraph(p => p.Prompt().ConsoleSpan(ConsoleColor.DarkGray, null, s => s.ConsoleText("RoboNuGet v3.0.0")));
 
             var solutionFileName = roboNuGetFile.GetSolutionFileName(_fileService);
             var nuspecFiles = roboNuGetFile.GetNuspecFiles(_fileService).ToList();

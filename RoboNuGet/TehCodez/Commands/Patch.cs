@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Reusable.Commander;
 using Reusable.OmniLog;
-using RoboNuGet.Data;
+using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {

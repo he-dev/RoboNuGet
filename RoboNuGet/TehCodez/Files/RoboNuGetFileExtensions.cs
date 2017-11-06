@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using RoboNuGet.Files;
 
-namespace RoboNuGet.Data
+namespace RoboNuGet.Files
 {
     internal static class RoboNuGetFileExtensions
     {
