@@ -48,7 +48,7 @@ namespace RoboNuGet
                     }
                     catch (Exception exception)
                     {
-                        logger.ConsoleError(exception.Message);
+                        logger.ConsoleException(exception);
                     }
                 } while (true);
             }

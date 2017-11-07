@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac.Features.Indexed;
+using JetBrains.Annotations;
 using Reusable.Commander;
 using Reusable.CommandLine;
 using Reusable.ConsoleColorizer;
@@ -13,6 +14,7 @@ using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
+    [UsedImplicitly]
     internal class Pack : NuGet
     {
         private readonly IFileService _fileService;
@@ -32,9 +34,9 @@ namespace RoboNuGet.Commands
 
         protected override string Name => "pack";
 
-        public string NuspecFileName { get; set; }
+        //public string NuspecFileName { get; set; }
 
-        public string OutputDirectory { get; set; }
+        //public string OutputDirectory { get; set; }
 
         public override Task ExecuteAsync(CancellationToken cancellationToken)
         {
@@ -70,7 +72,7 @@ namespace RoboNuGet.Commands
 
             if (errorCount == 0)
             {
-                Logger.ConsoleParagraph(p => p.ConsoleSpan(ConsoleColor.Green, null, s => s.ConsoleText("All packages successfuly created.")));
+                Logger.ConsoleParagraph(p => p.Indent().ConsoleSpan(ConsoleColor.Green, null, s => s.ConsoleText("All packages successfuly created.")));
             }
 
             return Task.CompletedTask;

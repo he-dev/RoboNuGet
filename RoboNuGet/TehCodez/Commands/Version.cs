@@ -8,6 +8,7 @@ using Reusable;
 using Reusable.Commander;
 using Reusable.CommandLine;
 using Reusable.ConsoleColorizer;
+using Reusable.Extensions;
 using Reusable.OmniLog;
 using RoboNuGet.Files;
 
@@ -24,24 +25,66 @@ namespace RoboNuGet.Commands
             _roboNuGetFile = roboNuGetFile;
         }
 
-        [Parameter(Position = 1)]
-        public string NewVersion { get; set; }
+        [Parameter, Alias("f")]
+        public string Full { get; set; }
+        
+        [Parameter, Alias("p")]
+        public bool Patch { get; set; }
+        
+        [Parameter]
+        public bool Minor { get; set; }
+        
+        [Parameter]
+        public bool Major { get; set; }
 
         public override Task  ExecuteAsync(CancellationToken cancellationToken)
         {
-            if (SemanticVersion.TryParse(NewVersion, out var version))
+            if (Full.IsNotNull())
             {
-                _roboNuGetFile.PackageVersion = version.ToString();
-                _roboNuGetFile.Save();
-                
-                Logger.ConsoleParagraph(p => p.Prompt().ConsoleText("Version updated."));
-            }
-            else
-            {
-                Logger.ConsoleParagraph(p => p.Prompt().ConsoleSpan(ConsoleColor.Red, null, s => s.ConsoleText("Invalid version.")));
+                if (SemanticVersion.TryParse(Full, out var version))
+                {
+                    UpdateVersion(version.ToString());
+                }
+                else
+                {
+                    Logger.ConsoleParagraph(p => p.Prompt().ConsoleSpan(ConsoleColor.Red, null, s => s.ConsoleText("Invalid version.")));
+                }
             }
 
+            var currentVersion = SemanticVersion.Parse(_roboNuGetFile.PackageVersion);
+
+            if (Patch)
+            {
+                currentVersion.Patch++;
+                UpdateVersion(currentVersion.ToString());
+                return Task.CompletedTask;
+            }
+
+            if (Minor)
+            {
+                currentVersion.Minor++;
+                currentVersion.Patch = 0;
+                UpdateVersion(currentVersion.ToString());
+                return Task.CompletedTask;
+            }
+            
+            if (Major)
+            {
+                currentVersion.Major++;
+                currentVersion.Minor = 0;
+                currentVersion.Patch = 0;
+                UpdateVersion(currentVersion.ToString());
+                return Task.CompletedTask;
+            }
+            
             return Task.CompletedTask;
+        }
+
+        private void UpdateVersion(string newVersion)
+        {
+            _roboNuGetFile.PackageVersion = newVersion;
+            _roboNuGetFile.Save();
+            Logger.ConsoleParagraph(p => p.Indent().ConsoleText($"New version: v{_roboNuGetFile.PackageVersion}"));
         }
     }
 }
