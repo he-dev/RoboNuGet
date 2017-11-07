@@ -12,7 +12,7 @@ namespace RoboNuGet.Files
 
         public bool NoLogo { get; set; }
 
-        public Dictionary<string, string> Properties { get; set; }
+        public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
         public Dictionary<string, string> Switches { get; set; } = new Dictionary<string, string>();
 
@@ -30,17 +30,19 @@ namespace RoboNuGet.Files
                 arguments.Add("/nologo");
             }
 
-            arguments.AddRange(Switches.Select(x => $"/{x.Key}{(string.IsNullOrEmpty(x.Value) ? string.Empty : $":{x.Value}")}"));
-            arguments.AddRange(Properties.Select(property => $"/property:{property.Key}=\"{property.Value}\""));
+            if (Switches?.Any() == true)
+            {
+                arguments.AddRange(Switches.Select(x => $"/{x.Key}{(string.IsNullOrEmpty(x.Value) ? string.Empty : $":{x.Value}")}"));
+            }
+
+            if (Properties?.Any() == true)
+            {
+                arguments.AddRange(Properties.Select(property => $"/property:{property.Key}=\"{property.Value}\""));
+            }
 
             arguments.Add(solutionFileName);
 
             return string.Join(" ", arguments);
         }
-
-//        public static implicit operator string(MsBuild msBuild)
-//        {
-//            return msBuild.ToString();
-//        }
     }
 }

@@ -38,7 +38,7 @@ namespace RoboNuGet
 
                     if (commandLine.IsNullOrEmpty())
                     {
-                        logger.ConsoleParagraph(p => p.ConsoleSpan(ConsoleColor.Red, null, _ => "Invalid command name."));
+                        //logger.ConsoleParagraph(p => p.ConsoleSpan(ConsoleColor.Red, null, _ => "Invalid command name."));
                         continue;
                     }
 
@@ -46,9 +46,9 @@ namespace RoboNuGet
                     {
                         await executor.ExecuteAsync(commandLine, CancellationToken.None);
                     }
-                    catch (DynamicException exception) when (exception.NameEquals("CommandNotFoundException"))
+                    catch (Exception exception)
                     {
-                        logger.ConsoleParagraph(p => p.ConsoleSpan(ConsoleColor.Red, null, _ => "Invalid command name."));
+                        logger.ConsoleError(exception.Message);
                     }
                 } while (true);
             }

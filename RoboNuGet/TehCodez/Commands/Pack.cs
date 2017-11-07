@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Autofac.Features.Indexed;
 using Reusable.Commander;
 using Reusable.CommandLine;
+using Reusable.ConsoleColorizer;
 using Reusable.Extensions;
 using Reusable.OmniLog;
 using RoboNuGet.Files;
@@ -39,34 +40,39 @@ namespace RoboNuGet.Commands
         {
             var solutionFileName = _fileService.GetSolutionFileName(RoboNuGetFile.SolutionFileName);
             var nuspecFiles = _fileService.GetNuspecFiles(Path.GetDirectoryName(solutionFileName));
-            
-            try
+
+            var errorCount = 0;
+
+            Parallel.ForEach(nuspecFiles, async nuspecFile =>
             {
-                Parallel.ForEach(nuspecFiles, async nuspecFile =>
+                var updateNuspec = (UpdateNuspec) _commands[nameof(UpdateNuspec)];
+                updateNuspec.NuspecFile = nuspecFile;
+                updateNuspec.Version = RoboNuGetFile.PackageVersion;
+                await updateNuspec.ExecuteAsync(cancellationToken);
+
+                Arguments = Command.Format(new
                 {
-                    var updateNuspec = (UpdateNuspec) _commands[nameof(UpdateNuspec)];
-                    updateNuspec.NuspecFile = nuspecFile;
-                    updateNuspec.Version = RoboNuGetFile.PackageVersion;
-                    await updateNuspec.ExecuteAsync(cancellationToken);
-
-                    Arguments = Command.Format(new
-                    {
-                        NuspecFileName,
-                        OutputDirectory,
-                    });
-
-                    await base.ExecuteAsync(cancellationToken);
+                    NuspecFileName = nuspecFile.FileName,
+                    OutputDirectoryName = RoboNuGetFile.NuGet.OutputDirectoryName,
                 });
 
-                //ConsoleColorizer.RenderLine($"<p>&gt;<span color='green'>All packages successfuly created.</span> <span color='darkyellow'>(Press Enter to continue)</span></p>");
-                Console.ReadKey();
-            }
-            catch (Exception ex)
+                try
+                {
+                    await base.ExecuteAsync(cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    errorCount++;
+                    Logger.ConsoleParagraph(p => p.Indent().ConsoleText($"Could not create package: {nuspecFile.Id}"));
+                    Logger.ConsoleException(ex);
+                }
+            });
+
+            if (errorCount == 0)
             {
-                //ConsoleColorizer.RenderLine($"<p>&gt;<span color='green'>Some packages could not be created.</span> <span color='darkyellow'>(Press Enter to continue)</span></p>");
-                Picasso.WriteError(ex.Message);
+                Logger.ConsoleParagraph(p => p.ConsoleSpan(ConsoleColor.Green, null, s => s.ConsoleText("All packages successfuly created.")));
             }
-            
+
             return Task.CompletedTask;
         }
     }

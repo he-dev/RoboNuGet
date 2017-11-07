@@ -14,13 +14,15 @@
             //"Platform": "Any CPU",
             //"OutDir": "_nuget\\{PackageId}\\net452"
         },
-        "ProjectFile": null
+        "Switches": {
+            "m": null
+        }
     },
     "NuGet": {
         "OutputDirectoryName": "C:\\Home\\Projects\\NuGet\\packages",
         "NuGetConfigName": "C:\\Home\\Projects\\NuGet\\NuGet.config",
         "Commands": {
-            "pack": "pack {NuspecFileName} -outputdirectory {OutputDirectoryName}",
+            "pack": "pack \"{NuspecFileName}\" -properties Configuration=Release -outputdirectory \"{OutputDirectoryName}\"",
             "push": "push {NupkgFileName} -configfile {NuGetConfigName}"
         }
     }

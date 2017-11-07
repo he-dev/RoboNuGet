@@ -14,7 +14,7 @@ namespace RoboNuGet.Files
     {
         private static readonly JsonSerializerSettings DefaultSerializerSettings = new JsonSerializerSettings
         {
-            Converters = {new JsonOverridableConverter()},
+            //Converters = {new JsonOverridableConverter()},
             Formatting = Formatting.Indented,
             DefaultValueHandling = DefaultValueHandling.Populate
         };
@@ -37,7 +37,7 @@ namespace RoboNuGet.Files
         // Computed properties
 
         [JsonIgnore]
-        public string FullVersion => IsPrerelease ? $"{PackageVersion}-pre" : PackageVersion;
+        public string FullVersion => $"{PackageVersion}{(IsPrerelease ? "-pre" : string.Empty)}";
 
         [JsonIgnore]
         public static string FileName
@@ -66,9 +66,9 @@ namespace RoboNuGet.Files
         public void IncrementPatchVersion()
         {
             PackageVersion = Regex.Replace(PackageVersion, @"^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)", m =>
-                                               $"{m.Groups["major"].Value}." +
-                                               $"{m.Groups["minor"]}." +
-                                               $"{int.Parse(m.Groups["patch"].Value) + 1}");
+                $"{m.Groups["major"].Value}." +
+                $"{m.Groups["minor"]}." +
+                $"{int.Parse(m.Groups["patch"].Value) + 1}");
         }
     }
 

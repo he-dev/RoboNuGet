@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using JetBrains.Annotations;
 using Reusable.Commander;
+using Reusable.Exceptionize;
 using Reusable.OmniLog;
 
 namespace RoboNuGet.Commands
@@ -35,8 +36,7 @@ namespace RoboNuGet.Commands
                 UseShellExecute = !RedirectStandardOutput
             };
 
-            // todo this needs a better exception
-            var process = Process.Start(processStartInfo) ?? throw new Exception("Could not start process.");
+            var process = Process.Start(processStartInfo) ?? throw DynamicException.Factory.CreateDynamicException($"ProcessStart{nameof(Exception)}", $"Could not start process: {Arguments}", null);
             
             if (RedirectStandardOutput)
             {
@@ -45,7 +45,7 @@ namespace RoboNuGet.Commands
             process.WaitForExit();
             if (process.ExitCode != 0)
             {
-                throw new Exception($"Process did not exit smoothly: {process.ExitCode}");
+                throw DynamicException.Factory.CreateDynamicException($"ProcessExit{nameof(Exception)}", $"Process did not exit smoothly. Exit code: {process.ExitCode}", null);
             }
 
             return Task.CompletedTask;

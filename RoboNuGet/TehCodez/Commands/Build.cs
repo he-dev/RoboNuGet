@@ -8,6 +8,7 @@ using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
+    [UsedImplicitly]
     internal class Build : StartProcess
     {
         private readonly RoboNuGetFile _roboNuGetFile;
@@ -19,13 +20,12 @@ namespace RoboNuGet.Commands
             _fileService = fileService;
             FileName = "msbuild";
         }
-        
-        public override Task  ExecuteAsync(CancellationToken cancellationToken)
+
+        public override Task ExecuteAsync(CancellationToken cancellationToken)
         {
             var solutionFileName = _fileService.GetSolutionFileName(_roboNuGetFile.SolutionFileName);
             Arguments = _roboNuGetFile.MsBuild.ToString(solutionFileName);
             return base.ExecuteAsync(cancellationToken);
         }
-
-    }    
+    }
 }
