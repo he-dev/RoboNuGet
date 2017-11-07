@@ -68,7 +68,6 @@ namespace RoboNuGet
                     .Register<UpdateNuspec>()
                     .Register<Version>()
                     .Register<Clear>()
-                    .Register<Patch>()
                     .Register<Build>()
                     .Register<Pack>()
                     .Register<List>()

@@ -141,7 +141,6 @@
     <Compile Include="TehCodez\Commands\Exit.cs" />
     <Compile Include="TehCodez\Commands\List.cs" />
     <Compile Include="TehCodez\Commands\Version.cs" />
-    <Compile Include="TehCodez\Commands\Patch.cs" />
     <Compile Include="TehCodez\FileService.cs" />
     <Compile Include="TehCodez\Files\CsProjFile.cs" />
     <Compile Include="TehCodez\Files\MsBuild.cs" />

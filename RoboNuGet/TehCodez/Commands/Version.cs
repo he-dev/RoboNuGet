@@ -76,6 +76,8 @@ namespace RoboNuGet.Commands
                 UpdateVersion(currentVersion.ToString());
                 return Task.CompletedTask;
             }
+
+            Logger.Error("Invalid arguments.");
             
             return Task.CompletedTask;
         }
