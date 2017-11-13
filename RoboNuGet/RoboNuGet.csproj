@@ -73,28 +73,28 @@
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Reusable.Commander, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Reusable.Commander.3.72.3\lib\net462\Reusable.Commander.dll</HintPath>
+      <HintPath>..\packages\Reusable.Commander.3.74.0\lib\net462\Reusable.Commander.dll</HintPath>
     </Reference>
     <Reference Include="Reusable.ConsoleColorizer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Reusable.ConsoleColorizer.3.72.1\lib\net462\Reusable.ConsoleColorizer.dll</HintPath>
+      <HintPath>..\packages\Reusable.ConsoleColorizer.3.74.0\lib\net462\Reusable.ConsoleColorizer.dll</HintPath>
     </Reference>
     <Reference Include="Reusable.Converters, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Reusable.Converters.3.72.3\lib\net462\Reusable.Converters.dll</HintPath>
+      <HintPath>..\packages\Reusable.Converters.3.74.0\lib\net462\Reusable.Converters.dll</HintPath>
     </Reference>
     <Reference Include="Reusable.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Reusable.Core.3.72.3\lib\net462\Reusable.Core.dll</HintPath>
+      <HintPath>..\packages\Reusable.Core.3.74.1\lib\net462\Reusable.Core.dll</HintPath>
     </Reference>
     <Reference Include="Reusable.Flawless, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Reusable.Flawless.3.72.3\lib\net462\Reusable.Flawless.dll</HintPath>
+      <HintPath>..\packages\Reusable.Flawless.3.74.0\lib\net462\Reusable.Flawless.dll</HintPath>
     </Reference>
     <Reference Include="Reusable.MarkupBuilder, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Reusable.MarkupBuilder.3.72.1\lib\net462\Reusable.MarkupBuilder.dll</HintPath>
+      <HintPath>..\packages\Reusable.MarkupBuilder.3.74.0\lib\net462\Reusable.MarkupBuilder.dll</HintPath>
     </Reference>
     <Reference Include="Reusable.OmniLog, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Reusable.OmniLog.3.72.3\lib\net462\Reusable.OmniLog.dll</HintPath>
+      <HintPath>..\packages\Reusable.OmniLog.3.74.0\lib\net462\Reusable.OmniLog.dll</HintPath>
     </Reference>
     <Reference Include="Reusable.SemanticVersion, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Reusable.SemanticVersion.3.72.1\lib\net462\Reusable.SemanticVersion.dll</HintPath>
+      <HintPath>..\packages\Reusable.SemanticVersion.3.74.0\lib\net462\Reusable.SemanticVersion.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable, Version=1.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
@@ -141,7 +141,7 @@
     <Compile Include="TehCodez\Commands\Exit.cs" />
     <Compile Include="TehCodez\Commands\List.cs" />
     <Compile Include="TehCodez\Commands\Version.cs" />
-    <Compile Include="TehCodez\FileService.cs" />
+    <Compile Include="TehCodez\FileSearch.cs" />
     <Compile Include="TehCodez\Files\CsProjFile.cs" />
     <Compile Include="TehCodez\Files\MsBuild.cs" />
     <Compile Include="TehCodez\Files\NuspecFile.cs" />
@@ -149,7 +149,7 @@
     <Compile Include="TehCodez\Files\PackagesConfigFile.cs" />
     <Compile Include="TehCodez\Files\RoboNuGetFile.cs" />
     <Compile Include="TehCodez\Files\RoboNuGetFileExtensions.cs" />
-    <Compile Include="TehCodez\ConsoleHelper.cs" />
+    <Compile Include="TehCodez\LoggerHelper.cs" />
     <Compile Include="TehCodez\Commands\UpdateNuspec.cs" />
     <Compile Include="TehCodez\Commands\Push.cs" />
     <Compile Include="TehCodez\Program.cs" />

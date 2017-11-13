@@ -8,6 +8,7 @@ using System.Windows.Input;
 using JetBrains.Annotations;
 using Reusable.Commander;
 using Reusable.ConsoleColorizer;
+using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using RoboNuGet.Files;
 
@@ -17,59 +18,59 @@ namespace RoboNuGet.Commands
     internal class List : ConsoleCommand
     {
         private readonly RoboNuGetFile _roboNuGetFile;
-        private readonly IFileService _fileService;
+        private readonly IFileSearch _fileSearch;
 
-        public List(ILoggerFactory loggerFactory, RoboNuGetFile roboNuGetFile, IFileService fileService) : base(loggerFactory)
+        public List(ILoggerFactory loggerFactory, RoboNuGetFile roboNuGetFile, IFileSearch fileSearch) : base(loggerFactory)
         {
             _roboNuGetFile = roboNuGetFile;
-            _fileService = fileService;
+            _fileSearch = fileSearch;
         }
 
         public override Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            var solutionFileName = _fileService.GetSolutionFileName(_roboNuGetFile.SolutionFileName);
-            var nuspecFiles = _fileService.GetNuspecFiles(Path.GetDirectoryName(solutionFileName));
+            var solutionFileName = _fileSearch.FindSolutionFile();
+            var nuspecFiles = _fileSearch.FindNuspecFiles();
 
             foreach (var nuspecFile in nuspecFiles.OrderBy(x => x.FileName))
             {
-                Logger.ConsoleParagraph(p => { });
-                Logger.ConsoleParagraph(p => p
-                    .Indent()
-                    .ConsoleText($"{Path.GetFileNameWithoutExtension(nuspecFile.FileName)} ")
-                    .ConsoleSpan(ConsoleColor.Magenta, null, s => s.ConsoleText($"({nuspecFile.Dependencies.Count()})"))
-                );
-
                 var nuspecDirectoryName = Path.GetDirectoryName(nuspecFile.FileName);
                 var packagesConfig = PackagesConfigFile.Load(nuspecDirectoryName);
+                
                 var csProj = CsProjFile.Load(Path.Combine(nuspecDirectoryName, $"{nuspecFile.Id}{CsProjFile.DefaultExtension}"));
+                var projectDependencies = csProj.ProjectReferences.Select(projectReferenceName => new NuspecDependency(projectReferenceName, _roboNuGetFile.FullVersion)).ToList();
+                var packageDependencies = packagesConfig.Packages.Select(package => new NuspecDependency(package.Id, package.Version)).ToList();
 
-                Logger.ConsoleParagraph(p => p.Indent(2).ConsoleSpan(ConsoleColor.DarkGray, null, s => s.ConsoleText($"[Projects]")));
+                var dependencyCount = projectDependencies.Count + packageDependencies.Count;
 
-                var projectDependencies = csProj.ProjectReferences.Select(projectReferenceName => new NuspecDependency(projectReferenceName, _roboNuGetFile.FullVersion));
-                foreach (var nuspecDependency in projectDependencies.OrderBy(x => x.Id))
-                {
-                    Logger.ConsoleParagraph(p => p
-                        .Indent(2)
-                        .ConsoleText($"- {nuspecDependency.Id} ")
-                        .ConsoleSpan(ConsoleColor.DarkGray, null, s => s.ConsoleText($"v{nuspecDependency.Version}"))
-                    );
-                }
+                //dependencyCount = nuspecFile.Dependencies.Count();
+                
+                Logger.ConsoleMessageLine(m => m);
+                Logger.ConsoleMessageLine(m => m
+                    .Indent()
+                    .text($"{Path.GetFileNameWithoutExtension(nuspecFile.FileName)} ")
+                    .span(s => s.text($"({dependencyCount})").color(ConsoleColor.Magenta)));
 
-                Logger.ConsoleParagraph(p => p.Indent(2).ConsoleSpan(ConsoleColor.DarkGray, null, s => s.ConsoleText($"[Packages]")));
 
-                var packageDependencies = packagesConfig.Packages.Select(package => new NuspecDependency(package.Id, package.Version));
-                foreach (var nuspecDependency in packageDependencies.OrderBy(x => x.Id))
-                {
-                    Logger.ConsoleParagraph(p => p
-                        .Indent(2)
-                        .ConsoleText($"- {nuspecDependency.Id} ")
-                        .ConsoleSpan(ConsoleColor.DarkGray, null, s => s.ConsoleText($"v{nuspecDependency.Version}"))
-                    );
-                }
+
+                ListDependencies("Projects", projectDependencies.OrderBy(x => x.Id));
+
+                ListDependencies("Packages", packageDependencies.OrderBy(x => x.Id));
             }
 
-
             return Task.CompletedTask;
+        }
+
+        private void ListDependencies(string header, IEnumerable<NuspecDependency> dependencies)
+        {
+            Logger.ConsoleMessageLine(p => p.Indent(2).span(s => s.text($"[{header}]").color(ConsoleColor.DarkGray)));
+
+            foreach (var nuspecDependency in dependencies)
+            {
+                Logger.ConsoleMessageLine(p => p
+                    .Indent(2)
+                    .text($"- {nuspecDependency.Id} ")
+                    .span(s => s.text($"v{nuspecDependency.Version}").color(ConsoleColor.DarkGray)));
+            }
         }
     }
 }

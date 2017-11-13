@@ -4,25 +4,27 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Reusable.OmniLog;
 using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
-    internal abstract class NuGet : StartProcess
+    [UsedImplicitly]
+    internal class NuGet : StartProcess
     {
-        protected NuGet(ILoggerFactory loggerFactory, RoboNuGetFile roboNuGetFile) : base(loggerFactory)
+        public NuGet(ILoggerFactory loggerFactory) : base(loggerFactory)
         {
-            RoboNuGetFile = roboNuGetFile;
             RedirectStandardOutput = true;
             FileName = "nuget";
         }
 
-        protected RoboNuGetFile RoboNuGetFile { get; }
+        public string Command { get; set; }        
 
-        // Gets NuGet command-name.
-        protected abstract string Name { get; }
-
-        protected string Command => RoboNuGetFile.NuGet.Commands[Name];
+        public override Task ExecuteAsync(CancellationToken cancellationToken)
+        {
+            Arguments = Command;
+            return base.ExecuteAsync(cancellationToken);
+        }
     }
 }

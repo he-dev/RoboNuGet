@@ -1,9 +1,32 @@
 {
-    "SolutionFileName": "*.sln",
+    "ExcludeDirectories": [
+        ".git",
+        ".idea",
+        ".vs",
+        "_nuget",
+        "*.Tests",
+        "packages",
+        "TestResults",
+        "bin",
+        "obj"
+    ],
+    "SolutionDirectoryName": "C:\\Home\\Projects\\Reusable",
+    "SolutionFileName": ".sln",
     "PackageVersion": "1.0.22",
     "IsPrerelease": false,
     "TargetFrameworkVersions": [
         "v4.6.2"
+    ],
+    "IgnorePaths": [
+        ".git\\",
+        ".idea\\",
+        ".vs\\",
+        "_nuget\\",
+        "*.Tests\\",
+        "packages\\",
+        "TestResults\\",
+        "bin\\",
+        "obj\\"
     ],
     "MsBuild": {
         "Target": "Rebuild",
@@ -22,7 +45,8 @@
         "OutputDirectoryName": "C:\\Home\\Projects\\NuGet\\packages",
         "NuGetConfigName": "C:\\Home\\Projects\\NuGet\\NuGet.config",
         "Commands": {
-            "pack": "pack \"{NuspecFileName}\" -properties Configuration=Release -outputdirectory \"{OutputDirectoryName}\"",
+            "pack":
+                "pack \"{NuspecFileName}\" -properties Configuration=Release -outputdirectory \"{OutputDirectoryName}\"",
             "push": "push {NupkgFileName} -configfile {NuGetConfigName}"
         }
     }

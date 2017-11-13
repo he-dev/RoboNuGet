@@ -10,8 +10,9 @@ using Reusable;
 
 namespace RoboNuGet.Files
 {
+    [UsedImplicitly]
     internal class RoboNuGetFile
-    {
+    {        
         private static readonly JsonSerializerSettings DefaultSerializerSettings = new JsonSerializerSettings
         {
             //Converters = {new JsonOverridableConverter()},
@@ -21,14 +22,22 @@ namespace RoboNuGet.Files
 
         private const string DefaultFileName = "RoboNuGet.json";
 
+        public string[] ExcludeDirectories { get; set; }
+        
+//        [JsonIgnore]
+//        public Func<string, bool> DirectoryFilter { get; }
+        
+        [JsonRequired]
+        public string SolutionDirectoryName { get; set; }
+        
         [DefaultValue("*.sln")]
         public string SolutionFileName { get; set; }
 
         public string PackageVersion { get; set; }
 
-        public string[] TargetFrameworkVersions { get; set; }
-
         public bool IsPrerelease { get; set; }
+
+        public string[] TargetFrameworkVersions { get; set; }
 
         public MsBuild MsBuild { get; set; }
 

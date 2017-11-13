@@ -9,6 +9,7 @@ using Reusable.Commander;
 using Reusable.CommandLine;
 using Reusable.ConsoleColorizer;
 using Reusable.Extensions;
+using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using RoboNuGet.Files;
 
@@ -47,7 +48,7 @@ namespace RoboNuGet.Commands
                 }
                 else
                 {
-                    Logger.ConsoleParagraph(p => p.Prompt().ConsoleSpan(ConsoleColor.Red, null, s => s.ConsoleText("Invalid version.")));
+                    Logger.ConsoleMessageLine(m => m.Prompt().span(s => s.text("Invalid version.").color(ConsoleColor.Red)));
                 }
             }
 
@@ -86,7 +87,7 @@ namespace RoboNuGet.Commands
         {
             _roboNuGetFile.PackageVersion = newVersion;
             _roboNuGetFile.Save();
-            Logger.ConsoleParagraph(p => p.Indent().ConsoleText($"New version: v{_roboNuGetFile.PackageVersion}"));
+            Logger.ConsoleMessageLine(m => m.Indent().text($"New version: v{_roboNuGetFile.PackageVersion}"));
         }
     }
 }

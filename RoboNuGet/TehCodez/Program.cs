@@ -10,6 +10,7 @@ using Reusable.Commander;
 using Reusable.ConsoleColorizer;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.IO;
 using Reusable.OmniLog;
 using RoboNuGet.Commands;
 using RoboNuGet.Files;
@@ -33,7 +34,7 @@ namespace RoboNuGet
 
                 do
                 {
-                    logger.ConsoleSpan(null, null, s => s.Prompt());
+                    logger.ConsoleMessage(m => m.Prompt());
                     var commandLine = Console.ReadLine();
 
                     if (commandLine.IsNullOrEmpty())
@@ -69,6 +70,7 @@ namespace RoboNuGet
                     .Register<Version>()
                     .Register<Clear>()
                     .Register<Build>()
+                    .Register<NuGet>()
                     .Register<Pack>()
                     .Register<List>()
                     .Register<Push>()
@@ -80,8 +82,12 @@ namespace RoboNuGet
                 .RegisterInstance(configuration);
 
             builder
-                .RegisterType<FileService>()
-                .As<IFileService>();
+                .RegisterType<FileSystem>()
+                .As<IFileSystem>();
+
+            builder
+                .RegisterType<FileSearch>()
+                .As<IFileSearch>();
 
             builder
                 .RegisterInstance(loggerFactory)
@@ -92,5 +98,10 @@ namespace RoboNuGet
 
             return builder.Build();
         }
+    }
+
+    public static class ExitCode
+    {
+        public const int Success = 0;
     }
 }

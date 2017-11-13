@@ -52,19 +52,24 @@ namespace RoboNuGet.Files
             {
                 var xDependencies = XPathSelectElements().SingleOrDefault();
 
+
                 if (xDependencies is null)
                 {
                     var xMetadata = _xNuspec.XPathSelectElements(@"package/metadata").Single();
                     xMetadata.Add(xDependencies = new XElement("dependencies"));
                 }
-                else
+
+                if (value is null)
                 {
                     xDependencies.Remove();
                 }
-
-                foreach (var dependency in value)
+                else
                 {
-                    xDependencies.Add(dependency.ToXElement());
+                    xDependencies.RemoveAll();
+                    foreach (var dependency in value)
+                    {
+                        xDependencies.Add(dependency.ToXElement());
+                    }
                 }
             }
         }

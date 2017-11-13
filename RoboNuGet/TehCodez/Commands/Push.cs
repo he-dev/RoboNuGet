@@ -13,7 +13,7 @@ namespace RoboNuGet.Commands
 {
     internal class Push : NuGet
     {
-        private readonly IFileService _fileService;
+        private readonly IFileSearch _fileSearch;
 
         private static readonly Validator<Push> ParameterValidator =
             Validator<Push>.Empty
@@ -23,14 +23,14 @@ namespace RoboNuGet.Commands
         public Push(
             ILoggerFactory loggerFactory,
             RoboNuGetFile roboNuGetFile,
-            IFileService fileService
-        ) : base(loggerFactory, roboNuGetFile)
+            IFileSearch fileSearch
+        ) : base(loggerFactory)
         {
-            _fileService = fileService;
+            _fileSearch = fileSearch;
             RedirectStandardOutput = true;
         }
 
-        protected override string Name => "push";
+        //protected override string Name => "push";
 
         public string PackageId { get; set; }
 
@@ -40,17 +40,17 @@ namespace RoboNuGet.Commands
         {
             this.ValidateWith(ParameterValidator).ThrowIfNotValid();
 
-            var solutionFileName = _fileService.GetSolutionFileName(RoboNuGetFile.SolutionFileName);
-            var nuspecFiles = _fileService.GetNuspecFiles(Path.GetDirectoryName(solutionFileName));
+            var solutionFileName = _fileSearch.FindSolutionFile();
+            var nuspecFiles = _fileSearch.FindNuspecFiles();
             
             // We're not pushing packages in parallel.
             foreach (var nuspecFile in nuspecFiles)
             {
-                Arguments = Command.Format(new
-                {
-                    NupkgFileName = Path.Combine(RoboNuGetFile.NuGet.OutputDirectoryName, $"{nuspecFile.Id}.{nuspecFile.Version}.nupkg"),
-                    RoboNuGetFile.NuGet.NuGetConfigName,
-                });                
+                //Arguments = Command.Format(new
+                //{
+                //    NupkgFileName = Path.Combine(RoboNuGetFile.NuGet.OutputDirectoryName, $"{nuspecFile.Id}.{nuspecFile.Version}.nupkg"),
+                //    RoboNuGetFile.NuGet.NuGetConfigName,
+                //});                
             }
             
             return Task.CompletedTask;

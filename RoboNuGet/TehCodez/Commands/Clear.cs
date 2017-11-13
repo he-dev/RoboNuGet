@@ -8,6 +8,7 @@ using Reusable.Commander;
 using Reusable.CommandLine;
 using Reusable.ConsoleColorizer;
 using Reusable.Extensions;
+using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using RoboNuGet.Files;
 
@@ -18,12 +19,12 @@ namespace RoboNuGet.Commands
     internal class Clear : ConsoleCommand
     {
         private readonly RoboNuGetFile _roboNuGetFile;
-        private readonly IFileService _fileService;
+        private readonly IFileSearch _fileSearch;
 
-        public Clear(ILoggerFactory loggerFactory, RoboNuGetFile roboNuGetFile, IFileService fileService) : base(loggerFactory)
+        public Clear(ILoggerFactory loggerFactory, RoboNuGetFile roboNuGetFile, IFileSearch fileSearch) : base(loggerFactory)
         {
             _roboNuGetFile = roboNuGetFile;
-            _fileService = fileService;
+            _fileSearch = fileSearch;
         }
 
         public override Task ExecuteAsync(CancellationToken cancellationToken)
@@ -35,27 +36,21 @@ namespace RoboNuGet.Commands
 
         private void RenderSplashScreen(RoboNuGetFile roboNuGetFile)
         {
-            Logger.ConsoleParagraph(p => p.Prompt().ConsoleSpan(ConsoleColor.DarkGray, null, s => s.ConsoleText("RoboNuGet v3.0.0")));
+            Logger.ConsoleMessageLine(m => m.Prompt().span(s => s.text("RoboNuGet v3.0.0").color(ConsoleColor.DarkGray)));
 
-            var solutionFileName = roboNuGetFile.GetSolutionFileName(_fileService);
-            var nuspecFiles = roboNuGetFile.GetNuspecFiles(_fileService).ToList();
-
-            //            if (string.IsNullOrEmpty(_program.RoboNuGetFile.SolutionFileNameActual))
-            //            {
-            //                Picasso.WriteError("Solution file not found.");
-            //                return;
-            //            }
+            var solutionFileName = _fileSearch.FindSolutionFile();
+            var nuspecFiles = _fileSearch.FindNuspecFiles().ToList();
 
             //ConsoleColorizer.RenderLine($"<p>&gt;Solution '<span color='yellow'>{solutionName}</span>' <span color='magenta'>v{_program.RoboNuGetFile.FullVersion}</span> ({nuspecFileCount} nuspec{(nuspecFileCount != 1 ? "s" : string.Empty)})</p>");
 
-            Logger.ConsoleParagraph(p => p
+            Logger.ConsoleMessageLine(p => p
                 .Prompt()
-                .ConsoleText("Solution ")
-                .ConsoleSpan(ConsoleColor.Yellow, null, s => s.ConsoleText(Path.GetFileNameWithoutExtension(solutionFileName).QuoteWith("'")))
-                .ConsoleText(" ")
-                .ConsoleSpan(ConsoleColor.Magenta, null, s => s.ConsoleText($" v{_roboNuGetFile.FullVersion}"))
-                .ConsoleText(" ")
-                .ConsoleText($"({nuspecFiles.Count} nuspec{(nuspecFiles.Count != 1 ? "s" : string.Empty)})")
+                .text("Solution ")
+                .span(s => s.text(Path.GetFileNameWithoutExtension(solutionFileName).QuoteWith("'")).color(ConsoleColor.Yellow))
+                .text(" ")
+                .span(s => s.text($" v{_roboNuGetFile.FullVersion}").color(ConsoleColor.Magenta))
+                .text(" ")
+                .text($"({nuspecFiles.Count} nuspec{(nuspecFiles.Count != 1 ? "s" : string.Empty)})")
             );
             //            ConsoleColorizer.RenderLine($"<p>&gt;<span color='darkgray'>Directory '{Path.GetDirectoryName(_program.RoboNuGetFile.SolutionFileNameActual)}'</span></p>");
             //            ConsoleColorizer.RenderLine($"<p>&gt;<span color='darkgray'>Packages '{_program.RoboNuGetFile.PackageDirectoryName}'</span></p>");
