@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -24,17 +25,20 @@ namespace RoboNuGet.Commands
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly IFileSearch _fileSearch;
         private readonly IIndex<SoftKeySet, IConsoleCommand> _commands;
+        private readonly IIsolatedFactory _isolatedFactory;
 
         public Pack(
             ILoggerFactory loggerFactory,
             RoboNuGetFile roboNuGetFile,
             IFileSearch fileSearch,
-            IIndex<SoftKeySet, IConsoleCommand> commands
+            IIndex<SoftKeySet, IConsoleCommand> commands,
+            IIsolatedFactory isolatedFactory
         ) : base(loggerFactory)
         {
             _roboNuGetFile = roboNuGetFile;
             _fileSearch = fileSearch;
             _commands = commands;
+            _isolatedFactory = isolatedFactory;
         }
 
         public override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -69,15 +73,20 @@ namespace RoboNuGet.Commands
 
         private readonly object _consoleSyncLock = new object();
 
-        private async Task<int> CreatePackage(NuspecFile nuspecFile, CancellationToken cancellationToken)
+        private async Task UpdateNuspec(NuspecFile nuspecFile, CancellationToken cancellationToken)
         {
-            var packageStopwatch = Stopwatch.StartNew();
-
             var updateNuspec = (UpdateNuspec)_commands[nameof(UpdateNuspec)];
             updateNuspec.NuspecFile = nuspecFile;
             updateNuspec.Version = _roboNuGetFile.PackageVersion;
 
             await updateNuspec.ExecuteAsync(cancellationToken);
+        }
+
+        private async Task<int> CreatePackage(NuspecFile nuspecFile, CancellationToken cancellationToken)
+        {
+            var packageStopwatch = Stopwatch.StartNew();
+
+            await UpdateNuspec(nuspecFile, cancellationToken);
 
             var commandLine = _roboNuGetFile.NuGet.Commands["pack"].Format(new
             {
@@ -85,9 +94,11 @@ namespace RoboNuGet.Commands
                 OutputDirectoryName = _roboNuGetFile.NuGet.OutputDirectoryName,
             });
 
-            using (var processExecutor = new Isolated<CmdExecutor>())
+            var cmdExecutor = _isolatedFactory.GetIsolated<CmdExecutor>(nuspecFile.Id);
+
+            //using (var processExecutor = new Isolated<CmdExecutor>())
             {
-                var result = await Task.Run(() => processExecutor.Value.Execute("nuget", commandLine, CmdSwitch.EchoOff, CmdSwitch.Terminate), cancellationToken);
+                var result = await Task.Run(() => cmdExecutor.Value.Execute("nuget", commandLine, CmdSwitch.EchoOff, CmdSwitch.Terminate), cancellationToken);
 
                 lock (_consoleSyncLock)
                 {
@@ -107,7 +118,31 @@ namespace RoboNuGet.Commands
 
                 return result.ExitCode;
             }
-        }       
+        }
+    }
+
+    public interface IIsolatedFactory : IDisposable
+    {
+        Isolated<T> GetIsolated<T>(string name) where T : MarshalByRefObject;
+    }
+
+    [UsedImplicitly]
+    public class IsolatedFactory : IIsolatedFactory
+    {
+        private readonly ConcurrentDictionary<string, IDisposable> _cache = new ConcurrentDictionary<string, IDisposable>();
+
+        public Isolated<T> GetIsolated<T>(string name) where T : MarshalByRefObject
+        {
+            return (Isolated<T>)_cache.GetOrAdd(name, n => new Isolated<CmdExecutor>());
+        }
+
+        public void Dispose()
+        {
+            foreach (var disposable in _cache)
+            {
+                disposable.Value.Dispose();
+            }
+        }
     }
 
     public static class CmdSwitch
