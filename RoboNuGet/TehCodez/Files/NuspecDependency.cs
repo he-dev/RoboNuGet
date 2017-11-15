@@ -4,15 +4,18 @@ namespace RoboNuGet.Files
 {
     internal class NuspecDependency
     {
-        public NuspecDependency(string id, string version)
+        public string Id { get; set; }
+
+        public string Version { get; set; }
+
+        public static NuspecDependency Create(XElement xDependency)
         {
-            Id = id;
-            Version = version;
+            return new NuspecDependency
+            {
+                Id = xDependency.Attribute("id").Value,
+                Version = xDependency.Attribute("version").Value
+            };
         }
-
-        public string Id { get; }
-
-        public string Version { get; }
 
         public XElement ToXElement()
         {

@@ -11,7 +11,7 @@ using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
-    internal class Push : NuGet
+    internal class Push : ConsoleCommand
     {
         private readonly IFileSearch _fileSearch;
 
@@ -27,7 +27,7 @@ namespace RoboNuGet.Commands
         ) : base(loggerFactory)
         {
             _fileSearch = fileSearch;
-            RedirectStandardOutput = true;
+            //RedirectStandardOutput = true;
         }
 
         //protected override string Name => "push";

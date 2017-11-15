@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using JetBrains.Annotations;
 using Reusable.Commander;
 using Reusable.CommandLine;
 using Reusable.OmniLog;
@@ -12,6 +13,7 @@ using RoboNuGet.Files;
 namespace RoboNuGet.Commands
 {
     [Alias("update", "u")]
+    [UsedImplicitly]
     internal class UpdateNuspec : ConsoleCommand
     {
         public UpdateNuspec(ILoggerFactory loggerFactory) : base(loggerFactory)
@@ -28,8 +30,8 @@ namespace RoboNuGet.Commands
             var packagesConfig = PackagesConfigFile.Load(nuspecDirectoryName);
             var csProj = CsProjFile.Load(Path.Combine(nuspecDirectoryName, $"{NuspecFile.Id}{CsProjFile.DefaultExtension}"));
 
-            var packageDependencies = packagesConfig.Packages.Select(package => new NuspecDependency(package.Id, package.Version));
-            var projectDependencies = csProj.ProjectReferences.Select(projectReferenceName => new NuspecDependency(projectReferenceName, Version));
+            var packageDependencies = packagesConfig.Packages.Select(package => new NuspecDependency { Id = package.Id, Version = package.Version });
+            var projectDependencies = csProj.ProjectReferences.Select(projectReferenceName => new NuspecDependency { Id = projectReferenceName, Version = Version });
 
             NuspecFile.Dependencies = packageDependencies.Concat(projectDependencies);
             NuspecFile.Version = Version;

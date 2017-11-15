@@ -43,15 +43,11 @@ namespace RoboNuGet.Files
             {
                 return
                     from xDependency in XPathSelectElements().SingleOrDefault()?.Elements() ?? Enumerable.Empty<XElement>()
-                    select new NuspecDependency(
-                        xDependency.Attribute("id").Value,
-                        xDependency.Attribute("version").Value
-                    );
+                    select NuspecDependency.Create(xDependency);
             }
             set
             {
                 var xDependencies = XPathSelectElements().SingleOrDefault();
-
 
                 if (xDependencies is null)
                 {
@@ -74,6 +70,7 @@ namespace RoboNuGet.Files
             }
         }
 
+        [NotNull]
         public static NuspecFile Load(string fileName)
         {
             var xNuspec = XDocument.Load(fileName);
@@ -102,5 +99,14 @@ namespace RoboNuGet.Files
         public override string ToString() => _xPath;
 
         public static implicit operator string(XPathAttribute xPathAttribute) => xPathAttribute.ToString();
+    }
+
+    public static class XDocumentExtensions
+    {
+        public static IEnumerable<XElement> XPathSelectElements<T>(this XDocument xDocument, [CallerMemberName] string memeberName = null)
+        {
+            var xPath = typeof(T).GetProperty(memeberName).GetCustomAttribute<XPathAttribute>();
+            return xDocument.XPathSelectElements(xPath);
+        }
     }
 }

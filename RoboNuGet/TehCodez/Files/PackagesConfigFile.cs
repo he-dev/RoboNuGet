@@ -1,10 +1,13 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using JetBrains.Annotations;
+using Reusable.Exceptionize;
+using Reusable.Extensions;
 
 namespace RoboNuGet.Files
 {
@@ -12,44 +15,57 @@ namespace RoboNuGet.Files
     {
         private const string DefaultFileName = "packages.config";
 
-        private PackagesConfigFile(string fileName, IEnumerable<PackageElement> packages)
+        private readonly XDocument _xPackagesConfig;
+
+        private PackagesConfigFile(string fileName, XDocument xPackagesConfig)
         {
+            _xPackagesConfig = xPackagesConfig;
             FileName = fileName;
-            Packages = packages;
         }
 
         [NotNull]
         private string FileName { get; }
 
+        [XPath(@"packages/package")]
         [NotNull, ItemNotNull]
-        public IEnumerable<PackageElement> Packages { get; }
+        public IEnumerable<PackageElement> Packages
+        {
+            get
+            {
+                return
+                    _xPackagesConfig
+                        .XPathSelectElements<PackagesConfigFile>()
+                        .Select(PackageElement.Create);
+            }
+        }
 
         [NotNull]
         public static PackagesConfigFile Load(string directoryName)
         {
+            if (directoryName == null) throw new ArgumentNullException(nameof(directoryName));
+
             var fileName = Path.Combine(directoryName, DefaultFileName);
-            if (!File.Exists(fileName))
-            {
-                return new PackagesConfigFile(fileName, Enumerable.Empty<PackageElement>());
-            }
 
-            var packagesConfig = XDocument.Load(fileName);
-            var packages =
-                ((IEnumerable) packagesConfig.XPathEvaluate(@"packages/package"))
-                .Cast<XElement>()
-                .Select(x => new PackageElement
-                {
-                    Id = x.Attribute("id").Value,
-                    Version = x.Attribute("version").Value
-                }).ToList();
-
-            return new PackagesConfigFile(fileName, packages);
+            return
+                File.Exists(fileName)
+                    ? new PackagesConfigFile(fileName, XDocument.Load(fileName))
+                    : new PackagesConfigFile(fileName, new XDocument());
         }
     }
 
     internal class PackageElement
     {
         public string Id { get; set; }
+
         public string Version { get; set; }
+
+        public static PackageElement Create(XElement xPackage)
+        {
+            return new PackageElement
+            {
+                Id = xPackage.Attribute("id").Value,
+                Version = xPackage.Attribute("version").Value
+            };
+        }
     }
 }

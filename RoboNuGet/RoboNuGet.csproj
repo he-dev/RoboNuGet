@@ -133,8 +133,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TehCodez\Commands\Abstractions\NuGet.cs" />
-    <Compile Include="TehCodez\Commands\Abstractions\StartProcess.cs" />
     <Compile Include="TehCodez\Commands\Build.cs" />
     <Compile Include="TehCodez\Commands\Clear.cs" />
     <Compile Include="TehCodez\Commands\Pack.cs" />

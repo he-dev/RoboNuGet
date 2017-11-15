@@ -12,9 +12,8 @@ using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.IO;
 using Reusable.OmniLog;
-using RoboNuGet.Commands;
 using RoboNuGet.Files;
-using Version = RoboNuGet.Commands.Version;
+using Commands = RoboNuGet.Commands;
 
 namespace RoboNuGet
 {
@@ -22,7 +21,12 @@ namespace RoboNuGet
     {
         private static async Task Main(string[] args)
         {
-            using (var container = InitializeContainer())
+            var configuration = RoboNuGetFile.Load();
+            var loggerFactory = new LoggerFactory();
+            //var logger = loggerFactory.CreateLogger("RoboNuGet");
+            loggerFactory.Subscribe(ConsoleTemplateRx.Create(new ConsoleTemplateRenderer()));
+
+            using (var container = InitializeContainer(configuration, loggerFactory))
             using (var scope = container.BeginLifetimeScope())
             {
                 var logger = scope.Resolve<ILoggerFactory>().CreateLogger("ConsoleTemplateTest");
@@ -56,25 +60,20 @@ namespace RoboNuGet
             // ReSharper disable once FunctionNeverReturns - it does renturn when you execute the 'exit' command
         }
 
-        private static IContainer InitializeContainer()
+        private static IContainer InitializeContainer(RoboNuGetFile configuration, ILoggerFactory loggerFactory)
         {
-            var configuration = RoboNuGetFile.Load();
-            var loggerFactory = new LoggerFactory();
-            var logger = loggerFactory.CreateLogger("RoboNuGet");
-            loggerFactory.Subscribe(ConsoleTemplateRx.Create(new ConsoleTemplateRenderer()));
-
             var registrations =
                 CommandRegistrationContainer
                     .Empty
-                    .Register<UpdateNuspec>()
-                    .Register<Version>()
-                    .Register<Clear>()
-                    .Register<Build>()
-                    .Register<NuGet>()
-                    .Register<Pack>()
-                    .Register<List>()
-                    .Register<Push>()
-                    .Register<Exit>();
+                    .Register<Commands.UpdateNuspec>()
+                    .Register<Commands.Version>()
+                    .Register<Commands.Clear>()
+                    .Register<Commands.Build>()
+                    //.Register<Commands.NuGet>()
+                    .Register<Commands.Pack>()
+                    .Register<Commands.List>()
+                    .Register<Commands.Push>()
+                    .Register<Commands.Exit>();
 
             var builder = new ContainerBuilder();
 
