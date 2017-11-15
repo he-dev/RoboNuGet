@@ -29,14 +29,14 @@ namespace RoboNuGet.Commands
         [Parameter, Alias("f")]
         public string Full { get; set; }
         
-        [Parameter, Alias("p")]
-        public bool Patch { get; set; }
+        [Parameter, Alias("np")]
+        public bool NextPatch { get; set; }
         
-        [Parameter]
-        public bool Minor { get; set; }
+        [Parameter, Alias("nm")]
+        public bool NextMinor { get; set; }
         
-        [Parameter]
-        public bool Major { get; set; }
+        [Parameter, Alias("nr")]
+        public bool NextMajor { get; set; }
 
         public override Task  ExecuteAsync(CancellationToken cancellationToken)
         {
@@ -50,18 +50,19 @@ namespace RoboNuGet.Commands
                 {
                     Logger.ConsoleMessageLine(m => m.Prompt().span(s => s.text("Invalid version.").color(ConsoleColor.Red)));
                 }
+                return Task.CompletedTask;
             }
 
             var currentVersion = SemanticVersion.Parse(_roboNuGetFile.PackageVersion);
 
-            if (Patch)
+            if (NextPatch)
             {
                 currentVersion.Patch++;
                 UpdateVersion(currentVersion.ToString());
                 return Task.CompletedTask;
             }
 
-            if (Minor)
+            if (NextMinor)
             {
                 currentVersion.Minor++;
                 currentVersion.Patch = 0;
@@ -69,7 +70,7 @@ namespace RoboNuGet.Commands
                 return Task.CompletedTask;
             }
             
-            if (Major)
+            if (NextMajor)
             {
                 currentVersion.Major++;
                 currentVersion.Minor = 0;

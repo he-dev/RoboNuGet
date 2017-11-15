@@ -82,11 +82,6 @@ namespace RoboNuGet
                 .RegisterInstance(configuration);
 
             builder
-                .RegisterType<IsolatedFactory>()
-                .As<IIsolatedFactory>()
-                .InstancePerLifetimeScope();
-
-            builder
                 .RegisterType<FileSystem>()
                 .As<IFileSystem>();
 
