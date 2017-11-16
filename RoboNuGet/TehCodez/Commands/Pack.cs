@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Autofac.Features.Indexed;
 using JetBrains.Annotations;
+using Reusable;
 using Reusable.Commander;
 using Reusable.CommandLine;
 using Reusable.ConsoleColorizer;
@@ -25,20 +26,17 @@ namespace RoboNuGet.Commands
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly IFileSearch _fileSearch;
         private readonly IIndex<SoftKeySet, IConsoleCommand> _commands;
-        private readonly IIsolatedFactory _isolatedFactory;
 
         public Pack(
             ILoggerFactory loggerFactory,
             RoboNuGetFile roboNuGetFile,
             IFileSearch fileSearch,
-            IIndex<SoftKeySet, IConsoleCommand> commands,
-            IIsolatedFactory isolatedFactory
+            IIndex<SoftKeySet, IConsoleCommand> commands
         ) : base(loggerFactory)
         {
             _roboNuGetFile = roboNuGetFile;
             _fileSearch = fileSearch;
             _commands = commands;
-            _isolatedFactory = isolatedFactory;
         }
 
         public override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -94,11 +92,12 @@ namespace RoboNuGet.Commands
                 OutputDirectoryName = _roboNuGetFile.NuGet.OutputDirectoryName,
             });
 
-            var cmdExecutor = _isolatedFactory.GetIsolated<CmdExecutor>(nuspecFile.Id);
+            //var cmdExecutor = _isolatedFactory.GetIsolated<CmdExecutor>(nuspecFile.Id);
 
-            //using (var processExecutor = new Isolated<CmdExecutor>())
+            using (var processExecutor = new Isolated<ProcessExecutor>())
             {
-                var result = await Task.Run(() => cmdExecutor.Value.Execute("nuget", commandLine, CmdSwitch.EchoOff, CmdSwitch.Terminate), cancellationToken);
+                //var result = await Task.Run(() => processExecutor.Value.NoWindowExecute("nuget", commandLine, CmdSwitch.EchoOff, CmdSwitch.Terminate), cancellationToken);
+                var result = await Task.Run(() => processExecutor.Value.NoWindowExecute("nuget", commandLine), cancellationToken);
 
                 lock (_consoleSyncLock)
                 {
@@ -119,115 +118,11 @@ namespace RoboNuGet.Commands
                 return result.ExitCode;
             }
         }
-    }
-
-    public interface IIsolatedFactory : IDisposable
-    {
-        Isolated<T> GetIsolated<T>(string name) where T : MarshalByRefObject;
-    }
-
-    [UsedImplicitly]
-    public class IsolatedFactory : IIsolatedFactory
-    {
-        private readonly ConcurrentDictionary<string, IDisposable> _cache = new ConcurrentDictionary<string, IDisposable>();
-
-        public Isolated<T> GetIsolated<T>(string name) where T : MarshalByRefObject
-        {
-            return (Isolated<T>)_cache.GetOrAdd(name, n => new Isolated<CmdExecutor>());
-        }
-
-        public void Dispose()
-        {
-            foreach (var disposable in _cache)
-            {
-                disposable.Value.Dispose();
-            }
-        }
-    }
+    }    
 
     public static class CmdSwitch
     {
         public const string EchoOff = "/Q";
         public const string Terminate = "/C";
-    }
-
-    public sealed class Isolated<T> : IDisposable where T : MarshalByRefObject
-    {
-        private readonly AppDomain _domain;
-
-        public Isolated()
-        {
-            _domain = AppDomain.CreateDomain($"Isolated-{Guid.NewGuid()}", null, AppDomain.CurrentDomain.SetupInformation);
-            Value = (T)_domain.CreateInstanceAndUnwrap(typeof(T).Assembly.FullName, typeof(T).FullName);
-        }
-
-        public T Value { get; }
-
-        public void Dispose()
-        {
-            AppDomain.Unload(_domain);
-        }
-    }
-
-    /// <inheritdoc />
-    /// <summary>
-    /// Executes commands in a new instance of the Windows command interpreter.
-    /// </summary>
-    [UsedImplicitly]
-    public class CmdExecutor : MarshalByRefObject
-    {
-        public CmdResult Execute([NotNull] string fileName, [NotNull] string arguments, params string[] cmdSwitches)
-        {
-            if (cmdSwitches == null) throw new ArgumentNullException(nameof(cmdSwitches));
-            if (fileName == null) throw new ArgumentNullException(nameof(fileName));
-            if (arguments == null) throw new ArgumentNullException(nameof(arguments));
-
-            arguments = $"{cmdSwitches.Join(" ")} {fileName} {arguments}";
-            var startInfo = new ProcessStartInfo("cmd", arguments)
-            {
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true,
-            };
-
-            using (var process = new Process { StartInfo = startInfo })
-            {
-                var output = new StringBuilder();
-                var error = new StringBuilder();
-
-                process.OutputDataReceived += (sender, e) =>
-                {
-                    output.AppendLine(e.Data);
-                };
-
-                process.ErrorDataReceived += (sender, e) =>
-                {
-                    error.AppendLine(e.Data);
-                };
-
-                process.Start();
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-                process.WaitForExit();
-
-                return new CmdResult
-                {
-                    Arguments = arguments,
-                    Output = output.ToString(),
-                    Error = error.ToString(),
-                    ExitCode = process.ExitCode
-                };
-            }
-        }
-    }
-
-    [Serializable]
-    public class CmdResult
-    {
-        public string Arguments { get; set; }
-        public string Output { get; set; }
-        public string Error { get; set; }
-        public int ExitCode { get; set; }
-    }
+    }   
 }
