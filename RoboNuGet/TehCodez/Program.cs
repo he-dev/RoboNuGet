@@ -81,6 +81,10 @@ namespace RoboNuGet
                 .RegisterInstance(configuration);
 
             builder
+                .RegisterType<ProcessExecutor>()
+                .As<IProcessExecutor>();
+
+            builder
                 .RegisterType<FileSystem>()
                 .As<IFileSystem>();
 

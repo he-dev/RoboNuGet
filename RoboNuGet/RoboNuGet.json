@@ -1,53 +1,52 @@
 {
-    "ExcludeDirectories": [
-        ".git",
-        ".idea",
-        ".vs",
-        "_nuget",
-        "*.Tests",
-        "packages",
-        "TestResults",
-        "bin",
-        "obj"
-    ],
-    "SolutionDirectoryName": "C:\\Home\\Projects\\Reusable",
-    "SolutionFileName": ".sln",
-    "PackageVersion": "1.0.22",
-    "IsPrerelease": false,
-    "TargetFrameworkVersions": [
-        "v4.6.2"
-    ],
-    "IgnorePaths": [
-        ".git\\",
-        ".idea\\",
-        ".vs\\",
-        "_nuget\\",
-        "*.Tests\\",
-        "packages\\",
-        "TestResults\\",
-        "bin\\",
-        "obj\\"
-    ],
-    "MsBuild": {
-        "Target": "Rebuild",
-        "NoLogo": true,
-        "Properties": {
-            "Configuration": "Release"
-            //"TargetFrameworkVersion": "v4.5.2",
-            //"Platform": "Any CPU",
-            //"OutDir": "_nuget\\{PackageId}\\net452"
-        },
-        "Switches": {
-            "m": null
-        }
+  "ExcludeDirectories": [
+    ".git",
+    ".idea",
+    ".vs",
+    "_nuget",
+    "*.Tests",
+    "packages",
+    "TestResults",
+    "bin",
+    "obj"
+  ],
+  "SolutionDirectoryName": "C:\\Home\\Projects\\Reusable",
+  "SolutionFileName": ".sln",
+  "PackageVersion": "3.78.0",
+  "IsPrerelease": false,
+  "TargetFrameworkVersions": [
+    "v4.6.2"
+  ],
+  "IgnorePaths": [
+    ".git\\",
+    ".idea\\",
+    ".vs\\",
+    "_nuget\\",
+    "*.Tests\\",
+    "packages\\",
+    "TestResults\\",
+    "bin\\",
+    "obj\\"
+  ],
+  "MsBuild": {
+    "Target": "Rebuild",
+    "NoLogo": true,
+    "Properties": {
+      "Configuration": "Release"
+      //"TargetFrameworkVersion": "v4.5.2",
+      //"Platform": "Any CPU",
+      //"OutDir": "_nuget\\{PackageId}\\net452"
     },
-    "NuGet": {
-        "OutputDirectoryName": "C:\\Home\\Projects\\NuGet\\packages",
-        "NuGetConfigName": "C:\\Home\\Projects\\NuGet\\NuGet.config",
-        "Commands": {
-            "pack":
-                "pack \"{NuspecFileName}\" -properties Configuration=Release -outputdirectory \"{OutputDirectoryName}\"",
-            "push": "push {NupkgFileName} -configfile {NuGetConfigName}"
-        }
+    "Switches": {
+      "m": null
     }
+  },
+  "NuGet": {
+    "OutputDirectoryName": "C:\\Home\\Projects\\NuGet\\packages",
+    "NuGetConfigName": "C:\\Home\\Projects\\NuGet\\NuGet.config",
+    "Commands": {
+      "pack": "pack \"{NuspecFileName}\" -properties Configuration=Release -outputdirectory \"{OutputDirectoryName}\"",
+      "push": "push {NupkgFileName} -configfile {NuGetConfigName}"
+    }
+  }
 }

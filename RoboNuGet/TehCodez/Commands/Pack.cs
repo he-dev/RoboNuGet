@@ -26,17 +26,20 @@ namespace RoboNuGet.Commands
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly IFileSearch _fileSearch;
         private readonly IIndex<SoftKeySet, IConsoleCommand> _commands;
+        private readonly IProcessExecutor _processExecutor;
 
         public Pack(
             ILoggerFactory loggerFactory,
             RoboNuGetFile roboNuGetFile,
             IFileSearch fileSearch,
-            IIndex<SoftKeySet, IConsoleCommand> commands
+            IIndex<SoftKeySet, IConsoleCommand> commands,
+            IProcessExecutor processExecutor
         ) : base(loggerFactory)
         {
             _roboNuGetFile = roboNuGetFile;
             _fileSearch = fileSearch;
             _commands = commands;
+            _processExecutor = processExecutor;
         }
 
         public override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -92,37 +95,31 @@ namespace RoboNuGet.Commands
                 OutputDirectoryName = _roboNuGetFile.NuGet.OutputDirectoryName,
             });
 
-            //var cmdExecutor = _isolatedFactory.GetIsolated<CmdExecutor>(nuspecFile.Id);
+            var result = await Task.Run(() => _processExecutor.NoWindowExecuteAsync("nuget", commandLine), cancellationToken);
 
-            using (var processExecutor = new Isolated<ProcessExecutor>())
+            lock (_consoleSyncLock)
             {
-                //var result = await Task.Run(() => processExecutor.Value.NoWindowExecute("nuget", commandLine, CmdSwitch.EchoOff, CmdSwitch.Terminate), cancellationToken);
-                var result = await Task.Run(() => processExecutor.Value.NoWindowExecute("nuget", commandLine), cancellationToken);
+                //Logger.ConsoleMessageLine(m => m.text($"Executed: {result.Arguments}"));
+                Logger.ConsoleMessageLine(m => m.text(result.Output.Trim()));
 
-                lock (_consoleSyncLock)
+                if (result.ExitCode != ExitCode.Success)
                 {
-                    //Logger.ConsoleMessageLine(m => m.text($"Executed: {result.Arguments}"));
-                    Logger.ConsoleMessageLine(m => m.text(result.Output.Trim()));
-
-                    if (result.ExitCode != ExitCode.Success)
-                    {
-                        Logger.ConsoleError(result.Error.Trim());
-                        Logger.ConsoleMessageLine(p => p.Indent().text($"Could not create package: {nuspecFile.Id}").color(ConsoleColor.Red));
-                    }
-
-                    Logger.ConsoleMessageLine(p => p.text($"Elapsed: {packageStopwatch.Elapsed.TotalSeconds:F1} sec [{Thread.CurrentThread.ManagedThreadId}] ({nuspecFile.Id})"));
-                    //Logger.ConsoleMessageLine(p => p.text($"-"));
-                    Logger.ConsoleMessageLine(_ => _);
+                    Logger.ConsoleError(result.Error.Trim());
+                    Logger.ConsoleMessageLine(p => p.Indent().text($"Could not create package: {nuspecFile.Id}").color(ConsoleColor.Red));
                 }
 
-                return result.ExitCode;
+                Logger.ConsoleMessageLine(p => p.text($"Elapsed: {packageStopwatch.Elapsed.TotalSeconds:F1} sec [{Thread.CurrentThread.ManagedThreadId}] ({nuspecFile.Id})"));
+                //Logger.ConsoleMessageLine(p => p.text($"-"));
+                Logger.ConsoleMessageLine(_ => _);
             }
+
+            return result.ExitCode;
         }
-    }    
+    }
 
     public static class CmdSwitch
     {
         public const string EchoOff = "/Q";
         public const string Terminate = "/C";
-    }   
+    }
 }

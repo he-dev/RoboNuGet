@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using JetBrains.Annotations;
 using Reusable.Commander;
+using Reusable.CommandLine;
 using Reusable.ConsoleColorizer;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
@@ -26,6 +27,9 @@ namespace RoboNuGet.Commands
             _fileSearch = fileSearch;
         }
 
+        [Parameter, Alias("s")]
+        public bool Short { get; set; }
+
         public override Task ExecuteAsync(CancellationToken cancellationToken)
         {
             var solutionFileName = _fileSearch.FindSolutionFile();
@@ -37,21 +41,27 @@ namespace RoboNuGet.Commands
                 var packagesConfig = PackagesConfigFile.Load(nuspecDirectoryName);
 
                 var csProj = CsProjFile.Load(Path.Combine(nuspecDirectoryName, $"{nuspecFile.Id}{CsProjFile.DefaultExtension}"));
-                var projectDependencies = csProj.ProjectReferences.Select(projectReferenceName => new NuspecDependency {Id = projectReferenceName, Version = _roboNuGetFile.FullVersion}).ToList();
-                var packageDependencies = packagesConfig.Packages.Select(package => new NuspecDependency {Id = package.Id, Version = package.Version}).ToList();
+                var projectDependencies = csProj.ProjectReferences.Select(projectReferenceName => new NuspecDependency { Id = projectReferenceName, Version = _roboNuGetFile.FullVersion }).ToList();
+                var packageDependencies = packagesConfig.Packages.Select(package => new NuspecDependency { Id = package.Id, Version = package.Version }).ToList();
 
                 var dependencyCount = projectDependencies.Count + packageDependencies.Count;
 
                 //dependencyCount = nuspecFile.Dependencies.Count();
 
-                Logger.ConsoleMessageLine(m => m);
+                if (!Short)
+                {
+                    Logger.ConsoleMessageLine(m => m);
+                }
                 Logger.ConsoleMessageLine(m => m
                     .Indent()
                     .text($"{Path.GetFileNameWithoutExtension(nuspecFile.FileName)} ")
                     .span(s => s.text($"({dependencyCount})").color(ConsoleColor.Magenta)));
 
-                ListDependencies("Projects", projectDependencies.OrderBy(x => x.Id));
-                ListDependencies("Packages", packageDependencies.OrderBy(x => x.Id));
+                if (!Short)
+                {
+                    ListDependencies("Projects", projectDependencies.OrderBy(x => x.Id));
+                    ListDependencies("Packages", packageDependencies.OrderBy(x => x.Id));
+                }
             }
 
             return Task.CompletedTask;
