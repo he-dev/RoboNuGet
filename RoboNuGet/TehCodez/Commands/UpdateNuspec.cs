@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using JetBrains.Annotations;
 using Reusable.Commander;
-using Reusable.CommandLine;
 using Reusable.OmniLog;
 using RoboNuGet.Files;
 

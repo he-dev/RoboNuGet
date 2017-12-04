@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;

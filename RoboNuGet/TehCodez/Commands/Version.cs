@@ -6,7 +6,6 @@ using System.Windows.Input;
 using JetBrains.Annotations;
 using Reusable;
 using Reusable.Commander;
-using Reusable.CommandLine;
 using Reusable.ConsoleColorizer;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;

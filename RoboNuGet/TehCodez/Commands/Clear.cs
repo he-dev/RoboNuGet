@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Commander;
-using Reusable.CommandLine;
 using Reusable.ConsoleColorizer;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;

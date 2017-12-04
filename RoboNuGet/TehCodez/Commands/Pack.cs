@@ -10,13 +10,14 @@ using System.Threading.Tasks;
 using Autofac.Features.Indexed;
 using JetBrains.Annotations;
 using Reusable;
+using Reusable.Collections;
 using Reusable.Commander;
-using Reusable.CommandLine;
 using Reusable.ConsoleColorizer;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using RoboNuGet.Files;
+using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
 namespace RoboNuGet.Commands
 {
@@ -76,7 +77,7 @@ namespace RoboNuGet.Commands
 
         private async Task UpdateNuspec(NuspecFile nuspecFile, CancellationToken cancellationToken)
         {
-            var updateNuspec = (UpdateNuspec)_commands[nameof(UpdateNuspec)];
+            var updateNuspec = (UpdateNuspec)_commands[ImmutableKeySet<SoftString>.Create(nameof(UpdateNuspec))];
             updateNuspec.NuspecFile = nuspecFile;
             updateNuspec.Version = _roboNuGetFile.PackageVersion;
 
