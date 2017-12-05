@@ -13,7 +13,6 @@ using Reusable.Extensions;
 using Reusable.IO;
 using Reusable.OmniLog;
 using RoboNuGet.Files;
-using Commands = RoboNuGet.Commands;
 
 namespace RoboNuGet
 {
