@@ -11,6 +11,13 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>latest</LangVersion>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
  <ItemGroup>
     <PackageReference Include="Autofac" version="4.6.2" />
     <PackageReference Include="JetBrains.Annotations" version="11.1.0" />
