@@ -35,7 +35,7 @@ namespace RoboNuGet.Commands
 
         private void RenderSplashScreen(RoboNuGetFile roboNuGetFile)
         {
-            Logger.ConsoleMessageLine(m => m.Prompt().span(s => s.text("RoboNuGet v3.0.0").color(ConsoleColor.DarkGray)));
+            Logger.ConsoleMessageLine(m => m.Prompt().span(s => s.text("RoboNuGet v3.1.0").color(ConsoleColor.DarkGray)));
 
             var solutionFileName = _fileSearch.FindSolutionFile();
             var nuspecFiles = _fileSearch.FindNuspecFiles().ToList();
