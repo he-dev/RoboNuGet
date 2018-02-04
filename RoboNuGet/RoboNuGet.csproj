@@ -9,6 +9,7 @@
     <LangVersion>latest</LangVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -22,14 +23,14 @@
     <PackageReference Include="Autofac" version="4.6.2" />
     <PackageReference Include="JetBrains.Annotations" version="11.1.0" />
     <PackageReference Include="Newtonsoft.Json" version="10.0.3" />
-    <PackageReference Include="Reusable.Commander" version="3.91.0" />
-    <PackageReference Include="Reusable.ConsoleColorizer" version="3.91.0" />
-    <PackageReference Include="Reusable.Converters" version="3.91.0" />
-    <PackageReference Include="Reusable.Core" version="3.91.0" />
-    <PackageReference Include="Reusable.Flawless" version="3.91.0" />
-    <PackageReference Include="Reusable.MarkupBuilder" version="3.91.0" />
-    <PackageReference Include="Reusable.OmniLog" version="3.91.0" />
-    <PackageReference Include="Reusable.SemanticVersion" version="3.91.0" />
+    <PackageReference Include="Reusable.Commander" version="4.0.0" />
+    <PackageReference Include="Reusable.ConsoleColorizer" version="4.0.0" />
+    <PackageReference Include="Reusable.Converters" version="4.0.0" />
+    <PackageReference Include="Reusable.Core" version="4.0.0" />
+    <PackageReference Include="Reusable.Flawless" version="4.0.0" />
+    <PackageReference Include="Reusable.MarkupBuilder" version="4.0.0" />
+    <PackageReference Include="Reusable.OmniLog" version="4.0.0" />
+    <PackageReference Include="Reusable.SemanticVersion" version="4.0.0" />
     <PackageReference Include="System.Collections.Immutable" version="1.4.0" />
     <PackageReference Include="System.Reactive" version="3.1.1" />
     <PackageReference Include="System.Reactive.Core" version="3.1.1" />

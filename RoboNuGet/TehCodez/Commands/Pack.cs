@@ -118,10 +118,4 @@ namespace RoboNuGet.Commands
             return result.ExitCode;
         }
     }
-
-    public static class CmdSwitch
-    {
-        public const string EchoOff = "/Q";
-        public const string Terminate = "/C";
-    }
 }

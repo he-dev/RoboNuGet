@@ -21,10 +21,13 @@ namespace RoboNuGet
         private static async Task Main(string[] args)
         {
             var configuration = RoboNuGetFile.Load();
-            var loggerFactory = new LoggerFactory(new []
+            var loggerFactory = new LoggerFactory
             {
-                ConsoleTemplateRx.Create(new ConsoleTemplateRenderer())
-            });
+                Observers =
+                {
+                    ConsoleTemplateRx.Create(new ConsoleTemplateRenderer())
+                }
+            };
 
             using (var container = InitializeContainer(configuration, loggerFactory))
             using (var scope = container.BeginLifetimeScope())
