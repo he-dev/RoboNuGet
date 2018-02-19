@@ -21,7 +21,7 @@ namespace RoboNuGet.Commands
         private readonly IFileSearch _fileSearch;
         private readonly IProcessExecutor _processExecutor;
 
-        private static readonly Validator<Push> ParameterValidator =
+        private static readonly IValidator<Push> ParameterValidator =
             Validator<Push>.Empty
                 .IsNotValidWhen(cmd => cmd.PackageId.IsNullOrEmpty())
                 .IsNotValidWhen(cmd => cmd.Version.IsNullOrEmpty());
