@@ -41,7 +41,7 @@ namespace RoboNuGet.Commands
 
                 var csProj = CsProjFile.Load(Path.Combine(nuspecDirectoryName, $"{nuspecFile.Id}{CsProjFile.DefaultExtension}"));
                 var projectDependencies = csProj.ProjectReferences.Select(projectReferenceName => new NuspecDependency { Id = projectReferenceName, Version = _roboNuGetFile.FullVersion }).ToList();
-                var packageDependencies = packagesConfig.Packages.Select(package => new NuspecDependency { Id = package.Id, Version = package.Version }).ToList();
+                var packageDependencies = packagesConfig.Packages.Concat(csProj.PackageReferences).Select(package => new NuspecDependency { Id = package.Id, Version = package.Version }).ToList();
 
                 var dependencyCount = projectDependencies.Count + packageDependencies.Count;
 
