@@ -17,15 +17,18 @@ namespace RoboNuGet.Files
     {
         public const string DefaultExtension = ".csproj";
 
-        private CsProjFile([NotNull] IEnumerable<string> projectReferences, bool isNewFormat)
+        private CsProjFile([NotNull] IEnumerable<string> projectReferences, IEnumerable<PackageElement> packageReferences, bool isNewFormat)
         {
             IsNewFormat = isNewFormat;
             ProjectReferences = projectReferences?.ToList() ?? throw new ArgumentNullException(nameof(projectReferences));
+            PackageReferences = packageReferences;
         }
 
         public bool IsNewFormat { get; }
 
         public IEnumerable<string> ProjectReferences { get; }
+
+        public IEnumerable<PackageElement> PackageReferences { get; }
 
         [NotNull]
         public static CsProjFile Load([NotNull] string fileName)
@@ -48,9 +51,18 @@ namespace RoboNuGet.Files
                     .XPathSelectElements("//*[contains(local-name(), 'ProjectReference')]")
                     .Select(projectReference => projectReference.Attribute("Include").Value)
                     .Select(Path.GetFileNameWithoutExtension);
-                    //.Select(x => x.Element(XName.Get("Name", csproj.Root.GetDefaultNamespace().NamespaceName)).Value);
+            //.Select(x => x.Element(XName.Get("Name", csproj.Root.GetDefaultNamespace().NamespaceName)).Value);
 
-            return new CsProjFile(projectReferenceNames, isNewFormat);
+            var packageReferences =
+                csproj
+                    .XPathSelectElements("//*[contains(local-name(), 'PackageReference')]")
+                    .Select(projectReference => new PackageElement
+                    {
+                        Id = projectReference.Attribute("Include").Value,
+                        Version = projectReference.Attribute("Version").Value
+                    });
+
+            return new CsProjFile(projectReferenceNames, packageReferences, isNewFormat);
 
             Func<XElement, bool> IsNewFormat()
             {

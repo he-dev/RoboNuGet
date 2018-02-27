@@ -10,8 +10,8 @@
     "bin",
     "obj"
   ],
-  "SolutionDirectoryName": "C:\\Home\\Projects\\Reusable",
-  "SolutionFileName": ".sln",
+  "SolutionDirectoryName": "C:\\Work\\VSTS\\Gems\\Gems.Emerald.Clients",
+  "SolutionFileName": "Gems.Emerald.Clients.sln",
   "PackageVersion": "3.78.0",
   "IsPrerelease": false,
   "TargetFrameworkVersions": [

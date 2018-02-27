@@ -29,7 +29,7 @@ namespace RoboNuGet.Commands
             var packagesConfig = PackagesConfigFile.Load(nuspecDirectoryName);
             var csProj = CsProjFile.Load(Path.Combine(nuspecDirectoryName, $"{NuspecFile.Id}{CsProjFile.DefaultExtension}"));
 
-            var packageDependencies = packagesConfig.Packages.Select(package => new NuspecDependency { Id = package.Id, Version = package.Version });
+            var packageDependencies = packagesConfig.Packages.Concat(csProj.PackageReferences).Select(package => new NuspecDependency { Id = package.Id, Version = package.Version });
             var projectDependencies = csProj.ProjectReferences.Select(projectReferenceName => new NuspecDependency { Id = projectReferenceName, Version = Version });
 
             NuspecFile.Dependencies = packageDependencies.Concat(projectDependencies);
