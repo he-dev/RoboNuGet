@@ -15,13 +15,13 @@ namespace RoboNuGet.Files
 {
     internal class CsProjFile
     {
-        public const string DefaultExtension = ".csproj";
+        public const string Extension = ".csproj";
 
-        private CsProjFile([NotNull] IEnumerable<string> projectReferences, IEnumerable<PackageElement> packageReferences, bool isNewFormat)
+        private CsProjFile(IEnumerable<string> projectReferences, IEnumerable<PackageElement> packageReferences, bool isNewFormat)
         {
             IsNewFormat = isNewFormat;
-            ProjectReferences = projectReferences?.ToList() ?? throw new ArgumentNullException(nameof(projectReferences));
-            PackageReferences = packageReferences;
+            ProjectReferences = projectReferences.ToList();
+            PackageReferences = packageReferences.ToList();
         }
 
         public bool IsNewFormat { get; }
@@ -46,12 +46,11 @@ namespace RoboNuGet.Files
 
             var isNewFormat = csproj.Root.Descendants().Any(IsNewFormat());
 
-            var projectReferenceNames =
+            var projectReferences =
                 csproj
                     .XPathSelectElements("//*[contains(local-name(), 'ProjectReference')]")
                     .Select(projectReference => projectReference.Attribute("Include").Value)
                     .Select(Path.GetFileNameWithoutExtension);
-            //.Select(x => x.Element(XName.Get("Name", csproj.Root.GetDefaultNamespace().NamespaceName)).Value);
 
             var packageReferences =
                 csproj
@@ -62,7 +61,7 @@ namespace RoboNuGet.Files
                         Version = projectReference.Attribute("Version").Value
                     });
 
-            return new CsProjFile(projectReferenceNames, packageReferences, isNewFormat);
+            return new CsProjFile(projectReferences, packageReferences, isNewFormat);
 
             Func<XElement, bool> IsNewFormat()
             {

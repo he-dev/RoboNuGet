@@ -10,13 +10,9 @@
     "bin",
     "obj"
   ],
-  "SolutionDirectoryName": "C:\\Home\\Projects\\Reusable",
-  "SolutionFileName": "Reusable.sln",
+  "SolutionFileName": "Reusable\\Reusable.sln",
   "PackageVersion": "3.78.0",
   "IsPrerelease": false,
-  "TargetFrameworkVersions": [
-    "v4.6.2"
-  ],
   "IgnorePaths": [
     ".git\\",
     ".idea\\",

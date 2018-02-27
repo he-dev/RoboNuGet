@@ -22,13 +22,7 @@ namespace RoboNuGet.Files
 
         private const string DefaultFileName = "RoboNuGet.json";
 
-        public string[] ExcludeDirectories { get; set; }
-        
-//        [JsonIgnore]
-//        public Func<string, bool> DirectoryFilter { get; }
-        
-        [JsonRequired]
-        public string SolutionDirectoryName { get; set; }
+        public string[] ExcludeDirectories { get; set; }       
         
         [DefaultValue("*.sln")]
         public string SolutionFileName { get; set; }
@@ -36,8 +30,6 @@ namespace RoboNuGet.Files
         public string PackageVersion { get; set; }
 
         public bool IsPrerelease { get; set; }
-
-        public string[] TargetFrameworkVersions { get; set; }
 
         public MsBuild MsBuild { get; set; }
 
@@ -72,13 +64,19 @@ namespace RoboNuGet.Files
             File.WriteAllText(FileName, json);
         }
 
-        public void IncrementPatchVersion()
-        {
-            PackageVersion = Regex.Replace(PackageVersion, @"^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)", m =>
-                $"{m.Groups["major"].Value}." +
-                $"{m.Groups["minor"]}." +
-                $"{int.Parse(m.Groups["patch"].Value) + 1}");
-        }
+        //public void IncrementPatchVersion()
+        //{
+        //    PackageVersion = 
+        //        Regex
+        //            .Replace(
+        //                PackageVersion, 
+        //                @"^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)", 
+        //                m =>
+        //                    $"{m.Groups["major"].Value}." +
+        //                    $"{m.Groups["minor"]}." +
+        //                    $"{int.Parse(m.Groups["patch"].Value) + 1}"
+        //            );
+        //}
     }
 
     [UsedImplicitly]
@@ -91,57 +89,57 @@ namespace RoboNuGet.Files
         public Dictionary<SoftString, string> Commands { get; set; }
     }
 
-    [PublicAPI]
-    public class Overrideable<T>
-    {
-        private readonly T _value;
+    //[PublicAPI]
+    //public class Overrideable<T>
+    //{
+    //    private readonly T _value;
 
-        [JsonConstructor]
-        public Overrideable(T value)
-        {
-            _value = value;
-            Value = value;
-        }
+    //    [JsonConstructor]
+    //    public Overrideable(T value)
+    //    {
+    //        _value = value;
+    //        Value = value;
+    //    }
 
-        public T Value
-        {
-            get => _value;
-            set => Current = value;
-        }
+    //    public T Value
+    //    {
+    //        get => _value;
+    //        set => Current = value;
+    //    }
 
-        [JsonIgnore]
-        public T Current { get; private set; }
+    //    [JsonIgnore]
+    //    public T Current { get; private set; }
 
-        public static implicit operator T(Overrideable<T> overridable) => overridable.Current;
-    }
+    //    public static implicit operator T(Overrideable<T> overridable) => overridable.Current;
+    //}
 
-    public class JsonOverridableConverter : JsonConverter
-    {
-        public override bool CanConvert(Type objectType)
-        {
-            var genericArguments = objectType.GetGenericArguments();
-            if (genericArguments.Length == 1)
-            {
-                var overridable = typeof(Overrideable<>).MakeGenericType(genericArguments[0]);
-                return (objectType == overridable);
-            }
-            return false;
-        }
+    //public class JsonOverridableConverter : JsonConverter
+    //{
+    //    public override bool CanConvert(Type objectType)
+    //    {
+    //        var genericArguments = objectType.GetGenericArguments();
+    //        if (genericArguments.Length == 1)
+    //        {
+    //            var overridable = typeof(Overrideable<>).MakeGenericType(genericArguments[0]);
+    //            return (objectType == overridable);
+    //        }
+    //        return false;
+    //    }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            // .Single is safe here because CanConvert will prevent invalid types.
-            var overridableGeneringArgument = objectType.GetGenericArguments().Single();
-            var value = serializer.Deserialize(reader, overridableGeneringArgument);
-            return Activator.CreateInstance(objectType, new[] {value});
-        }
+    //    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    //    {
+    //        // .Single is safe here because CanConvert will prevent invalid types.
+    //        var overridableGeneringArgument = objectType.GetGenericArguments().Single();
+    //        var value = serializer.Deserialize(reader, overridableGeneringArgument);
+    //        return Activator.CreateInstance(objectType, new[] {value});
+    //    }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            // .Single is safe here because CanConvert will prevent invalid types.
-            var valueType = value.GetType().GetGenericArguments().Single();
-            var actualValue = value.GetType().GetProperty(nameof(Overrideable<object>.Value)).GetValue(value);
-            serializer.Serialize(writer, actualValue);
-        }
-    }
+    //    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    //    {
+    //        // .Single is safe here because CanConvert will prevent invalid types.
+    //        var valueType = value.GetType().GetGenericArguments().Single();
+    //        var actualValue = value.GetType().GetProperty(nameof(Overrideable<object>.Value)).GetValue(value);
+    //        serializer.Serialize(writer, actualValue);
+    //    }
+    //}
 }

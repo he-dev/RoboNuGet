@@ -14,7 +14,7 @@ namespace RoboNuGet.Files
 {
     internal class NuspecFile
     {
-        public const string DefaultExtension = ".nuspec";
+        public const string Extension = ".nuspec";
 
         private readonly XDocument _xNuspec;
 
