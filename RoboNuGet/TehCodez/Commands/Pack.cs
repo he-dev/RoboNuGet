@@ -7,12 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac.Core;
+using Autofac.Features.AttributeFilters;
 using Autofac.Features.Indexed;
 using JetBrains.Annotations;
 using Reusable;
 using Reusable.Collections;
 using Reusable.Commander;
-using Reusable.ConsoleColorizer;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
@@ -22,28 +23,29 @@ using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 namespace RoboNuGet.Commands
 {
     [UsedImplicitly]
-    internal class Pack : ConsoleCommand
+    internal class Pack : ConsoleCommand<Unit>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly IFileSearch _fileSearch;
-        private readonly IIndex<SoftKeySet, IConsoleCommand> _commands;
+        private readonly IConsoleCommand _updateNuspec;
         private readonly IProcessExecutor _processExecutor;
 
         public Pack(
-            ILoggerFactory loggerFactory,
+            ILogger<Pack> logger,
+            ICommandLineMapper mapper,
             RoboNuGetFile roboNuGetFile,
             IFileSearch fileSearch,
-            IIndex<SoftKeySet, IConsoleCommand> commands,
+            [KeyFilter("")] IConsoleCommand updateNuspec,
             IProcessExecutor processExecutor
-        ) : base(loggerFactory)
+        ) : base(logger, mapper)
         {
             _roboNuGetFile = roboNuGetFile;
             _fileSearch = fileSearch;
-            _commands = commands;
+            _updateNuspec = updateNuspec;
             _processExecutor = processExecutor;
         }
 
-        public override async Task ExecuteAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(Unit parameter, CancellationToken cancellationToken)
         {
             var nuspecFiles = _fileSearch.FindNuspecFiles();
 
@@ -65,23 +67,27 @@ namespace RoboNuGet.Commands
                 }
                 else
                 {
-                    Logger.ConsoleMessageLine(p => p.Indent().span(s => s.text("All packages successfuly created.").color(ConsoleColor.Green)));
+                    Logger.WriteLine(p => p.Indent().span(s => s.text("All packages successfuly created.").color(ConsoleColor.Green)));
                 }
 
             }, cancellationToken);
 
-            Logger.ConsoleMessageLine(p => p.Indent().text($"Elapsed: {packStopwatch.Elapsed.TotalSeconds:F1} sec [{Thread.CurrentThread.ManagedThreadId}]"));
+            Logger.WriteLine(p => p.Indent().text($"Elapsed: {packStopwatch.Elapsed.TotalSeconds:F1} sec [{Thread.CurrentThread.ManagedThreadId}]"));
         }
 
         private readonly object _consoleSyncLock = new object();
 
         private async Task UpdateNuspec(NuspecFile nuspecFile, CancellationToken cancellationToken)
         {
-            var updateNuspec = (UpdateNuspec)_commands[ImmutableKeySet<SoftString>.Create(nameof(UpdateNuspec))];
-            updateNuspec.NuspecFile = nuspecFile;
-            updateNuspec.Version = _roboNuGetFile.PackageVersion;
+            //var updateNuspec = (UpdateNuspec)_updateNuspec[ImmutableKeySet<SoftString>.Create(nameof(UpdateNuspec))];
+            //updateNuspec.NuspecFile = nuspecFile;
+            //updateNuspec.Version = _roboNuGetFile.PackageVersion;
 
-            await updateNuspec.ExecuteAsync(cancellationToken);
+            await _updateNuspec.ExecuteAsync(new UpdateNuspecBag
+            {
+                NuspecFile = nuspecFile,
+                Version = _roboNuGetFile.PackageVersion
+            }, cancellationToken);
         }
 
         private async Task<int> CreatePackage(NuspecFile nuspecFile, CancellationToken cancellationToken)
@@ -101,18 +107,18 @@ namespace RoboNuGet.Commands
             lock (_consoleSyncLock)
             {
                 //Logger.ConsoleMessageLine(m => m.text($"Executed: {result.Arguments}"));
-                Logger.ConsoleMessageLine(m => m.text(result.Output.Trim()));
+                Logger.WriteLine(m => m.text(result.Output.Trim()));
 
                 if (result.ExitCode != ExitCode.Success)
                 {
                     Logger.ConsoleError(result.Error.Trim());
-                    Logger.ConsoleMessageLine(p => p.Indent().text($"Could not create package: {nuspecFile.Id}").color(ConsoleColor.Red));
+                    Logger.WriteLine(p => p.Indent().text($"Could not create package: {nuspecFile.Id}").color(ConsoleColor.Red));
                 }
 
                 //Logger.ConsoleMessageLine(p => p.text($"Elapsed: {packageStopwatch.Elapsed.TotalSeconds:F1} sec [{Thread.CurrentThread.ManagedThreadId}] ({nuspecFile.Id})"));
-                Logger.ConsoleMessageLine(p => p.text($"Elapsed: {packageStopwatch.Elapsed.TotalSeconds:F1} sec"));
+                Logger.WriteLine(p => p.text($"Elapsed: {packageStopwatch.Elapsed.TotalSeconds:F1} sec"));
                 //Logger.ConsoleMessageLine(p => p.text($"-"));
-                Logger.ConsoleMessageLine(_ => _);
+                Logger.WriteLine(_ => _);
             }
 
             return result.ExitCode;

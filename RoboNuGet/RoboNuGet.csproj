@@ -20,25 +20,24 @@
   </PropertyGroup>
 
  <ItemGroup>
-    <PackageReference Include="Autofac" version="4.6.2" />
-    <PackageReference Include="JetBrains.Annotations" version="11.1.0" />
-    <PackageReference Include="Newtonsoft.Json" version="10.0.3" />
-    <PackageReference Include="Reusable.Commander" version="4.0.0" />
-    <PackageReference Include="Reusable.ConsoleColorizer" version="4.0.0" />
-    <PackageReference Include="Reusable.Converters" version="4.0.0" />
-    <PackageReference Include="Reusable.Core" version="4.0.0" />
-    <PackageReference Include="Reusable.Flawless" version="4.0.0" />
-    <PackageReference Include="Reusable.MarkupBuilder" version="4.0.0" />
-    <PackageReference Include="Reusable.OmniLog" version="4.0.0" />
-    <PackageReference Include="Reusable.SemanticVersion" version="4.0.0" />
-    <PackageReference Include="System.Collections.Immutable" version="1.4.0" />
-    <PackageReference Include="System.Reactive" version="3.1.1" />
-    <PackageReference Include="System.Reactive.Core" version="3.1.1" />
-    <PackageReference Include="System.Reactive.Interfaces" version="3.1.1" />
-    <PackageReference Include="System.Reactive.Linq" version="3.1.1" />
-    <PackageReference Include="System.Reactive.PlatformServices" version="3.1.1" />
-    <PackageReference Include="System.Reactive.Windows.Threading" version="3.1.1" />
-    <PackageReference Include="System.ValueTuple" version="4.4.0" />
+    <PackageReference Include="Autofac" version="4.8.1" />
+    <PackageReference Include="JetBrains.Annotations" version="2018.2.1" />
+    <PackageReference Include="Newtonsoft.Json" version="11.0.2" />
+    <PackageReference Include="Reusable.Commander" version="7.0.9" />
+    <PackageReference Include="Reusable.Converters" version="7.0.9" />
+    <PackageReference Include="Reusable.Core" version="7.0.9" />
+    <PackageReference Include="Reusable.MarkupBuilder" version="7.0.9" />
+    <PackageReference Include="Reusable.OmniLog" version="7.0.9" />
+    <PackageReference Include="Reusable.OmniLog.ColoredConsoleRx" Version="7.0.9" />
+    <PackageReference Include="Reusable.SemanticVersion" version="7.0.9" />
+    <PackageReference Include="System.Collections.Immutable" version="1.5.0" />
+    <PackageReference Include="System.Reactive" version="4.1.0" />
+    <PackageReference Include="System.Reactive.Core" version="4.1.0" />
+    <PackageReference Include="System.Reactive.Interfaces" version="4.1.0" />
+    <PackageReference Include="System.Reactive.Linq" version="4.1.0" />
+    <PackageReference Include="System.Reactive.PlatformServices" version="4.1.0" />
+    <PackageReference Include="System.Reactive.Windows.Threading" version="4.1.0" />
+    <PackageReference Include="System.ValueTuple" version="4.5.0" />
 
   </ItemGroup>
 

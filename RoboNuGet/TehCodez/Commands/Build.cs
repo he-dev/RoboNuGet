@@ -13,18 +13,18 @@ using RoboNuGet.Files;
 namespace RoboNuGet.Commands
 {
     [UsedImplicitly]
-    internal class Build : ConsoleCommand
+    internal class Build : ConsoleCommand<Unit>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly IFileSearch _fileSearch;
 
-        public Build(ILoggerFactory loggerFactory, RoboNuGetFile roboNuGetFile, IFileSearch fileSearch) : base(loggerFactory)
+        public Build(ILogger<Build> logger, ICommandLineMapper mapper, RoboNuGetFile roboNuGetFile, IFileSearch fileSearch) : base(logger, mapper)
         {
             _roboNuGetFile = roboNuGetFile;
             _fileSearch = fileSearch;
         }
 
-        public override Task ExecuteAsync(CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(Unit parameter, CancellationToken cancellationToken)
         {
             var solutionFileName = _fileSearch.FindSolutionFile();
             var arguments = _roboNuGetFile.MsBuild.ToString(solutionFileName);

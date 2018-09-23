@@ -7,12 +7,12 @@ using Autofac;
 using JetBrains.Annotations;
 using Reusable;
 using Reusable.Commander;
-using Reusable.ConsoleColorizer;
-using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.IO;
 using Reusable.OmniLog;
+using RoboNuGet.Commands;
 using RoboNuGet.Files;
+using Version = RoboNuGet.Commands.Version;
 
 namespace RoboNuGet
 {
@@ -25,7 +25,8 @@ namespace RoboNuGet
             {
                 Observers =
                 {
-                    ConsoleTemplateRx.Create(new ConsoleTemplateRenderer())
+                    ColoredConsoleRx.Create(new ConsoleRenderer())
+                    //ConsoleTemplateRx.Create(new ConsoleTemplateRenderer())
                 }
             };
 
@@ -41,7 +42,7 @@ namespace RoboNuGet
 
                 do
                 {
-                    logger.ConsoleMessage(m => m.Prompt());
+                    logger.Write(m => m.Prompt());
                     var commandLine = Console.ReadLine();
 
                     if (commandLine.IsNullOrEmpty())
@@ -65,23 +66,22 @@ namespace RoboNuGet
 
         private static IContainer InitializeContainer(RoboNuGetFile configuration, ILoggerFactory loggerFactory)
         {
-            var registrations =
-                CommandRegistrationContainer
-                    .Empty
-                    .Register<Commands.UpdateNuspec>()
-                    .Register<Commands.Version>()
-                    .Register<Commands.Clear>()
-                    .Register<Commands.Build>()
-                    //.Register<Commands.NuGet>()
-                    .Register<Commands.Pack>()
-                    .Register<Commands.List>()
-                    .Register<Commands.Push>()
-                    .Register<Commands.Exit>();
-
             var builder = new ContainerBuilder();
 
             builder
                 .RegisterInstance(configuration);
+
+            var commandTypes = new []
+            {
+                typeof(Commands.UpdateNuspec),
+                typeof(Commands.Version),
+                typeof(Commands.Clear),
+                typeof(Commands.Build),
+                typeof(Commands.Pack),
+                typeof(Commands.List),
+                typeof(Commands.Push),
+                typeof(Commands.Exit)
+            };
 
             builder
                 .RegisterType<ProcessExecutor>()
@@ -100,7 +100,11 @@ namespace RoboNuGet
                 .As<ILoggerFactory>();
 
             builder
-                .RegisterModule(new CommanderModule(registrations));
+                .RegisterGeneric(typeof(Logger<>))
+                .As(typeof(ILogger<>));
+
+            builder
+                .RegisterModule(new CommanderModule(commandTypes));
 
             return builder.Build();
         }
@@ -110,4 +114,6 @@ namespace RoboNuGet
     {
         public const int Success = 0;
     }
+
+    internal class Unit { }
 }

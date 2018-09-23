@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Reusable;
-using Reusable.ConsoleColorizer;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
@@ -16,7 +15,7 @@ namespace RoboNuGet
     {
         public static ILogger ConsoleError(this ILogger logger, string message)
         {
-            return logger.ConsoleMessageLine(m => m
+            return logger.WriteLine(m => m
                 .Indent()
                 .span(s => s
                     .text(message)
@@ -25,7 +24,7 @@ namespace RoboNuGet
 
         public static ILogger ConsoleException(this ILogger logger, Exception exception)
         {
-            return logger.ConsoleMessageLine(m => m
+            return logger.WriteLine(m => m
                 .Indent()
                 .span(s => s
                     .text($"{exception.GetType().Name}: {exception.Message}")

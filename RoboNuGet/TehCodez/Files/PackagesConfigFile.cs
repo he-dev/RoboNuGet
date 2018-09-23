@@ -6,8 +6,6 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using JetBrains.Annotations;
-using Reusable.Exceptionize;
-using Reusable.Extensions;
 
 namespace RoboNuGet.Files
 {
