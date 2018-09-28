@@ -23,13 +23,13 @@
     <PackageReference Include="Autofac" version="4.8.1" />
     <PackageReference Include="JetBrains.Annotations" version="2018.2.1" />
     <PackageReference Include="Newtonsoft.Json" version="11.0.2" />
-    <PackageReference Include="Reusable.Commander" version="7.0.9" />
-    <PackageReference Include="Reusable.Converters" version="7.0.9" />
-    <PackageReference Include="Reusable.Core" version="7.0.9" />
-    <PackageReference Include="Reusable.MarkupBuilder" version="7.0.9" />
-    <PackageReference Include="Reusable.OmniLog" version="7.0.9" />
-    <PackageReference Include="Reusable.OmniLog.ColoredConsoleRx" Version="7.0.9" />
-    <PackageReference Include="Reusable.SemanticVersion" version="7.0.9" />
+    <PackageReference Include="Reusable.Commander" version="7.0.10" />
+    <PackageReference Include="Reusable.Converters" version="7.0.10" />
+    <PackageReference Include="Reusable.Core" version="7.0.10" />
+    <PackageReference Include="Reusable.MarkupBuilder" version="7.0.10" />
+    <PackageReference Include="Reusable.OmniLog" version="7.0.10" />
+    <PackageReference Include="Reusable.OmniLog.ColoredConsoleRx" Version="7.0.10" />
+    <PackageReference Include="Reusable.SemanticVersion" version="7.0.10" />
     <PackageReference Include="System.Collections.Immutable" version="1.5.0" />
     <PackageReference Include="System.Reactive" version="4.1.0" />
     <PackageReference Include="System.Reactive.Core" version="4.1.0" />
@@ -42,7 +42,7 @@
   </ItemGroup>
 
  <ItemGroup>
-   <Folder Include="TehCodez\" />
+   <Folder Include="src\" />
  </ItemGroup>
 
  <ItemGroup>

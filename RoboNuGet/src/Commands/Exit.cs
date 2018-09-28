@@ -10,13 +10,13 @@ using Reusable.OmniLog;
 namespace RoboNuGet.Commands
 {
     [UsedImplicitly]
-    internal class Exit : ConsoleCommand<Unit>
+    internal class Exit : ConsoleCommand<SimpleBag>
     {
         public Exit(ILogger<Exit> logger, ICommandLineMapper mapper) : base(logger, mapper)
         {
         }
 
-        protected override Task ExecuteAsync(Unit parameter, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(SimpleBag parameter, CancellationToken cancellationToken)
         {
             Environment.Exit(0);
             return Task.CompletedTask;

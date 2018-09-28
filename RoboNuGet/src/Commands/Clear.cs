@@ -15,7 +15,7 @@ namespace RoboNuGet.Commands
 {
     [UsedImplicitly]
     [Alias("cls")]
-    internal class Clear : ConsoleCommand<Unit>
+    internal class Clear : ConsoleCommand<SimpleBag>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly IFileSearch _fileSearch;
@@ -26,7 +26,7 @@ namespace RoboNuGet.Commands
             _fileSearch = fileSearch;
         }
 
-        protected override Task ExecuteAsync(Unit parameter, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(SimpleBag parameter, CancellationToken cancellationToken)
         {
             Console.Clear();
             RenderSplashScreen(_roboNuGetFile);

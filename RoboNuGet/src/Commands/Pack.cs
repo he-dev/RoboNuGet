@@ -23,7 +23,7 @@ using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 namespace RoboNuGet.Commands
 {
     [UsedImplicitly]
-    internal class Pack : ConsoleCommand<Unit>
+    internal class Pack : ConsoleCommand<SimpleBag>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly IFileSearch _fileSearch;
@@ -45,7 +45,7 @@ namespace RoboNuGet.Commands
             _processExecutor = processExecutor;
         }
 
-        protected override async Task ExecuteAsync(Unit parameter, CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(SimpleBag parameter, CancellationToken cancellationToken)
         {
             var nuspecFiles = _fileSearch.FindNuspecFiles();
 

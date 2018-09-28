@@ -14,7 +14,7 @@ using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
-    internal class VersionBag : ICommandBag
+    internal class VersionBag : SimpleBag
     {
         [Alias("f")]
         public string Full { get; set; }

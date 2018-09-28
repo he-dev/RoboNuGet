@@ -13,7 +13,7 @@ using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
-    internal class PushBag
+    internal class PushBag : SimpleBag
     {
         public string PackageId { get; set; }
 

@@ -12,7 +12,6 @@ using Reusable.IO;
 using Reusable.OmniLog;
 using RoboNuGet.Commands;
 using RoboNuGet.Files;
-using Version = RoboNuGet.Commands.Version;
 
 namespace RoboNuGet
 {
@@ -61,7 +60,7 @@ namespace RoboNuGet
                     }
                 } while (true);
             }
-            // ReSharper disable once FunctionNeverReturns - it does renturn when you execute the 'exit' command
+            // ReSharper disable once FunctionNeverReturns - it does return when you execute the 'exit' command
         }
 
         private static IContainer InitializeContainer(RoboNuGetFile configuration, ILoggerFactory loggerFactory)
@@ -103,8 +102,8 @@ namespace RoboNuGet
                 .RegisterGeneric(typeof(Logger<>))
                 .As(typeof(ILogger<>));
 
-            builder
-                .RegisterModule(new CommanderModule(commandTypes));
+            //builder
+            //    .RegisterModule(new CommanderModule(commandTypes));
 
             return builder.Build();
         }
@@ -114,6 +113,4 @@ namespace RoboNuGet
     {
         public const int Success = 0;
     }
-
-    internal class Unit { }
 }

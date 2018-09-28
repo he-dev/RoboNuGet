@@ -12,7 +12,7 @@ using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
-    internal class UpdateNuspecBag : ICommandBag
+    internal class UpdateNuspecBag : SimpleBag
     {
         public NuspecFile NuspecFile { get; set; }
 

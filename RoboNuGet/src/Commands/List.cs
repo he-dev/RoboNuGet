@@ -15,7 +15,7 @@ using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
-    internal class ListBag
+    internal class ListBag : SimpleBag
     {
         [DefaultValue(false)]
         [Alias("s")]

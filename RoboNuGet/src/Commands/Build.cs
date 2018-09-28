@@ -13,7 +13,7 @@ using RoboNuGet.Files;
 namespace RoboNuGet.Commands
 {
     [UsedImplicitly]
-    internal class Build : ConsoleCommand<Unit>
+    internal class Build : ConsoleCommand<SimpleBag>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly IFileSearch _fileSearch;
@@ -24,7 +24,7 @@ namespace RoboNuGet.Commands
             _fileSearch = fileSearch;
         }
 
-        protected override Task ExecuteAsync(Unit parameter, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(SimpleBag parameter, CancellationToken cancellationToken)
         {
             var solutionFileName = _fileSearch.FindSolutionFile();
             var arguments = _roboNuGetFile.MsBuild.ToString(solutionFileName);
