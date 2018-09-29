@@ -28,7 +28,7 @@ namespace RoboNuGet.Commands
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly IFileSearch _fileSearch;
 
-        public List(ILogger<List> logger, ICommandLineMapper mapper, RoboNuGetFile roboNuGetFile, IFileSearch fileSearch) : base(logger, mapper)
+        public List(CommandServiceProvider<List> serviceProvider, RoboNuGetFile roboNuGetFile, IFileSearch fileSearch) : base(serviceProvider)
         {
             _roboNuGetFile = roboNuGetFile;
             _fileSearch = fileSearch;

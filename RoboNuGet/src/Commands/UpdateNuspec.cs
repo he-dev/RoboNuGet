@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -14,6 +15,7 @@ namespace RoboNuGet.Commands
 {
     internal class UpdateNuspecBag : SimpleBag
     {
+        [NotMapped]
         public NuspecFile NuspecFile { get; set; }
 
         public string Version { get; set; }
@@ -23,8 +25,8 @@ namespace RoboNuGet.Commands
     [UsedImplicitly]
     internal class UpdateNuspec : ConsoleCommand<UpdateNuspecBag>
     {
-        public UpdateNuspec(ILogger<UpdateNuspec> logger, ICommandLineMapper mapper)
-            : base(logger, mapper)
+        public UpdateNuspec(CommandServiceProvider<UpdateNuspec> serviceProvider)
+            : base(serviceProvider)
         { }
 
 

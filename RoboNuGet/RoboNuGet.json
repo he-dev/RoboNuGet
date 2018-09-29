@@ -11,27 +11,13 @@
     "obj"
   ],
   "SolutionFileName": "C:\\Home\\Projects\\Reusable\\Reusable.sln",
-  "PackageVersion": "3.78.0",
+  "PackageVersion": "3.80.0",
   "IsPrerelease": false,
-  "IgnorePaths": [
-    ".git\\",
-    ".idea\\",
-    ".vs\\",
-    "_nuget\\",
-    "*.Tests\\",
-    "packages\\",
-    "TestResults\\",
-    "bin\\",
-    "obj\\"
-  ],
   "MsBuild": {
     "Target": "Rebuild",
     "NoLogo": true,
     "Properties": {
       "Configuration": "Release"
-      //"TargetFrameworkVersion": "v4.5.2",
-      //"Platform": "Any CPU",
-      //"OutDir": "_nuget\\{PackageId}\\net452"
     },
     "Switches": {
       "m": null

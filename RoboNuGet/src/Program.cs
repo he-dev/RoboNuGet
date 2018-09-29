@@ -1,12 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using Autofac.Core;
+using Autofac.Core.Activators.Delegate;
+using Autofac.Core.Activators.Reflection;
+using Autofac.Core.Lifetime;
+using Autofac.Core.Registration;
 using JetBrains.Annotations;
 using Reusable;
 using Reusable.Commander;
+using Reusable.Commander.Utilities;
 using Reusable.Extensions;
 using Reusable.IO;
 using Reusable.OmniLog;
@@ -44,15 +52,16 @@ namespace RoboNuGet
                     logger.Write(m => m.Prompt());
                     var commandLine = Console.ReadLine();
 
-                    if (commandLine.IsNullOrEmpty())
-                    {
-                        //logger.ConsoleParagraph(p => p.ConsoleSpan(ConsoleColor.Red, null, _ => "Invalid command name."));
-                        continue;
-                    }
-
                     try
                     {
-                        await executor.ExecuteAsync(commandLine, CancellationToken.None);
+                        if (commandLine.IsNullOrEmpty())
+                        {
+                            logger.ConsoleError("Invalid command name.");
+                        }
+                        else
+                        {
+                            await executor.ExecuteAsync(commandLine);
+                        }
                     }
                     catch (Exception exception)
                     {
@@ -60,6 +69,7 @@ namespace RoboNuGet
                     }
                 } while (true);
             }
+
             // ReSharper disable once FunctionNeverReturns - it does return when you execute the 'exit' command
         }
 
@@ -69,18 +79,6 @@ namespace RoboNuGet
 
             builder
                 .RegisterInstance(configuration);
-
-            var commandTypes = new []
-            {
-                typeof(Commands.UpdateNuspec),
-                typeof(Commands.Version),
-                typeof(Commands.Clear),
-                typeof(Commands.Build),
-                typeof(Commands.Pack),
-                typeof(Commands.List),
-                typeof(Commands.Push),
-                typeof(Commands.Exit)
-            };
 
             builder
                 .RegisterType<ProcessExecutor>()
@@ -102,8 +100,23 @@ namespace RoboNuGet
                 .RegisterGeneric(typeof(Logger<>))
                 .As(typeof(ILogger<>));
 
-            //builder
-            //    .RegisterModule(new CommanderModule(commandTypes));
+            builder
+                .RegisterModule(
+                    new CommanderModule(commands =>
+                        commands
+                            .Add<Commands.UpdateNuspec>()
+                            .Add<Commands.Version>()
+                            .Add<Commands.Clear>()
+                            .Add<Commands.Build>()
+                            .Add<Commands.Pack>()
+                            .Add<Commands.List>()
+                            .Add<Commands.Push>()
+                            .Add<Commands.Exit>()
+                            .Add<Reusable.Commander.Commands.Help>()
+                    )
+                );
+
+            builder.RegisterSource(new TypeListSource<IConsoleCommand>());
 
             return builder.Build();
         }
@@ -112,5 +125,5 @@ namespace RoboNuGet
     public static class ExitCode
     {
         public const int Success = 0;
-    }
+    }    
 }

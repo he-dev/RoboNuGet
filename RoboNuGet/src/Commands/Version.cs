@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -14,19 +17,14 @@ using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
+    [PublicAPI]
     internal class VersionBag : SimpleBag
     {
-        [Alias("f")]
-        public string Full { get; set; }
+        [Alias("r", "new")]
+        public string Reset { get; set; }
 
-        [Alias("np")]
-        public bool NextPatch { get; set; }
-
-        [Alias("nm")]
-        public bool NextMinor { get; set; }
-
-        [Alias("nr")]
-        public bool NextMajor { get; set; }
+        [Alias("n", "inc", "increment")]
+        public string Next { get; set; }
     }
 
     [UsedImplicitly]
@@ -35,59 +33,58 @@ namespace RoboNuGet.Commands
     {
         private readonly RoboNuGetFile _roboNuGetFile;
 
-        public Version(ILogger<Version> logger, ICommandLineMapper mapper, RoboNuGetFile roboNuGetFile) : base(logger, mapper)
+        private readonly IEnumerable<(Func<string, bool> IsNext, Func<SemanticVersion, SemanticVersion> Increment)> _updates =
+            new (Func<string, bool> IsNext, Func<SemanticVersion, SemanticVersion> Increment)[]
+            {
+                (
+                    next => SoftString.Comparer.Equals(next, nameof(SemanticVersion.Patch)),
+                    current => new SemanticVersion(current.Major, current.Minor, current.Patch + 1)
+                ),
+                (
+                    next => SoftString.Comparer.Equals(next, nameof(SemanticVersion.Minor)),
+                    current => new SemanticVersion(current.Major, current.Minor + 1, 0)
+                ),
+                (
+                    next => SoftString.Comparer.Equals(next, nameof(SemanticVersion.Major)),
+                    current => new SemanticVersion(current.Major + 1, 0, 0)
+                )
+            };
+
+        public Version(CommandServiceProvider<Version> serviceProvider, RoboNuGetFile roboNuGetFile) : base(serviceProvider)
         {
             _roboNuGetFile = roboNuGetFile;
         }
 
-
         protected override Task ExecuteAsync(VersionBag parameter, CancellationToken cancellationToken)
         {
-            if (parameter.Full.IsNotNull())
+            if (parameter.Reset.IsNotNull())
             {
-                if (SemanticVersion.TryParse(parameter.Full, out var version))
+                if (SemanticVersion.TryParse(parameter.Reset, out var version))
                 {
-                    UpdateVersion(version.ToString());
+                    UpdateVersion(version);
                 }
                 else
                 {
-                    Logger.WriteLine(m => m.Prompt().span(s => s.text("Invalid version.").color(ConsoleColor.Red)));
+                    Logger.ConsoleError("Invalid version.");
                 }
-                return Task.CompletedTask;
             }
-
-            var currentVersion = SemanticVersion.Parse(_roboNuGetFile.PackageVersion);
-
-            if (parameter.NextPatch)
+            else
             {
-                //currentVersion.Patch++;
-                UpdateVersion(currentVersion.ToString());
-                return Task.CompletedTask;
-            }
+                var currentVersion = SemanticVersion.Parse(_roboNuGetFile.PackageVersion);
 
-            if (parameter.NextMinor)
-            {
-                //currentVersion.Minor++;
-                //currentVersion.Patch = 0;
-                UpdateVersion(currentVersion.ToString());
-                return Task.CompletedTask;
-            }
+                foreach (var (_, increment) in _updates.Where(x => x.IsNext(parameter.Next)))
+                {
+                    UpdateVersion(increment(currentVersion));
+                    break;
+                }
 
-            if (parameter.NextMajor)
-            {
-                //currentVersion.Major++;
-                //currentVersion.Minor = 0;
-                //currentVersion.Patch = 0;
-                UpdateVersion(currentVersion.ToString());
-                return Task.CompletedTask;
+                Logger.Error("Invalid arguments.");
             }
-
-            Logger.Error("Invalid arguments.");
 
             return Task.CompletedTask;
         }
 
-        private void UpdateVersion(string newVersion)
+        private void UpdateVersion(SemanticVersion newVersion)
         {
             _roboNuGetFile.PackageVersion = newVersion;
             _roboNuGetFile.Save();

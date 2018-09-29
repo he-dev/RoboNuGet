@@ -18,7 +18,7 @@ namespace RoboNuGet.Commands
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly IFileSearch _fileSearch;
 
-        public Build(ILogger<Build> logger, ICommandLineMapper mapper, RoboNuGetFile roboNuGetFile, IFileSearch fileSearch) : base(logger, mapper)
+        public Build(CommandServiceProvider<Build> serviceProvider, RoboNuGetFile roboNuGetFile, IFileSearch fileSearch) : base(serviceProvider)
         {
             _roboNuGetFile = roboNuGetFile;
             _fileSearch = fileSearch;
@@ -28,12 +28,12 @@ namespace RoboNuGet.Commands
         {
             var solutionFileName = _fileSearch.FindSolutionFile();
             var arguments = _roboNuGetFile.MsBuild.ToString(solutionFileName);
-            
+
             var processExecutor = new ProcessExecutor();
 
             var result = processExecutor.ShellCmdExecute("/q /c pause |", "msbuild", arguments);
-            
+
             return Task.CompletedTask;
-        }        
+        }
     }
 }

@@ -31,13 +31,12 @@ namespace RoboNuGet.Commands
         private readonly IProcessExecutor _processExecutor;
 
         public Pack(
-            ILogger<Pack> logger,
-            ICommandLineMapper mapper,
+            CommandServiceProvider<Pack> serviceProvider,
             RoboNuGetFile roboNuGetFile,
             IFileSearch fileSearch,
             [KeyFilter("")] IConsoleCommand updateNuspec,
             IProcessExecutor processExecutor
-        ) : base(logger, mapper)
+        ) : base(serviceProvider)
         {
             _roboNuGetFile = roboNuGetFile;
             _fileSearch = fileSearch;

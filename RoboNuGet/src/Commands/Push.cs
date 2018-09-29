@@ -32,12 +32,11 @@ namespace RoboNuGet.Commands
         //        .IsNotValidWhen(cmd => cmd.Version.IsNullOrEmpty());
 
         public Push(
-            ILogger<Push> logger,
-            ICommandLineMapper mapper,
+            CommandServiceProvider<Push> serviceProvider,
             RoboNuGetFile roboNuGetFile,
             IFileSearch fileSearch,
             IProcessExecutor processExecutor
-        ) : base(logger, mapper)
+        ) : base(serviceProvider)
         {
             _roboNuGetFile = roboNuGetFile;
             _fileSearch = fileSearch;

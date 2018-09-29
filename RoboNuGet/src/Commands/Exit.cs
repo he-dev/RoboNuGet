@@ -12,7 +12,7 @@ namespace RoboNuGet.Commands
     [UsedImplicitly]
     internal class Exit : ConsoleCommand<SimpleBag>
     {
-        public Exit(ILogger<Exit> logger, ICommandLineMapper mapper) : base(logger, mapper)
+        public Exit(CommandServiceProvider<Exit> serviceProvider) : base(serviceProvider)
         {
         }
 

@@ -20,7 +20,7 @@ namespace RoboNuGet.Commands
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly IFileSearch _fileSearch;
 
-        public Clear(ILogger<Clear> logger, ICommandLineMapper mapper, RoboNuGetFile roboNuGetFile, IFileSearch fileSearch) : base(logger, mapper)
+        public Clear(CommandServiceProvider<Clear> serviceProvider, RoboNuGetFile roboNuGetFile, IFileSearch fileSearch) : base(serviceProvider)
         {
             _roboNuGetFile = roboNuGetFile;
             _fileSearch = fileSearch;
@@ -35,26 +35,20 @@ namespace RoboNuGet.Commands
 
         private void RenderSplashScreen(RoboNuGetFile roboNuGetFile)
         {
-            Logger.WriteLine(m => m.Prompt().span(s => s.text("RoboNuGet v4.0.0").color(ConsoleColor.DarkGray)));
+            Logger.WriteLine(m => m.Prompt().span(s => s.text("RoboNuGet v5.0.0").color(ConsoleColor.DarkGray)));
 
             var solutionFileName = _fileSearch.FindSolutionFile();
             var nuspecFiles = _fileSearch.FindNuspecFiles().ToList();
-
-            //ConsoleColorizer.RenderLine($"<p>&gt;Solution '<span color='yellow'>{solutionName}</span>' <span color='magenta'>v{_program.RoboNuGetFile.FullVersion}</span> ({nuspecFileCount} nuspec{(nuspecFileCount != 1 ? "s" : string.Empty)})</p>");
 
             Logger.WriteLine(p => p
                 .Prompt()
                 .text("Solution ")
                 .span(s => s.text(Path.GetFileNameWithoutExtension(solutionFileName).QuoteWith("'")).color(ConsoleColor.Yellow))
                 .text(" ")
-                .span(s => s.text($" v{_roboNuGetFile.FullVersion}").color(ConsoleColor.Magenta))
+                .span(s => s.text($"v{_roboNuGetFile.FullVersion}").color(ConsoleColor.Magenta))
                 .text(" ")
-                .text($"({nuspecFiles.Count} nuspec{(nuspecFiles.Count != 1 ? "s" : string.Empty)})")
+                .text($"({nuspecFiles.Count} package{(nuspecFiles.Count != 1 ? "s" : string.Empty)})")
             );
-            //            ConsoleColorizer.RenderLine($"<p>&gt;<span color='darkgray'>Directory '{Path.GetDirectoryName(_program.RoboNuGetFile.SolutionFileNameActual)}'</span></p>");
-            //            ConsoleColorizer.RenderLine($"<p>&gt;<span color='darkgray'>Packages '{_program.RoboNuGetFile.PackageDirectoryName}'</span></p>");
-            //            ConsoleColorizer.RenderLine($"<p>&gt;<span color='darkgray'>Last command '{(string.IsNullOrEmpty(_lastCommandLine) ? "N/A" : _lastCommandLine)}'</span> <span color='darkyellow'>(Press Enter to reuse)</span></p>");
-            //            Console.Write(">");
         }
     }
 }

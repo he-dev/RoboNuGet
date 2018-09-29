@@ -24,11 +24,17 @@ namespace RoboNuGet
 
         public static ILogger ConsoleException(this ILogger logger, Exception exception)
         {
-            return logger.WriteLine(m => m
-                .Indent()
-                .span(s => s
-                    .text($"{exception.GetType().Name}: {exception.Message}")
-                    .color(ConsoleColor.Red)));
+            foreach (var (ex, _) in exception.SelectMany())
+            {
+                logger
+                    .WriteLine(m => m
+                        .Indent()
+                        .span(s => s
+                            .text($"{ex.GetType().Name}: {ex.Message}")
+                            .color(ConsoleColor.Red)));
+            }
+
+            return logger;
         }
 
 
