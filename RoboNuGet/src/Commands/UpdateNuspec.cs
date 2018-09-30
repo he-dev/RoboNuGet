@@ -21,14 +21,15 @@ namespace RoboNuGet.Commands
         public string Version { get; set; }
     }
 
+    [Internal]
     [Alias("update", "u")]
     [UsedImplicitly]
     internal class UpdateNuspec : ConsoleCommand<UpdateNuspecBag>
     {
         public UpdateNuspec(CommandServiceProvider<UpdateNuspec> serviceProvider)
             : base(serviceProvider)
-        { }
-
+        {
+        }
 
         protected override Task ExecuteAsync(UpdateNuspecBag parameter, CancellationToken cancellationToken)
         {
@@ -36,8 +37,8 @@ namespace RoboNuGet.Commands
             var packagesConfig = PackagesConfigFile.Load(nuspecDirectoryName);
             var csProj = CsProjFile.Load(Path.Combine(nuspecDirectoryName, $"{parameter.NuspecFile.Id}{CsProjFile.Extension}"));
 
-            var packageDependencies = packagesConfig.Packages.Concat(csProj.PackageReferences).Select(package => new NuspecDependency { Id = package.Id, Version = package.Version });
-            var projectDependencies = csProj.ProjectReferences.Select(projectReferenceName => new NuspecDependency { Id = projectReferenceName, Version = parameter.Version });
+            var packageDependencies = packagesConfig.Packages.Concat(csProj.PackageReferences).Select(package => new NuspecDependency {Id = package.Id, Version = package.Version});
+            var projectDependencies = csProj.ProjectReferences.Select(projectReferenceName => new NuspecDependency {Id = projectReferenceName, Version = parameter.Version});
 
             parameter.NuspecFile.Dependencies = packageDependencies.Concat(projectDependencies);
             parameter.NuspecFile.Version = parameter.Version;

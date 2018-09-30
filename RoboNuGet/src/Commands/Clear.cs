@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -13,6 +14,7 @@ using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
+    [Description("Clear the console and refresh package list.")]
     [UsedImplicitly]
     [Alias("cls")]
     internal class Clear : ConsoleCommand<SimpleBag>

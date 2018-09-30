@@ -22,6 +22,8 @@ namespace RoboNuGet.Commands
         public bool Short { get; set; }
     }
 
+    [Description("List packages.")]
+    [Alias("lst", "l")]
     [UsedImplicitly]
     internal class List : ConsoleCommand<ListBag>
     {

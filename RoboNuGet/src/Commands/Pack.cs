@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -22,25 +23,23 @@ using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
 namespace RoboNuGet.Commands
 {
+    [Description("Pack packages.")]
     [UsedImplicitly]
     internal class Pack : ConsoleCommand<SimpleBag>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly IFileSearch _fileSearch;
-        private readonly IConsoleCommand _updateNuspec;
         private readonly IProcessExecutor _processExecutor;
 
         public Pack(
             CommandServiceProvider<Pack> serviceProvider,
             RoboNuGetFile roboNuGetFile,
             IFileSearch fileSearch,
-            [KeyFilter("")] IConsoleCommand updateNuspec,
             IProcessExecutor processExecutor
         ) : base(serviceProvider)
         {
             _roboNuGetFile = roboNuGetFile;
             _fileSearch = fileSearch;
-            _updateNuspec = updateNuspec;
             _processExecutor = processExecutor;
         }
 
@@ -78,11 +77,7 @@ namespace RoboNuGet.Commands
 
         private async Task UpdateNuspec(NuspecFile nuspecFile, CancellationToken cancellationToken)
         {
-            //var updateNuspec = (UpdateNuspec)_updateNuspec[ImmutableKeySet<SoftString>.Create(nameof(UpdateNuspec))];
-            //updateNuspec.NuspecFile = nuspecFile;
-            //updateNuspec.Version = _roboNuGetFile.PackageVersion;
-
-            await _updateNuspec.ExecuteAsync(new UpdateNuspecBag
+            await Executor.ExecuteAsync(nameof(Commands.UpdateNuspec), new UpdateNuspecBag
             {
                 NuspecFile = nuspecFile,
                 Version = _roboNuGetFile.PackageVersion

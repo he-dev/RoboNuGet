@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -27,6 +28,7 @@ namespace RoboNuGet.Commands
         public string Next { get; set; }
     }
 
+    [Description("Change package version.")]
     [UsedImplicitly]
     [Alias("ver", "v")]
     internal class Version : ConsoleCommand<VersionBag>

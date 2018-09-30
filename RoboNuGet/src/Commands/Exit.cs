@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using Reusable.OmniLog;
 
 namespace RoboNuGet.Commands
 {
+    [Description("Exit RoboNuGet.")]
     [UsedImplicitly]
     internal class Exit : ConsoleCommand<SimpleBag>
     {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -20,6 +21,7 @@ namespace RoboNuGet.Commands
         public string Version { get; set; }
     }
 
+    [Description("Push packages to the NuGet server.")]
     internal class Push : ConsoleCommand<PushBag>
     {
         private readonly RoboNuGetFile _roboNuGetFile;

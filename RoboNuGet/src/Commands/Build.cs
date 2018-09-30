@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
@@ -12,6 +13,7 @@ using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
+    [Description("Build the solution.")]
     [UsedImplicitly]
     internal class Build : ConsoleCommand<SimpleBag>
     {
