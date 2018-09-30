@@ -116,8 +116,6 @@ namespace RoboNuGet
                     )
                 );
 
-            builder.RegisterSource(new TypeListSource<IConsoleCommand>());
-
             return builder.Build();
         }
     }
