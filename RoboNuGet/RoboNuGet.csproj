@@ -23,15 +23,11 @@
    <PackageReference Include="Autofac" Version="4.8.1" />
    <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-   <PackageReference Include="Reusable.SemanticVersion" Version="7.0.19" />
-   <PackageReference Include="Reusable.MarkupBuilder" Version="7.0.19" />
-   <PackageReference Include="Reusable.OmniLog.ColoredConsoleRx" Version="7.0.19" />
-   <PackageReference Include="Reusable.Commander" Version="7.0.19" />
+   <PackageReference Include="Reusable.SemanticVersion" Version="7.0.20" />
+   <PackageReference Include="Reusable.MarkupBuilder" Version="7.0.20" />
+   <PackageReference Include="Reusable.OmniLog.ColoredConsoleRx" Version="7.0.20" />
+   <PackageReference Include="Reusable.Commander" Version="7.0.20" />
    
- </ItemGroup>
-
- <ItemGroup>
-   <None Remove="RoboNuGet.json" />
  </ItemGroup>
 
  <ItemGroup>
@@ -42,6 +38,12 @@
    <Compile Include="..\..\Reusable\Reusable.Commander\src\Commands\Help.cs">
      <Link>src\Linked\Help.cs</Link>
    </Compile>
+ </ItemGroup>
+
+ <ItemGroup>
+   <None Update="RoboNuGet.json">
+     <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+   </None>
  </ItemGroup>
 
 </Project>
