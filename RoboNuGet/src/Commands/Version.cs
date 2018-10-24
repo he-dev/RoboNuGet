@@ -22,9 +22,11 @@ namespace RoboNuGet.Commands
     internal class VersionBag : SimpleBag
     {
         [Alias("r", "new")]
+        [Description("Reset package version to a different one, e.g. 1.2.3")]
         public string Reset { get; set; }
 
         [Alias("n", "inc", "increment")]
+        [Description("Increase package version by one: [major|minor|patch]")]
         public string Next { get; set; }
     }
 

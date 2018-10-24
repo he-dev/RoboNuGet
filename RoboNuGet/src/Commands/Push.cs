@@ -22,7 +22,7 @@ namespace RoboNuGet.Commands
     }
 
     [Description("Push packages to the NuGet server.")]
-    internal class Push : ConsoleCommand<PushBag>
+    internal class Push : ConsoleCommand<SimpleBag>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly IFileSearch _fileSearch;
@@ -46,7 +46,7 @@ namespace RoboNuGet.Commands
         }
 
 
-        protected override async Task ExecuteAsync(PushBag parameter, CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(SimpleBag parameter, CancellationToken cancellationToken)
         {
             //this.ValidateWith(ParameterValidator).ThrowIfNotValid();
 

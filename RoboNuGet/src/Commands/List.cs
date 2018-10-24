@@ -17,6 +17,7 @@ namespace RoboNuGet.Commands
 {
     internal class ListBag : SimpleBag
     {
+        [Description("Don't list dependencies.")]
         [DefaultValue(false)]
         [Alias("s")]
         public bool Short { get; set; }

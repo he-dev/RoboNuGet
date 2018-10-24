@@ -23,7 +23,7 @@ using RoboNuGet.Files;
 
 namespace RoboNuGet
 {
-    internal static class Program
+    internal class Program
     {
         private static async Task Main(string[] args)
         {
@@ -40,7 +40,7 @@ namespace RoboNuGet
             using (var container = InitializeContainer(configuration, loggerFactory))
             using (var scope = container.BeginLifetimeScope())
             {
-                var logger = scope.Resolve<ILoggerFactory>().CreateLogger("ConsoleTemplateTest");
+                var logger = scope.Resolve<ILogger<Program>>();
                 var executor = scope.Resolve<ICommandLineExecutor>();
 
                 // main loop
@@ -116,6 +116,13 @@ namespace RoboNuGet
                     )
                 );
 
+            builder
+                .Register(ctx =>
+                {
+                    var logger = ctx.Resolve<ILogger<Program>>();
+                    return (ExecuteExceptionCallback)(exception => logger.ConsoleException(exception));
+                });
+
             return builder.Build();
         }
     }
@@ -123,5 +130,5 @@ namespace RoboNuGet
     public static class ExitCode
     {
         public const int Success = 0;
-    }    
+    }
 }
