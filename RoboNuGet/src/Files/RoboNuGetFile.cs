@@ -10,9 +10,30 @@ using Reusable;
 
 namespace RoboNuGet.Files
 {
+    internal class SolutionInfo
+    {
+        //[DefaultValue("*.sln")]
+        [JsonRequired]
+        public string FileName { get; set; }
+
+        public string DirectoryName => Path.GetDirectoryName(FileName);
+
+        [JsonRequired]
+        public string PackageVersion { get; set; }
+
+        public bool IsPrerelease { get; set; }
+
+        [JsonIgnore]
+        public string FullVersion => $"{PackageVersion}{(IsPrerelease ? "-pre" : string.Empty)}";
+        
+        //public IEnumerable<NuspecFile> NuspecFiles => _directoryTree.WalkSilently(DirectoryName).
+        
+        
+    }
+
     [UsedImplicitly]
     internal class RoboNuGetFile
-    {        
+    {
         private static readonly JsonSerializerSettings DefaultSerializerSettings = new JsonSerializerSettings
         {
             //Converters = {new JsonOverridableConverter()},
@@ -22,23 +43,16 @@ namespace RoboNuGet.Files
 
         private const string DefaultFileName = "RoboNuGet.json";
 
-        public string[] ExcludeDirectories { get; set; }       
+        public string[] ExcludeDirectories { get; set; }
         
-        [DefaultValue("*.sln")]
-        public string SolutionFileName { get; set; }
-
-        public string PackageVersion { get; set; }
-
-        public bool IsPrerelease { get; set; }
+        [JsonRequired]
+        public IEnumerable<SolutionInfo> Solutions { get; set; }
 
         public MsBuild MsBuild { get; set; }
 
         public NuGetSection NuGet { get; set; }
 
         // Computed properties
-
-        [JsonIgnore]
-        public string FullVersion => $"{PackageVersion}{(IsPrerelease ? "-pre" : string.Empty)}";
 
         [JsonIgnore]
         public static string FileName
@@ -63,20 +77,6 @@ namespace RoboNuGet.Files
             var json = JsonConvert.SerializeObject(this, DefaultSerializerSettings);
             File.WriteAllText(FileName, json);
         }
-
-        //public void IncrementPatchVersion()
-        //{
-        //    PackageVersion = 
-        //        Regex
-        //            .Replace(
-        //                PackageVersion, 
-        //                @"^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)", 
-        //                m =>
-        //                    $"{m.Groups["major"].Value}." +
-        //                    $"{m.Groups["minor"]}." +
-        //                    $"{int.Parse(m.Groups["patch"].Value) + 1}"
-        //            );
-        //}
     }
 
     [UsedImplicitly]

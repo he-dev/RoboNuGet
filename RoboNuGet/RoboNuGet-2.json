@@ -1,0 +1,43 @@
+{
+  "ExcludeDirectories": [
+    ".git",
+    ".idea",
+    ".vs",
+    "_nuget",
+    //"*.Tests",
+    "packages",
+    "TestResults",
+    "bin",
+    "obj"
+  ],
+  "Solutions": [
+    {
+      "FileName": "C:\\Home\\Projects\\Reusable\\Reusable.sln",
+      "PackageVersion": "3.80.0",
+      "IsPrerelease": false
+    },
+    {
+      "FileName": "C:\\Home\\Projects\\MailrNET\\MailrNET.sln",
+      "PackageVersion": "3.80.0",
+      "IsPrerelease": false
+    }
+  ],
+  "MsBuild": {
+    "Target": "Rebuild",
+    "NoLogo": true,
+    "Properties": {
+      "Configuration": "Release"
+    },
+    "Switches": {
+      "m": null
+    }
+  },
+  "NuGet": {
+    "OutputDirectoryName": "C:\\Home\\Projects\\NuGet\\packages",
+    "NuGetConfigName": "C:\\Home\\Projects\\NuGet\\NuGet.config",
+    "Commands": {
+      "pack": "pack \"{NuspecFileName}\" -properties Configuration=Release -outputdirectory \"{OutputDirectoryName}\"",
+      "push": "push {NupkgFileName} -configfile {NuGetConfigName}"
+    }
+  }
+}
