@@ -29,18 +29,17 @@ namespace RoboNuGet.Commands
     internal class List : ConsoleCommand<ListBag>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
-        private readonly IFileSearch _fileSearch;
+        private readonly IDirectoryTree _directoryTree;
 
-        public List(CommandServiceProvider<List> serviceProvider, RoboNuGetFile roboNuGetFile, IFileSearch fileSearch) : base(serviceProvider)
+        public List(CommandServiceProvider<List> serviceProvider, RoboNuGetFile roboNuGetFile, IDirectoryTree directoryTree) : base(serviceProvider)
         {
             _roboNuGetFile = roboNuGetFile;
-            _fileSearch = fileSearch;
+            _directoryTree = directoryTree;
         }
 
         protected override Task ExecuteAsync(ListBag parameter, CancellationToken cancellationToken)
         {
-            var solutionFileName = _fileSearch.FindSolutionFile();
-            var nuspecFiles = _fileSearch.FindNuspecFiles();
+            var nuspecFiles = _directoryTree.FindNuspecFiles(_roboNuGetFile);
 
             foreach (var nuspecFile in nuspecFiles.OrderBy(x => x.FileName))
             {

@@ -49,7 +49,7 @@ namespace RoboNuGet.Commands
             foreach (var solution in roboNuGetFile.Solutions)
             {
                 //var solutionFileName = _fileSearch.FindSolutionFile();
-                var nuspecFiles = _directoryTree.FindNuspecFiles(solution.DirectoryName, roboNuGetFile.ExcludeDirectories).ToList();
+                var nuspecFiles = _directoryTree.FindNuspecFiles(roboNuGetFile).ToList();
 
                 Logger.WriteLine(p => p
                     .Prompt()
@@ -66,43 +66,49 @@ namespace RoboNuGet.Commands
 
     internal static class DirectoryTreeExtensions
     {
-        public static IEnumerable<string> FindNuspecFiles(this IDirectoryTree directoryTree, string path, IEnumerable<string> excludeDirectories)
+        [NotNull, ItemNotNull]
+        public static IEnumerable<NuspecFile> FindNuspecFiles(this IDirectoryTree directoryTree, RoboNuGetFile roboNuGetFile)
         {
-            var pattern = excludeDirectories.Select(Regex.Escape).Join("|");
+            if (roboNuGetFile.SelectedSolution is null)
+            {
+                throw new ArgumentException("Solution not selected.");
+            }
+            
+            var pattern = roboNuGetFile.ExcludeDirectories.Select(Regex.Escape).Join("|");
 
             return
                 directoryTree
-                    .WalkSilently(path)
+                    .WalkSilently(roboNuGetFile.SelectedSolution.DirectoryName)
                     .SkipDirectories($"\\({pattern})")
                     .WhereFiles("\\.nuspec$")
-                    .SelectMany(node => node.FileNames.Select(name => Path.Combine(node.DirectoryName, name)));
+                    .SelectMany(node => node.FileNames.Select(name => Path.Combine(node.DirectoryName, name)))
+                    .Select(NuspecFile.Load);
         }
     }
 
     internal class SelectBag : SimpleBag
     {
-        [Alias("pkg")]
-        public string Package { get; set; }
+        [Position(1)]
+        public int Solution { get; set; }
     }
 
     internal class Select : ConsoleCommand<SelectBag>
     {
-        private readonly Selection _selection;
+        private readonly RoboNuGetFile _roboNuGetFile;
 
-        public Select(ICommandServiceProvider serviceProvider, Selection selection) : base(serviceProvider)
+        public Select(ICommandServiceProvider serviceProvider, RoboNuGetFile roboNuGetFile) : base(serviceProvider)
         {
-            _selection = selection;
+            _roboNuGetFile = roboNuGetFile;
         }
 
         protected override Task ExecuteAsync(SelectBag parameter, CancellationToken cancellationToken)
         {
-            _selection.Package = parameter.Package;
+            var solution = _roboNuGetFile.Solutions.ElementAtOrDefault(parameter.Solution);
+            if (!(solution is null))
+            {
+                _roboNuGetFile.SelectedSolution = solution;
+            }
             return Task.CompletedTask;
         }
-    }
-
-    internal class Selection
-    {
-        public string Package { get; set; }
     }
 }

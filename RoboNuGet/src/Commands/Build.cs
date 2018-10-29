@@ -18,9 +18,9 @@ namespace RoboNuGet.Commands
     internal class Build : ConsoleCommand<SimpleBag>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
-        private readonly IFileSearch _fileSearch;
+        
 
-        public Build(CommandServiceProvider<Build> serviceProvider, RoboNuGetFile roboNuGetFile, IFileSearch fileSearch) : base(serviceProvider)
+        public Build(CommandServiceProvider<Build> serviceProvider, RoboNuGetFile roboNuGetFile) : base(serviceProvider)
         {
             _roboNuGetFile = roboNuGetFile;
             _fileSearch = fileSearch;

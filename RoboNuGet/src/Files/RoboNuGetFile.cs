@@ -27,8 +27,6 @@ namespace RoboNuGet.Files
         public string FullVersion => $"{PackageVersion}{(IsPrerelease ? "-pre" : string.Empty)}";
         
         //public IEnumerable<NuspecFile> NuspecFiles => _directoryTree.WalkSilently(DirectoryName).
-        
-        
     }
 
     [UsedImplicitly]
@@ -64,6 +62,8 @@ namespace RoboNuGet.Files
                 return fileName;
             }
         }
+        
+        internal SolutionInfo SelectedSolution { get; set; }
 
         public static RoboNuGetFile Load()
         {
