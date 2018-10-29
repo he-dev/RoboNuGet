@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -89,8 +90,12 @@ namespace RoboNuGet
                 .As<IFileSystem>();
 
             builder
-                .RegisterType<FileSearch>()
-                .As<IFileSearch>();
+                .RegisterType<DirectoryTree>()
+                .As<IDirectoryTree>();
+
+            builder
+                .RegisterType<Selection>()
+                .SingleInstance();
 
             builder
                 .RegisterInstance(loggerFactory)
@@ -131,4 +136,6 @@ namespace RoboNuGet
     {
         public const int Success = 0;
     }
+
+   
 }
