@@ -63,6 +63,7 @@ namespace RoboNuGet.Files
             }
         }
         
+        [JsonIgnore]
         internal SolutionInfo SelectedSolution { get; set; }
 
         public static RoboNuGetFile Load()

@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable;
 using Reusable.Commander;
 using Reusable.Commander.Annotations;
 using Reusable.Extensions;
@@ -17,15 +18,21 @@ using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
+    internal class ClearBag : SimpleBag
+    {
+        public string Option { get; set; }
+    }
+
     [Description("Clear the console and refresh package list.")]
     [UsedImplicitly]
     [Alias("cls")]
-    internal class Clear : ConsoleCommand<SimpleBag>
+    internal class Clear : ConsoleCommand<ClearBag>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly IDirectoryTree _directoryTree;
 
-        public Clear(
+        public Clear
+        (
             CommandServiceProvider<Clear> serviceProvider,
             RoboNuGetFile roboNuGetFile,
             IDirectoryTree directoryTree
@@ -35,30 +42,33 @@ namespace RoboNuGet.Commands
             _directoryTree = directoryTree;
         }
 
-        protected override Task ExecuteAsync(SimpleBag parameter, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(ClearBag parameter, CancellationToken cancellationToken)
         {
             Console.Clear();
-            RenderSplashScreen(_roboNuGetFile);
+            RenderSplashScreen(_roboNuGetFile, parameter.Option);
             return Task.CompletedTask;
         }
 
-        private void RenderSplashScreen(RoboNuGetFile roboNuGetFile)
+        private void RenderSplashScreen(RoboNuGetFile roboNuGetFile, string option)
         {
             Logger.WriteLine(m => m.Prompt().span(s => s.text("RoboNuGet v6.0.0").color(ConsoleColor.DarkGray)));
 
-            foreach (var solution in roboNuGetFile.Solutions)
+            var showAll = SoftString.Comparer.Equals(option, "selection");
+            var solutions = showAll ? roboNuGetFile.Solutions : new[] { _roboNuGetFile.SelectedSolution };
+
+            foreach (var (solution, index) in solutions.Select((s, i) => (s, i)))
             {
-                //var solutionFileName = _fileSearch.FindSolutionFile();
                 var nuspecFiles = _directoryTree.FindNuspecFiles(roboNuGetFile).ToList();
 
-                Logger.WriteLine(p => p
-                    .Prompt()
-                    .text("Solution ")
-                    .span(s => s.text(Path.GetFileNameWithoutExtension(solution.FileName).QuoteWith("'")).color(ConsoleColor.Yellow))
-                    .text(" ")
-                    .span(s => s.text($"v{solution.FullVersion}").color(ConsoleColor.Magenta))
-                    .text(" ")
-                    .text($"({nuspecFiles.Count} package{(nuspecFiles.Count != 1 ? "s" : string.Empty)})")
+                Logger.WriteLine(
+                    p => p
+                        .Prompt()
+                        .text($"Solution {(showAll ? $"[{index}]" : string.Empty)}")
+                        .span(s => s.text(Path.GetFileNameWithoutExtension(solution.FileName).QuoteWith("'")).color(ConsoleColor.Yellow))
+                        .text(" ")
+                        .span(s => s.text($"v{solution.FullVersion}").color(ConsoleColor.Magenta))
+                        .text(" ")
+                        .text($"({nuspecFiles.Count} package{(nuspecFiles.Count != 1 ? "s" : string.Empty)})")
                 );
             }
         }
@@ -73,7 +83,7 @@ namespace RoboNuGet.Commands
             {
                 throw new ArgumentException("Solution not selected.");
             }
-            
+
             var pattern = roboNuGetFile.ExcludeDirectories.Select(Regex.Escape).Join("|");
 
             return

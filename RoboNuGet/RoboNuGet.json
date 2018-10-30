@@ -4,15 +4,24 @@
     ".idea",
     ".vs",
     "_nuget",
-    "*.Tests",
+    //"*.Tests",
     "packages",
     "TestResults",
     "bin",
     "obj"
   ],
-  "SolutionFileName": "C:\\Home\\Projects\\Reusable\\Reusable.sln",
-  "PackageVersion": "3.80.0",
-  "IsPrerelease": false,
+  "Solutions": [
+    {
+      "FileName": "C:\\Home\\Projects\\Reusable\\Reusable.sln",
+      "PackageVersion": "3.80.0",
+      "IsPrerelease": false
+    },
+    {
+      "FileName": "C:\\Home\\Projects\\MailrNET\\MailrNET.sln",
+      "PackageVersion": "3.80.0",
+      "IsPrerelease": false
+    }
+  ],
   "MsBuild": {
     "Target": "Rebuild",
     "NoLogo": true,

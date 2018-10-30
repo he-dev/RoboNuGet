@@ -37,7 +37,7 @@ namespace RoboNuGet.Commands
     {
         private readonly RoboNuGetFile _roboNuGetFile;
 
-        private readonly IEnumerable<(Func<string, bool> IsNext, Func<SemanticVersion, SemanticVersion> Increment)> _updates =
+        private static readonly IEnumerable<(Func<string, bool> IsNext, Func<SemanticVersion, SemanticVersion> Increment)> Updates =
             new (Func<string, bool> IsNext, Func<SemanticVersion, SemanticVersion> Increment)[]
             {
                 (
@@ -74,9 +74,9 @@ namespace RoboNuGet.Commands
             }
             else
             {
-                var currentVersion = SemanticVersion.Parse(_roboNuGetFile.PackageVersion);
+                var currentVersion = SemanticVersion.Parse(_roboNuGetFile.SelectedSolution.PackageVersion);
 
-                foreach (var (_, increment) in _updates.Where(x => x.IsNext(parameter.Next)))
+                foreach (var (_, increment) in Updates.Where(x => x.IsNext(parameter.Next)))
                 {
                     UpdateVersion(increment(currentVersion));
                     break;
@@ -90,9 +90,9 @@ namespace RoboNuGet.Commands
 
         private void UpdateVersion(SemanticVersion newVersion)
         {
-            _roboNuGetFile.PackageVersion = newVersion;
+            _roboNuGetFile.SelectedSolution.PackageVersion = newVersion;
             _roboNuGetFile.Save();
-            Logger.WriteLine(m => m.Indent().text($"New version: v{_roboNuGetFile.PackageVersion}"));
+            Logger.WriteLine(m => m.Indent().text($"New version: v{_roboNuGetFile.SelectedSolution.PackageVersion}"));
         }
     }
 }

@@ -74,12 +74,12 @@ namespace RoboNuGet
             // ReSharper disable once FunctionNeverReturns - it does return when you execute the 'exit' command
         }
 
-        private static IContainer InitializeContainer(RoboNuGetFile configuration, ILoggerFactory loggerFactory)
+        private static IContainer InitializeContainer(RoboNuGetFile roboNuGetFile, ILoggerFactory loggerFactory)
         {
             var builder = new ContainerBuilder();
 
             builder
-                .RegisterInstance(configuration);
+                .RegisterInstance(roboNuGetFile);
 
             builder
                 .RegisterType<ProcessExecutor>()
@@ -92,10 +92,6 @@ namespace RoboNuGet
             builder
                 .RegisterType<DirectoryTree>()
                 .As<IDirectoryTree>();
-
-            builder
-                .RegisterType<Selection>()
-                .SingleInstance();
 
             builder
                 .RegisterInstance(loggerFactory)

@@ -28,24 +28,24 @@ namespace RoboNuGet.Commands
     internal class Pack : ConsoleCommand<SimpleBag>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
-        private readonly IFileSearch _fileSearch;
+        private readonly IDirectoryTree _directoryTree;
         private readonly IProcessExecutor _processExecutor;
 
         public Pack(
             CommandServiceProvider<Pack> serviceProvider,
             RoboNuGetFile roboNuGetFile,
-            IFileSearch fileSearch,
+            IDirectoryTree directoryTree,
             IProcessExecutor processExecutor
         ) : base(serviceProvider)
         {
             _roboNuGetFile = roboNuGetFile;
-            _fileSearch = fileSearch;
+            _directoryTree = directoryTree;
             _processExecutor = processExecutor;
         }
 
         protected override async Task ExecuteAsync(SimpleBag parameter, CancellationToken cancellationToken)
         {
-            var nuspecFiles = _fileSearch.FindNuspecFiles();
+            var nuspecFiles = _directoryTree.FindNuspecFiles(_roboNuGetFile);
 
             var packStopwatch = Stopwatch.StartNew();
 
@@ -65,7 +65,7 @@ namespace RoboNuGet.Commands
                 }
                 else
                 {
-                    Logger.WriteLine(p => p.Indent().span(s => s.text("All packages successfuly created.").color(ConsoleColor.Green)));
+                    Logger.WriteLine(p => p.Indent().span(s => s.text("All packages successfully created.").color(ConsoleColor.Green)));
                 }
 
             }, cancellationToken);
@@ -80,7 +80,7 @@ namespace RoboNuGet.Commands
             await Executor.ExecuteAsync(nameof(Commands.UpdateNuspec), new UpdateNuspecBag
             {
                 NuspecFile = nuspecFile,
-                Version = _roboNuGetFile.PackageVersion
+                Version = _roboNuGetFile.SelectedSolution.PackageVersion
             }, cancellationToken);
         }
 

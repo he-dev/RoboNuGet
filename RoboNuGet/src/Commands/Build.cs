@@ -18,23 +18,24 @@ namespace RoboNuGet.Commands
     internal class Build : ConsoleCommand<SimpleBag>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
-        
+        private readonly IDirectoryTree _directoryTree;
 
-        public Build(CommandServiceProvider<Build> serviceProvider, RoboNuGetFile roboNuGetFile) : base(serviceProvider)
+        public Build
+        (
+            CommandServiceProvider<Build> serviceProvider,
+            RoboNuGetFile roboNuGetFile,
+            IDirectoryTree directoryTree
+        ) : base(serviceProvider)
         {
             _roboNuGetFile = roboNuGetFile;
-            _fileSearch = fileSearch;
+            _directoryTree = directoryTree;
         }
 
         protected override Task ExecuteAsync(SimpleBag parameter, CancellationToken cancellationToken)
         {
-            var solutionFileName = _fileSearch.FindSolutionFile();
-            var arguments = _roboNuGetFile.MsBuild.ToString(solutionFileName);
-
+            var arguments = _roboNuGetFile.MsBuild.ToString(_roboNuGetFile.SelectedSolution.FileName);
             var processExecutor = new ProcessExecutor();
-
             var result = processExecutor.ShellCmdExecute("/q /c pause |", "msbuild", arguments);
-
             return Task.CompletedTask;
         }
     }

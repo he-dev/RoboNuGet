@@ -39,6 +39,7 @@ namespace RoboNuGet.Commands
 
         protected override Task ExecuteAsync(ListBag parameter, CancellationToken cancellationToken)
         {
+            var solution = _roboNuGetFile.SelectedSolution;
             var nuspecFiles = _directoryTree.FindNuspecFiles(_roboNuGetFile);
 
             foreach (var nuspecFile in nuspecFiles.OrderBy(x => x.FileName))
@@ -47,7 +48,7 @@ namespace RoboNuGet.Commands
                 var packagesConfig = PackagesConfigFile.Load(nuspecDirectoryName);
 
                 var csProj = CsProjFile.Load(Path.Combine(nuspecDirectoryName, $"{nuspecFile.Id}{CsProjFile.Extension}"));
-                var projectDependencies = csProj.ProjectReferences.Select(projectReferenceName => new NuspecDependency { Id = projectReferenceName, Version = _roboNuGetFile.FullVersion }).ToList();
+                var projectDependencies = csProj.ProjectReferences.Select(projectReferenceName => new NuspecDependency { Id = projectReferenceName, Version = solution.FullVersion }).ToList();
                 var packageDependencies = packagesConfig.Packages.Concat(csProj.PackageReferences).Select(package => new NuspecDependency { Id = package.Id, Version = package.Version }).ToList();
 
                 var dependencyCount = projectDependencies.Count + packageDependencies.Count;

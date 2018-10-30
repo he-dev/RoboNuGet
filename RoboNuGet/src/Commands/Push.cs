@@ -25,7 +25,7 @@ namespace RoboNuGet.Commands
     internal class Push : ConsoleCommand<SimpleBag>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
-        private readonly IFileSearch _fileSearch;
+        private readonly IDirectoryTree _directoryTree;
         private readonly IProcessExecutor _processExecutor;
 
         //private static readonly IValidator<Push> ParameterValidator =
@@ -36,12 +36,12 @@ namespace RoboNuGet.Commands
         public Push(
             CommandServiceProvider<Push> serviceProvider,
             RoboNuGetFile roboNuGetFile,
-            IFileSearch fileSearch,
+            IDirectoryTree directoryTree,
             IProcessExecutor processExecutor
         ) : base(serviceProvider)
         {
             _roboNuGetFile = roboNuGetFile;
-            _fileSearch = fileSearch;
+            _directoryTree = directoryTree;
             _processExecutor = processExecutor;
         }
 
@@ -50,8 +50,7 @@ namespace RoboNuGet.Commands
         {
             //this.ValidateWith(ParameterValidator).ThrowIfNotValid();
 
-            var solutionFileName = _fileSearch.FindSolutionFile();
-            var nuspecFiles = _fileSearch.FindNuspecFiles();
+            var nuspecFiles = _directoryTree.FindNuspecFiles(_roboNuGetFile);
 
             var pushStopwatch = Stopwatch.StartNew();
 

@@ -41,13 +41,4 @@
    <Compile Remove="src\FileSearch.cs" />
  </ItemGroup>
 
- <ItemGroup>
-   <None Update="RoboNuGet-2.json">
-     <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-   </None>
-   <None Update="RoboNuGet.json">
-     <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-   </None>
- </ItemGroup>
-
 </Project>
