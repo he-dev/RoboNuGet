@@ -61,6 +61,8 @@ namespace RoboNuGet.Commands
 
         protected override Task ExecuteAsync(VersionBag parameter, CancellationToken cancellationToken)
         {
+            _roboNuGetFile.SelectedSolutionSafe();
+            
             if (parameter.Reset.IsNotNull())
             {
                 if (SemanticVersion.TryParse(parameter.Reset, out var version))

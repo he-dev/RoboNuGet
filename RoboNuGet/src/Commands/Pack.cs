@@ -19,6 +19,7 @@ using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using RoboNuGet.Files;
+using RoboNuGet.Services;
 using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
 
 namespace RoboNuGet.Commands
@@ -28,24 +29,24 @@ namespace RoboNuGet.Commands
     internal class Pack : ConsoleCommand<SimpleBag>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
-        private readonly IDirectoryTree _directoryTree;
+        private readonly SolutionDirectoryTree _solutionDirectoryTree;
         private readonly IProcessExecutor _processExecutor;
 
         public Pack(
             CommandServiceProvider<Pack> serviceProvider,
             RoboNuGetFile roboNuGetFile,
-            IDirectoryTree directoryTree,
+            SolutionDirectoryTree solutionDirectoryTree,
             IProcessExecutor processExecutor
         ) : base(serviceProvider)
         {
             _roboNuGetFile = roboNuGetFile;
-            _directoryTree = directoryTree;
+            _solutionDirectoryTree = solutionDirectoryTree;
             _processExecutor = processExecutor;
         }
 
         protected override async Task ExecuteAsync(SimpleBag parameter, CancellationToken cancellationToken)
         {
-            var nuspecFiles = _directoryTree.FindNuspecFiles(_roboNuGetFile);
+            var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_roboNuGetFile.SelectedSolutionSafe().DirectoryName);
 
             var packStopwatch = Stopwatch.StartNew();
 

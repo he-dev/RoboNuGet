@@ -33,7 +33,7 @@ namespace RoboNuGet.Commands
 
         protected override Task ExecuteAsync(SimpleBag parameter, CancellationToken cancellationToken)
         {
-            var arguments = _roboNuGetFile.MsBuild.ToString(_roboNuGetFile.SelectedSolution.FileName);
+            var arguments = _roboNuGetFile.MsBuild.ToString(_roboNuGetFile.SelectedSolutionSafe().FileName);
             var processExecutor = new ProcessExecutor();
             var result = processExecutor.ShellCmdExecute("/q /c pause |", "msbuild", arguments);
             return Task.CompletedTask;

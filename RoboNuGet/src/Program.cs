@@ -21,6 +21,7 @@ using Reusable.IO;
 using Reusable.OmniLog;
 using RoboNuGet.Commands;
 using RoboNuGet.Files;
+using RoboNuGet.Services;
 
 namespace RoboNuGet
 {
@@ -86,12 +87,11 @@ namespace RoboNuGet
                 .As<IProcessExecutor>();
 
             builder
-                .RegisterType<FileSystem>()
-                .As<IFileSystem>();
-
-            builder
                 .RegisterType<DirectoryTree>()
                 .As<IDirectoryTree>();
+
+            builder
+                .RegisterType<SolutionDirectoryTree>();
 
             builder
                 .RegisterInstance(loggerFactory)
@@ -108,6 +108,7 @@ namespace RoboNuGet
                             .Add<Commands.UpdateNuspec>()
                             .Add<Commands.Version>()
                             .Add<Commands.Clear>()
+                            .Add<Commands.Select>()
                             .Add<Commands.Build>()
                             .Add<Commands.Pack>()
                             .Add<Commands.List>()
@@ -121,8 +122,12 @@ namespace RoboNuGet
                 .Register(ctx =>
                 {
                     var logger = ctx.Resolve<ILogger<Program>>();
-                    return (ExecuteExceptionCallback)(exception => logger.ConsoleException(exception));
-                });
+                    return (ExecuteExceptionCallback)(exception =>
+                    {
+                        logger.ConsoleException(exception);
+                    });
+                })
+                .SingleInstance();
 
             return builder.Build();
         }

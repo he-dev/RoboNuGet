@@ -11,6 +11,7 @@ using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using RoboNuGet.Files;
+using RoboNuGet.Services;
 
 namespace RoboNuGet.Commands
 {
@@ -25,7 +26,7 @@ namespace RoboNuGet.Commands
     internal class Push : ConsoleCommand<SimpleBag>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
-        private readonly IDirectoryTree _directoryTree;
+        private readonly SolutionDirectoryTree _solutionDirectoryTree;
         private readonly IProcessExecutor _processExecutor;
 
         //private static readonly IValidator<Push> ParameterValidator =
@@ -36,12 +37,12 @@ namespace RoboNuGet.Commands
         public Push(
             CommandServiceProvider<Push> serviceProvider,
             RoboNuGetFile roboNuGetFile,
-            IDirectoryTree directoryTree,
+            SolutionDirectoryTree solutionDirectoryTree,
             IProcessExecutor processExecutor
         ) : base(serviceProvider)
         {
             _roboNuGetFile = roboNuGetFile;
-            _directoryTree = directoryTree;
+            _solutionDirectoryTree = solutionDirectoryTree;            
             _processExecutor = processExecutor;
         }
 
@@ -50,7 +51,7 @@ namespace RoboNuGet.Commands
         {
             //this.ValidateWith(ParameterValidator).ThrowIfNotValid();
 
-            var nuspecFiles = _directoryTree.FindNuspecFiles(_roboNuGetFile);
+            var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_roboNuGetFile.SelectedSolutionSafe().DirectoryName);
 
             var pushStopwatch = Stopwatch.StartNew();
 

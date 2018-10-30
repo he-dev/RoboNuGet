@@ -12,6 +12,7 @@ using Reusable.Commander.Annotations;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using RoboNuGet.Files;
+using RoboNuGet.Services;
 
 namespace RoboNuGet.Commands
 {
@@ -29,18 +30,22 @@ namespace RoboNuGet.Commands
     internal class List : ConsoleCommand<ListBag>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
-        private readonly IDirectoryTree _directoryTree;
+        private readonly SolutionDirectoryTree _solutionDirectoryTree;
 
-        public List(CommandServiceProvider<List> serviceProvider, RoboNuGetFile roboNuGetFile, IDirectoryTree directoryTree) : base(serviceProvider)
+        public List(
+            CommandServiceProvider<List> serviceProvider, 
+            RoboNuGetFile roboNuGetFile, 
+            SolutionDirectoryTree solutionDirectoryTree
+        ) : base(serviceProvider)
         {
             _roboNuGetFile = roboNuGetFile;
-            _directoryTree = directoryTree;
+            _solutionDirectoryTree = solutionDirectoryTree;            
         }
 
         protected override Task ExecuteAsync(ListBag parameter, CancellationToken cancellationToken)
         {
-            var solution = _roboNuGetFile.SelectedSolution;
-            var nuspecFiles = _directoryTree.FindNuspecFiles(_roboNuGetFile);
+            var solution = _roboNuGetFile.SelectedSolutionSafe();
+            var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName);
 
             foreach (var nuspecFile in nuspecFiles.OrderBy(x => x.FileName))
             {
