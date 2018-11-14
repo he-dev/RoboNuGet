@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Custom;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Reusable.IO;
 using RoboNuGet.Files;
 
 namespace RoboNuGet.Services
@@ -24,7 +25,7 @@ namespace RoboNuGet.Services
         {            
             return
                 _directoryTree
-                    .WalkSilently(solutionDirectoryName)
+                    .Walk(solutionDirectoryName, DirectoryTree.MaxDepth(2), DirectoryTree.IgnoreExceptions)
                     .SkipDirectories($"({_excludeDirectoriesPattern})")
                     .WhereFiles("\\.nuspec$")
                     .SelectMany(node => node.FileNames.Select(name => Path.Combine(node.DirectoryName, name)))

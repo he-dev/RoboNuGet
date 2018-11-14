@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Reusable;
 using Reusable.Commander;
 using Reusable.Extensions;
+using Reusable.IO;
 using Reusable.OmniLog;
 using RoboNuGet.Files;
 
