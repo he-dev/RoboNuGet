@@ -18,6 +18,7 @@ namespace RoboNuGet.Files
         [JsonRequired]
         public string FileName { get; set; }
 
+        [JsonIgnore]
         public string DirectoryName => Path.GetDirectoryName(FileName);
 
         [JsonRequired]

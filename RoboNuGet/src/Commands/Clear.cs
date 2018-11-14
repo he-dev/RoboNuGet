@@ -60,7 +60,7 @@ namespace RoboNuGet.Commands
             var solutionSelected = !(_roboNuGetFile.SelectedSolution is null);
             var solutions = !solutionSelected ? _roboNuGetFile.Solutions : new[] { _roboNuGetFile.SelectedSolution };
 
-            foreach (var (solution, index) in solutions.Select((s, i) => (s, i)))
+            foreach (var (solution, index) in solutions.Select((s, i) => (s, i)))//.OrderBy(t => Path.GetFileNameWithoutExtension(t.s.FileName), StringComparer.OrdinalIgnoreCase))
             {
                 var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName).ToList();
 
