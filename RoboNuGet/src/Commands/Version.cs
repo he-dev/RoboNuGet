@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Reusable;
 using Reusable.Commander;
 using Reusable.Commander.Annotations;
+using Reusable.Commander.Services;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
@@ -19,21 +20,21 @@ using RoboNuGet.Files;
 namespace RoboNuGet.Commands
 {
     [PublicAPI]
-    internal class VersionBag : SimpleBag
+    internal interface IVersionParameter : ICommandParameter
     {
         [Alias("r", "new")]
         [Description("Reset package version to a different one, e.g. 1.2.3")]
-        public string Reset { get; set; }
+        string Reset { get; }
 
         [Alias("n", "inc", "increment")]
         [Description("Increase package version by one: [major|minor|patch]")]
-        public string Next { get; set; }
+        string Next { get; }
     }
 
     [Description("Change package version.")]
     [UsedImplicitly]
     [Alias("ver", "v")]
-    internal class Version : ConsoleCommand<VersionBag>
+    internal class Version : ConsoleCommand<IVersionParameter>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
 
@@ -59,13 +60,13 @@ namespace RoboNuGet.Commands
             _roboNuGetFile = roboNuGetFile;
         }
 
-        protected override Task ExecuteAsync(VersionBag parameter, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(ICommandLineReader<IVersionParameter> parameter, NullContext context, CancellationToken cancellationToken)
         {
             _roboNuGetFile.SelectedSolutionSafe();
             
-            if (parameter.Reset.IsNotNull())
+            if (parameter.GetItem(x => x.Reset).IsNotNull())
             {
-                if (SemanticVersion.TryParse(parameter.Reset, out var version))
+                if (SemanticVersion.TryParse(parameter.GetItem(x => x.Reset), out var version))
                 {
                     UpdateVersion(version);
                 }
@@ -78,7 +79,8 @@ namespace RoboNuGet.Commands
             {
                 var currentVersion = SemanticVersion.Parse(_roboNuGetFile.SelectedSolution.PackageVersion);
 
-                foreach (var (_, increment) in Updates.Where(x => x.IsNext(parameter.Next)))
+                var next = parameter.GetItem(x => x.Next);
+                foreach (var (_, increment) in Updates.Where(x => x.IsNext(next)))
                 {
                     UpdateVersion(increment(currentVersion));
                     break;

@@ -8,6 +8,7 @@ using Reusable;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
 
 namespace RoboNuGet
 {

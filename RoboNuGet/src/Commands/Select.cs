@@ -5,21 +5,22 @@ using System.Threading;
 using System.Threading.Tasks;
 using Reusable.Commander;
 using Reusable.Commander.Annotations;
+using Reusable.Commander.Services;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
-    internal class SelectBag : SimpleBag
+    internal interface ISelectParameter : ICommandParameter
     {
-        [Description("Solution number.")]
+        [Description("Solution number (1-based).")]
         [Position(1)]
-        public int Solution { get; set; }
+        int Solution { get; }
     }
 
     [Description("Select solution.")]
-    internal class Select : ConsoleCommand<SelectBag>
+    internal class Select : ConsoleCommand<ISelectParameter>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
 
@@ -28,9 +29,9 @@ namespace RoboNuGet.Commands
             _roboNuGetFile = roboNuGetFile;
         }
 
-        protected override Task ExecuteAsync(SelectBag parameter, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(ICommandLineReader<ISelectParameter> parameter, NullContext context, CancellationToken cancellationToken)
         {
-            var solution = _roboNuGetFile.Solutions.ElementAtOrDefault(parameter.Solution);
+            var solution = _roboNuGetFile.Solutions.ElementAtOrDefault(parameter.GetItem(x => x.Solution) - 1);
             if (!(solution is null))
             {
                 _roboNuGetFile.SelectedSolution = solution;

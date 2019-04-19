@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Reusable;
 using Reusable.Commander;
 using Reusable.Commander.Annotations;
+using Reusable.Commander.Services;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
@@ -16,17 +17,17 @@ using RoboNuGet.Services;
 
 namespace RoboNuGet.Commands
 {
-    internal class ClearBag : SimpleBag
+    internal interface IClearParameter : ICommandParameter
     {
         [Description("Clear solution selection.")]
         [Alias("s")]
-        public bool Selection { get; set; }
+        bool Selection { get; }
     }
 
     [Description("Clear the console and refresh package list.")]
     [UsedImplicitly]
     [Alias("cls")]
-    internal class Clear : ConsoleCommand<ClearBag>
+    internal class Clear : ConsoleCommand<IClearParameter>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
@@ -42,10 +43,10 @@ namespace RoboNuGet.Commands
             _solutionDirectoryTree = solutionDirectoryTree;
         }
 
-        protected override Task ExecuteAsync(ClearBag parameter, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(ICommandLineReader<IClearParameter> parameter, NullContext context, CancellationToken cancellationToken)
         {
             Console.Clear();
-            if (parameter.Selection)
+            if (parameter.GetItem(x => x.Selection))
             {
                 _roboNuGetFile.SelectedSolution = default;
             }
@@ -55,12 +56,12 @@ namespace RoboNuGet.Commands
 
         private void RenderSplashScreen()
         {
-            Logger.WriteLine(m => m.Prompt().span(s => s.text("RoboNuGet v6.0.0").color(ConsoleColor.DarkGray)));
+            Logger.WriteLine(m => m.Prompt().span(s => s.text($"{ProgramInfo.Name} v{ProgramInfo.Version}").color(ConsoleColor.DarkGray)));
 
             var solutionSelected = !(_roboNuGetFile.SelectedSolution is null);
             var solutions = !solutionSelected ? _roboNuGetFile.Solutions : new[] { _roboNuGetFile.SelectedSolution };
 
-            foreach (var (solution, index) in solutions.Select((s, i) => (s, i)))//.OrderBy(t => Path.GetFileNameWithoutExtension(t.s.FileName), StringComparer.OrdinalIgnoreCase))
+            foreach (var (solution, index) in solutions.Select((s, i) => (s, i + 1)))//.OrderBy(t => Path.GetFileNameWithoutExtension(t.s.FileName), StringComparer.OrdinalIgnoreCase))
             {
                 var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName).ToList();
 

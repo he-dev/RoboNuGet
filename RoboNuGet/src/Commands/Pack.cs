@@ -15,6 +15,7 @@ using JetBrains.Annotations;
 using Reusable;
 using Reusable.Collections;
 using Reusable.Commander;
+using Reusable.Commander.Services;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
@@ -26,25 +27,26 @@ namespace RoboNuGet.Commands
 {
     [Description("Pack packages.")]
     [UsedImplicitly]
-    internal class Pack : ConsoleCommand<SimpleBag>
+    internal class Pack : ConsoleCommand
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
         private readonly IProcessExecutor _processExecutor;
 
-        public Pack(
+        public Pack
+        (
             CommandServiceProvider<Pack> serviceProvider,
             RoboNuGetFile roboNuGetFile,
             SolutionDirectoryTree solutionDirectoryTree,
             IProcessExecutor processExecutor
-        ) : base(serviceProvider)
+        ) : base(serviceProvider, nameof(Pack))
         {
             _roboNuGetFile = roboNuGetFile;
             _solutionDirectoryTree = solutionDirectoryTree;
             _processExecutor = processExecutor;
         }
 
-        protected override async Task ExecuteAsync(SimpleBag parameter, CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(ICommandLineReader<ICommandParameter> parameter, NullContext context, CancellationToken cancellationToken)
         {
             var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_roboNuGetFile.SelectedSolutionSafe().DirectoryName);
 
@@ -68,7 +70,6 @@ namespace RoboNuGet.Commands
                 {
                     Logger.WriteLine(p => p.Indent().span(s => s.text("All packages successfully created.").color(ConsoleColor.Green)));
                 }
-
             }, cancellationToken);
 
             Logger.WriteLine(p => p.Indent().text($"Elapsed: {packStopwatch.Elapsed.TotalSeconds:F1} sec [{Thread.CurrentThread.ManagedThreadId}]"));
@@ -78,11 +79,14 @@ namespace RoboNuGet.Commands
 
         private async Task UpdateNuspec(NuspecFile nuspecFile, CancellationToken cancellationToken)
         {
-            await Executor.ExecuteAsync(nameof(Commands.UpdateNuspec), new UpdateNuspecBag
-            {
-                NuspecFile = nuspecFile,
-                Version = _roboNuGetFile.SelectedSolution.PackageVersion
-            }, cancellationToken);
+            await Services.Executor.ExecuteAsync
+            (
+                $"{nameof(Commands.UpdateNuspec)} " +
+                $"-{nameof(IUpdateNuspecParameter.NuspecFile)} {nuspecFile.Id} " +
+                $"-{nameof(IUpdateNuspecParameter.NuspecFile)} {_roboNuGetFile.SelectedSolution.PackageVersion}",
+                NullContext.Default,
+                cancellationToken
+            );
         }
 
         private async Task<int> CreatePackage(NuspecFile nuspecFile, CancellationToken cancellationToken)

@@ -8,6 +8,7 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using JetBrains.Annotations;
 using Reusable;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.Reflection;
 
@@ -37,9 +38,11 @@ namespace RoboNuGet.Files
 
             if (!File.Exists(fileName))
             {
-                throw DynamicException.Factory.CreateDynamicException(
+                throw DynamicException.Create
+                (
                     $"CsProjFileNotFound{nameof(Exception)}",
-                    $"File {fileName.QuoteWith("'")} does not exist.", null);
+                    $"File {fileName.QuoteWith("'")} does not exist."
+                );
             }
 
             var csproj = XDocument.Load(fileName);

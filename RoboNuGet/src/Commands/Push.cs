@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Reusable;
 using Reusable.Commander;
+using Reusable.Commander.Services;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
@@ -23,7 +24,7 @@ namespace RoboNuGet.Commands
     }
 
     [Description("Push packages to the NuGet server.")]
-    internal class Push : ConsoleCommand<SimpleBag>
+    internal class Push : ConsoleCommand
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
@@ -34,12 +35,13 @@ namespace RoboNuGet.Commands
         //        .IsNotValidWhen(cmd => cmd.PackageId.IsNullOrEmpty())
         //        .IsNotValidWhen(cmd => cmd.Version.IsNullOrEmpty());
 
-        public Push(
+        public Push
+        (
             CommandServiceProvider<Push> serviceProvider,
             RoboNuGetFile roboNuGetFile,
             SolutionDirectoryTree solutionDirectoryTree,
             IProcessExecutor processExecutor
-        ) : base(serviceProvider)
+        ) : base(serviceProvider, nameof(Push))
         {
             _roboNuGetFile = roboNuGetFile;
             _solutionDirectoryTree = solutionDirectoryTree;            
@@ -47,7 +49,7 @@ namespace RoboNuGet.Commands
         }
 
 
-        protected override async Task ExecuteAsync(SimpleBag parameter, CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(ICommandLineReader<ICommandParameter> parameter, NullContext context, CancellationToken cancellationToken)
         {
             //this.ValidateWith(ParameterValidator).ThrowIfNotValid();
 

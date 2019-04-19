@@ -9,6 +9,7 @@ using System.Windows.Input;
 using JetBrains.Annotations;
 using Reusable.Commander;
 using Reusable.Commander.Annotations;
+using Reusable.Commander.Services;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using RoboNuGet.Files;
@@ -16,18 +17,17 @@ using RoboNuGet.Services;
 
 namespace RoboNuGet.Commands
 {
-    internal class ListBag : SimpleBag
+    internal interface IListParameter : ICommandParameter
     {
         [Description("Don't list dependencies.")]
-        [DefaultValue(false)]
         [Alias("s")]
-        public bool Short { get; set; }
+        bool Short { get; }
     }
 
     [Description("List packages.")]
     [Alias("lst", "l")]
     [UsedImplicitly]
-    internal class List : ConsoleCommand<ListBag>
+    internal class List : ConsoleCommand<IListParameter>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
@@ -42,7 +42,7 @@ namespace RoboNuGet.Commands
             _solutionDirectoryTree = solutionDirectoryTree;            
         }
 
-        protected override Task ExecuteAsync(ListBag parameter, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(ICommandLineReader<IListParameter> parameter, NullContext context, CancellationToken cancellationToken)
         {
             var solution = _roboNuGetFile.SelectedSolutionSafe();
             var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName);
@@ -60,7 +60,7 @@ namespace RoboNuGet.Commands
 
                 //dependencyCount = nuspecFile.Dependencies.Count();
 
-                if (!parameter.Short)
+                if (!parameter.GetItem(x => x.Short))
                 {
                     Logger.WriteLine(m => m);
                 }
@@ -69,7 +69,7 @@ namespace RoboNuGet.Commands
                     .text($"{Path.GetFileNameWithoutExtension(nuspecFile.FileName)} ")
                     .span(s => s.text($"({dependencyCount})").color(ConsoleColor.Magenta)));
 
-                if (!parameter.Short)
+                if (!parameter.GetItem(x => x.Short))
                 {
                     ListDependencies("Projects", projectDependencies.OrderBy(x => x.Id));
                     ListDependencies("Packages", packageDependencies.OrderBy(x => x.Id));

@@ -1,25 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
-using Autofac.Core;
-using Autofac.Core.Activators.Delegate;
-using Autofac.Core.Activators.Reflection;
-using Autofac.Core.Lifetime;
-using Autofac.Core.Registration;
-using JetBrains.Annotations;
 using Reusable;
 using Reusable.Commander;
-using Reusable.Commander.Utilities;
 using Reusable.Extensions;
-using Reusable.IO;
+using Reusable.IOnymous;
 using Reusable.OmniLog;
-using RoboNuGet.Commands;
+using Reusable.OmniLog.Abstractions;
 using RoboNuGet.Files;
 using RoboNuGet.Services;
 
@@ -47,7 +35,7 @@ namespace RoboNuGet
 
                 // main loop
 
-                await executor.ExecuteAsync("cls", CancellationToken.None);
+                await executor.ExecuteAsync("cls", NullContext.Default, CancellationToken.None);
 
                 do
                 {
@@ -62,7 +50,7 @@ namespace RoboNuGet
                         }
                         else
                         {
-                            await executor.ExecuteAsync(commandLine);
+                            await executor.ExecuteAsync<object>(commandLine, default);
                         }
                     }
                     catch (Exception exception)
@@ -87,7 +75,7 @@ namespace RoboNuGet
                 .As<IProcessExecutor>();
 
             builder
-                .RegisterType<DirectoryTree>()
+                .RegisterType<PhysicalDirectoryTree>()
                 .As<IDirectoryTree>();
 
             builder
@@ -122,10 +110,7 @@ namespace RoboNuGet
                 .Register(ctx =>
                 {
                     var logger = ctx.Resolve<ILogger<Program>>();
-                    return (ExecuteExceptionCallback)(exception =>
-                    {
-                        logger.ConsoleException(exception);
-                    });
+                    return (ExecuteExceptionCallback)(exception => { logger.ConsoleException(exception); });
                 })
                 .SingleInstance();
 
@@ -138,5 +123,10 @@ namespace RoboNuGet
         public const int Success = 0;
     }
 
-   
+    public static class ProgramInfo
+    {
+        public const string Name = "RoboNuGet";
+        
+        public const string Version = "6.0.1";
+    }
 }

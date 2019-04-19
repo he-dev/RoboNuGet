@@ -4,7 +4,6 @@
     ".idea",
     ".vs",
     "_nuget",
-    //"*.Tests",
     "packages",
     "TestResults",
     "bin",
@@ -13,12 +12,7 @@
   "Solutions": [
     {
       "FileName": "C:\\Home\\Projects\\Reusable\\Reusable.sln",
-      "PackageVersion": "3.80.0",
-      "IsPrerelease": false
-    },
-    {
-      "FileName": "C:\\Home\\Projects\\MailrNET\\MailrNET.sln",
-      "PackageVersion": "6.80.0",
+      "PackageVersion": "3.81.0",
       "IsPrerelease": false
     }
   ],
