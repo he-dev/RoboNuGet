@@ -45,9 +45,11 @@ namespace RoboNuGet.Commands
         protected override Task ExecuteAsync(ICommandLineReader<IUpdateNuspecParameter> parameter, NullContext context, CancellationToken cancellationToken)
         {
             var solution = _roboNuGetFile.SelectedSolutionSafe();
-            var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName);
+            //var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName);
+            
             var nuspecFileId = parameter.GetItem(x => x.NuspecFile);
-            var nuspecFile = nuspecFiles.Single(nf => nf.Id == nuspecFileId);
+            //var nuspecFile = nuspecFiles.Single(nf => nf.Id == nuspecFileId);
+            var nuspecFile = _solutionDirectoryTree.GetNuspecFile(solution.DirectoryName, nuspecFileId);
             
             var nuspecDirectoryName = Path.GetDirectoryName(nuspecFile.FileName);
             var packagesConfig = PackagesConfigFile.Load(nuspecDirectoryName);

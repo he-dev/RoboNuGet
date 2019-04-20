@@ -77,13 +77,13 @@ namespace RoboNuGet.Commands
 
         private readonly object _consoleSyncLock = new object();
 
-        private async Task UpdateNuspec(NuspecFile nuspecFile, CancellationToken cancellationToken)
+        private async Task UpdateNuspec(string packageId, string packageVersion, CancellationToken cancellationToken)
         {
             await Services.Executor.ExecuteAsync
             (
                 $"{nameof(Commands.UpdateNuspec)} " +
-                $"-{nameof(IUpdateNuspecParameter.NuspecFile)} {nuspecFile.Id} " +
-                $"-{nameof(IUpdateNuspecParameter.NuspecFile)} {_roboNuGetFile.SelectedSolution.PackageVersion}",
+                $"-{nameof(IUpdateNuspecParameter.NuspecFile)} {packageId} " +
+                $"-{nameof(IUpdateNuspecParameter.Version)} {packageVersion}",
                 NullContext.Default,
                 cancellationToken
             );
@@ -93,15 +93,16 @@ namespace RoboNuGet.Commands
         {
             var packageStopwatch = Stopwatch.StartNew();
 
-            await UpdateNuspec(nuspecFile, cancellationToken);
-
-            var commandLine = _roboNuGetFile.NuGet.Commands["pack"].Format(new
+            var result = await Task.Run(async () =>
             {
-                NuspecFileName = nuspecFile.FileName,
-                OutputDirectoryName = _roboNuGetFile.NuGet.OutputDirectoryName,
-            });
-
-            var result = await Task.Run(() => _processExecutor.NoWindowExecuteAsync("nuget", commandLine), cancellationToken);
+                await UpdateNuspec(nuspecFile.Id, _roboNuGetFile.SelectedSolution.PackageVersion, cancellationToken);
+                var commandLine = _roboNuGetFile.NuGet.Commands["pack"].Format(new
+                {
+                    NuspecFileName = nuspecFile.FileName,
+                    OutputDirectoryName = _roboNuGetFile.NuGet.OutputDirectoryName,
+                });
+                return await _processExecutor.NoWindowExecuteAsync("nuget", commandLine);
+            }, cancellationToken);
 
             lock (_consoleSyncLock)
             {

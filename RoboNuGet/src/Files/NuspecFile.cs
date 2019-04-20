@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using JetBrains.Annotations;
+using Reusable.IOnymous;
 
 namespace RoboNuGet.Files
 {
@@ -73,8 +74,12 @@ namespace RoboNuGet.Files
         [NotNull]
         public static NuspecFile Load(string fileName)
         {
-            var xNuspec = XDocument.Load(fileName);
-            return new NuspecFile(fileName, xNuspec);
+            //using (var fs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                //var xNuspec = XDocument.Load(fs.Rewind());
+                var xNuspec = XDocument.Load(fileName);
+                return new NuspecFile(fileName, xNuspec);
+            }
         }
 
         public void Save()

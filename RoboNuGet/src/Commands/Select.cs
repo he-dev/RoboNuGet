@@ -20,6 +20,7 @@ namespace RoboNuGet.Commands
     }
 
     [Description("Select solution.")]
+    [Alias("s")]
     internal class Select : ConsoleCommand<ISelectParameter>
     {
         private readonly RoboNuGetFile _roboNuGetFile;

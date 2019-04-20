@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
       <!--<TargetFramework>net47</TargetFramework>-->
       <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
+      <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

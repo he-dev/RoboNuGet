@@ -31,5 +31,19 @@ namespace RoboNuGet.Services
                     .SelectMany(node => node.FileNames.Select(name => Path.Combine(node.DirectoryName, name)))
                     .Select(NuspecFile.Load);
         }
+        
+        // This needs to be used during package updates because otherwise read/write occurs at the same time due to async.
+        [CanBeNull]
+        public NuspecFile GetNuspecFile(string solutionDirectoryName, string packageId)
+        {            
+            return
+                _directoryTree
+                    .Walk(solutionDirectoryName, PhysicalDirectoryTree.MaxDepth(2), PhysicalDirectoryTree.IgnoreExceptions)
+                    .SkipDirectories($"({_excludeDirectoriesPattern})")
+                    .WhereFiles($"{Regex.Escape(packageId)}\\.nuspec$")
+                    .SelectMany(node => node.FileNames.Select(name => Path.Combine(node.DirectoryName, name)))
+                    .Select(NuspecFile.Load)
+                    .SingleOrDefault();
+        }
     }
 }
