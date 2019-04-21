@@ -31,7 +31,7 @@ namespace RoboNuGet
             using (var scope = container.BeginLifetimeScope())
             {
                 var logger = scope.Resolve<ILogger<Program>>();
-                var executor = scope.Resolve<ICommandLineExecutor>();
+                var executor = scope.Resolve<ICommandExecutor>();
 
                 // main loop
 
