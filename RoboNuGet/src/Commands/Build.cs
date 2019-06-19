@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable;
 using Reusable.Commander;
-using Reusable.Commander.Services;
 using Reusable.Extensions;
 using Reusable.IOnymous;
 using Reusable.OmniLog;
@@ -17,7 +16,7 @@ namespace RoboNuGet.Commands
 {
     [Description("Build the solution.")]
     [UsedImplicitly]
-    internal class Build : ConsoleCommand<ICommandParameter, NullContext>
+    internal class Build : Command<ICommandArgumentGroup>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly IDirectoryTree _directoryTree;
@@ -33,7 +32,7 @@ namespace RoboNuGet.Commands
             _directoryTree = directoryTree;
         }
 
-        protected override Task ExecuteAsync(ICommandLineReader<ICommandParameter> parameter, NullContext context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(ICommandLineReader<ICommandArgumentGroup> parameter, object context, CancellationToken cancellationToken)
         {
             var arguments = _roboNuGetFile.MsBuild.ToString(_roboNuGetFile.SelectedSolutionSafe().FileName);
             var processExecutor = new ProcessExecutor();

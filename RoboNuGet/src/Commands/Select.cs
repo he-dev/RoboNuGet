@@ -5,14 +5,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Reusable.Commander;
 using Reusable.Commander.Annotations;
-using Reusable.Commander.Services;
+using Reusable.Data.Annotations;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
-    internal interface ISelectParameter : ICommandParameter
+    internal interface ISelectParameter : ICommandArgumentGroup
     {
         [Description("Solution number (1-based).")]
         [Position(1)]
@@ -20,8 +20,8 @@ namespace RoboNuGet.Commands
     }
 
     [Description("Select solution.")]
-    [Alias("s")]
-    internal class Select : ConsoleCommand<ISelectParameter>
+    [Tags("s")]
+    internal class Select : Command<ISelectParameter>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
 
@@ -30,7 +30,7 @@ namespace RoboNuGet.Commands
             _roboNuGetFile = roboNuGetFile;
         }
 
-        protected override Task ExecuteAsync(ICommandLineReader<ISelectParameter> parameter, NullContext context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(ICommandLineReader<ISelectParameter> parameter, object context, CancellationToken cancellationToken)
         {
             var solution = _roboNuGetFile.Solutions.ElementAtOrDefault(parameter.GetItem(x => x.Solution) - 1);
             if (!(solution is null))

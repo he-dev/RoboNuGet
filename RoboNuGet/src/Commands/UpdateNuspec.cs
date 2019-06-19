@@ -8,14 +8,14 @@ using System.Windows.Input;
 using JetBrains.Annotations;
 using Reusable.Commander;
 using Reusable.Commander.Annotations;
-using Reusable.Commander.Services;
+using Reusable.Data.Annotations;
 using Reusable.OmniLog;
 using RoboNuGet.Files;
 using RoboNuGet.Services;
 
 namespace RoboNuGet.Commands
 {
-    internal interface IUpdateNuspecParameter : ICommandParameter
+    internal interface IUpdateNuspecParameter : ICommandArgumentGroup
     {
         string NuspecFile { get; }
 
@@ -23,9 +23,9 @@ namespace RoboNuGet.Commands
     }
 
     [Internal]
-    [Alias("update", "u")]
+    [Tags("update", "u")]
     [UsedImplicitly]
-    internal class UpdateNuspec : ConsoleCommand<IUpdateNuspecParameter>
+    internal class UpdateNuspec : Command<IUpdateNuspecParameter>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
@@ -42,7 +42,7 @@ namespace RoboNuGet.Commands
             _solutionDirectoryTree = solutionDirectoryTree;
         }
 
-        protected override Task ExecuteAsync(ICommandLineReader<IUpdateNuspecParameter> parameter, NullContext context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(ICommandLineReader<IUpdateNuspecParameter> parameter, object context, CancellationToken cancellationToken)
         {
             var solution = _roboNuGetFile.SelectedSolutionSafe();
             //var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName);

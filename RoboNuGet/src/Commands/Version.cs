@@ -11,7 +11,7 @@ using JetBrains.Annotations;
 using Reusable;
 using Reusable.Commander;
 using Reusable.Commander.Annotations;
-using Reusable.Commander.Services;
+using Reusable.Data.Annotations;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
@@ -20,21 +20,21 @@ using RoboNuGet.Files;
 namespace RoboNuGet.Commands
 {
     [PublicAPI]
-    internal interface IVersionParameter : ICommandParameter
+    internal interface IVersionParameter : ICommandArgumentGroup
     {
-        [Alias("r", "new")]
+        [Tags("r", "new")]
         [Description("Reset package version to a different one, e.g. 1.2.3")]
         string Reset { get; }
 
-        [Alias("n", "inc", "increment")]
+        [Tags("n", "inc", "increment")]
         [Description("Increase package version by one: [major|minor|patch]")]
         string Next { get; }
     }
 
     [Description("Change package version.")]
     [UsedImplicitly]
-    [Alias("ver", "v")]
-    internal class Version : ConsoleCommand<IVersionParameter>
+    [Tags("ver", "v")]
+    internal class Version : Command<IVersionParameter>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
 
@@ -60,7 +60,7 @@ namespace RoboNuGet.Commands
             _roboNuGetFile = roboNuGetFile;
         }
 
-        protected override Task ExecuteAsync(ICommandLineReader<IVersionParameter> parameter, NullContext context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(ICommandLineReader<IVersionParameter> parameter, object context, CancellationToken cancellationToken)
         {
             _roboNuGetFile.SelectedSolutionSafe();
             

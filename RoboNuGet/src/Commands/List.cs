@@ -9,7 +9,7 @@ using System.Windows.Input;
 using JetBrains.Annotations;
 using Reusable.Commander;
 using Reusable.Commander.Annotations;
-using Reusable.Commander.Services;
+using Reusable.Data.Annotations;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using RoboNuGet.Files;
@@ -17,17 +17,17 @@ using RoboNuGet.Services;
 
 namespace RoboNuGet.Commands
 {
-    internal interface IListParameter : ICommandParameter
+    internal interface IListParameter : ICommandArgumentGroup
     {
         [Description("Don't list dependencies.")]
-        [Alias("s")]
+        [Tags("s")]
         bool Short { get; }
     }
 
     [Description("List packages.")]
-    [Alias("lst", "l")]
+    [Tags("lst", "l")]
     [UsedImplicitly]
-    internal class List : ConsoleCommand<IListParameter>
+    internal class List : Command<IListParameter>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
@@ -42,7 +42,7 @@ namespace RoboNuGet.Commands
             _solutionDirectoryTree = solutionDirectoryTree;            
         }
 
-        protected override Task ExecuteAsync(ICommandLineReader<IListParameter> parameter, NullContext context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(ICommandLineReader<IListParameter> parameter, object context, CancellationToken cancellationToken)
         {
             var solution = _roboNuGetFile.SelectedSolutionSafe();
             var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName);

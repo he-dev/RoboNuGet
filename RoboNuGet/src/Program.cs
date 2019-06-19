@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
@@ -35,7 +36,7 @@ namespace RoboNuGet
 
                 // main loop
 
-                await executor.ExecuteAsync("cls", NullContext.Default, CancellationToken.None);
+                await executor.ExecuteAsync("cls", default(object), CancellationToken.None);
 
                 do
                 {
@@ -89,22 +90,21 @@ namespace RoboNuGet
                 .RegisterGeneric(typeof(Logger<>))
                 .As(typeof(ILogger<>));
 
+            var commands =
+                ImmutableList<CommandModule>
+                    .Empty
+                    .Add<Commands.UpdateNuspec>()
+                    .Add<Commands.Version>()
+                    .Add<Commands.Clear>()
+                    .Add<Commands.Select>()
+                    .Add<Commands.Build>()
+                    .Add<Commands.Pack>()
+                    .Add<Commands.List>()
+                    .Add<Commands.Push>()
+                    .Add<Commands.Exit>()
+                    .Add<Reusable.Commander.Commands.Help>();
             builder
-                .RegisterModule(
-                    new CommanderModule(commands =>
-                        commands
-                            .Add<Commands.UpdateNuspec>()
-                            .Add<Commands.Version>()
-                            .Add<Commands.Clear>()
-                            .Add<Commands.Select>()
-                            .Add<Commands.Build>()
-                            .Add<Commands.Pack>()
-                            .Add<Commands.List>()
-                            .Add<Commands.Push>()
-                            .Add<Commands.Exit>()
-                            .Add<Reusable.Commander.Commands.Help>()
-                    )
-                );
+                .RegisterModule(new CommanderModule(commands));
 
             builder
                 .Register(ctx =>
@@ -127,6 +127,6 @@ namespace RoboNuGet
     {
         public const string Name = "RoboNuGet";
         
-        public const string Version = "6.0.1";
+        public const string Version = "6.0.2";
     }
 }

@@ -15,7 +15,6 @@ using JetBrains.Annotations;
 using Reusable;
 using Reusable.Collections;
 using Reusable.Commander;
-using Reusable.Commander.Services;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
@@ -27,7 +26,7 @@ namespace RoboNuGet.Commands
 {
     [Description("Pack packages.")]
     [UsedImplicitly]
-    internal class Pack : ConsoleCommand
+    internal class Pack : Command
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
@@ -46,7 +45,7 @@ namespace RoboNuGet.Commands
             _processExecutor = processExecutor;
         }
 
-        protected override async Task ExecuteAsync(ICommandLineReader<ICommandParameter> parameter, NullContext context, CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(ICommandLineReader<ICommandArgumentGroup> parameter, object context, CancellationToken cancellationToken)
         {
             var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_roboNuGetFile.SelectedSolutionSafe().DirectoryName);
 
@@ -84,7 +83,7 @@ namespace RoboNuGet.Commands
                 $"{nameof(Commands.UpdateNuspec)} " +
                 $"-{nameof(IUpdateNuspecParameter.NuspecFile)} {packageId} " +
                 $"-{nameof(IUpdateNuspecParameter.Version)} {packageVersion}",
-                NullContext.Default,
+                default(object),
                 cancellationToken
             );
         }

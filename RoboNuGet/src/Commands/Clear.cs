@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 using Reusable;
 using Reusable.Commander;
 using Reusable.Commander.Annotations;
-using Reusable.Commander.Services;
+using Reusable.Data.Annotations;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
@@ -17,17 +17,17 @@ using RoboNuGet.Services;
 
 namespace RoboNuGet.Commands
 {
-    internal interface IClearParameter : ICommandParameter
+    internal interface IClearParameter : ICommandArgumentGroup
     {
         [Description("Clear solution selection.")]
-        [Alias("s")]
+        [Tags("s")]
         bool Selection { get; }
     }
 
     [Description("Clear the console and refresh package list.")]
     [UsedImplicitly]
-    [Alias("cls")]
-    internal class Clear : ConsoleCommand<IClearParameter>
+    [Tags("cls")]
+    internal class Clear : Command<IClearParameter>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
@@ -43,7 +43,7 @@ namespace RoboNuGet.Commands
             _solutionDirectoryTree = solutionDirectoryTree;
         }
 
-        protected override Task ExecuteAsync(ICommandLineReader<IClearParameter> parameter, NullContext context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(ICommandLineReader<IClearParameter> parameter, object context, CancellationToken cancellationToken)
         {
             Console.Clear();
             if (parameter.GetItem(x => x.Selection))
