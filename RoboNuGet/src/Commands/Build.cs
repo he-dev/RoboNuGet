@@ -10,29 +10,30 @@ using Reusable.Commander;
 using Reusable.Extensions;
 using Reusable.IOnymous;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
 using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
     [Description("Build the solution.")]
     [UsedImplicitly]
-    internal class Build : Command<ICommandArgumentGroup>
+    internal class Build : Command<CommandLine>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly IDirectoryTree _directoryTree;
 
         public Build
         (
-            CommandServiceProvider<Build> serviceProvider,
+            ILogger<Build> logger,
             RoboNuGetFile roboNuGetFile,
             IDirectoryTree directoryTree
-        ) : base(serviceProvider)
+        ) : base(logger)
         {
             _roboNuGetFile = roboNuGetFile;
             _directoryTree = directoryTree;
         }
 
-        protected override Task ExecuteAsync(ICommandLineReader<ICommandArgumentGroup> parameter, object context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(CommandLine commandLine, object context, CancellationToken cancellationToken)
         {
             var arguments = _roboNuGetFile.MsBuild.ToString(_roboNuGetFile.SelectedSolutionSafe().FileName);
             var processExecutor = new ProcessExecutor();

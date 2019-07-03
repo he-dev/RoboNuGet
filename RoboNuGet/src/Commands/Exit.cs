@@ -7,16 +7,17 @@ using System.Windows.Input;
 using JetBrains.Annotations;
 using Reusable.Commander;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
 
 namespace RoboNuGet.Commands
 {
     [Description("Exit RoboNuGet.")]
     [UsedImplicitly]
-    internal class Exit : Command
+    internal class Exit : Command<CommandLine>
     {
-        public Exit(CommandServiceProvider<Exit> serviceProvider) : base(serviceProvider, nameof(Exit)) { }
+        public Exit(ILogger<Exit> logger) : base(logger) { }
 
-        protected override Task ExecuteAsync(ICommandLineReader<ICommandArgumentGroup> parameter, object context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(CommandLine commandLine, object context, CancellationToken cancellationToken)
         {
             Environment.Exit(0);
             return Task.CompletedTask;

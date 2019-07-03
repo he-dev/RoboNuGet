@@ -12,41 +12,45 @@ using Reusable.Data.Annotations;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
 using RoboNuGet.Files;
 using RoboNuGet.Services;
 
 namespace RoboNuGet.Commands
 {
-    internal interface IClearParameter : ICommandArgumentGroup
+    internal class ClearCommandLine : CommandLine
     {
+        public ClearCommandLine(CommandLineDictionary arguments) : base(arguments) { }
+
         [Description("Clear solution selection.")]
         [Tags("s")]
-        bool Selection { get; }
+        public bool Selection => GetArgument(() => Selection);
+
     }
 
     [Description("Clear the console and refresh package list.")]
     [UsedImplicitly]
     [Tags("cls")]
-    internal class Clear : Command<IClearParameter>
+    internal class Clear : Command<ClearCommandLine>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
 
         public Clear
         (
-            CommandServiceProvider<Clear> serviceProvider,
+            ILogger<Clear> logger,
             RoboNuGetFile roboNuGetFile,
             SolutionDirectoryTree solutionDirectoryTree
-        ) : base(serviceProvider)
+        ) : base(logger)
         {
             _roboNuGetFile = roboNuGetFile;
             _solutionDirectoryTree = solutionDirectoryTree;
         }
 
-        protected override Task ExecuteAsync(ICommandLineReader<IClearParameter> parameter, object context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(ClearCommandLine commandLine, object context, CancellationToken cancellationToken)
         {
             Console.Clear();
-            if (parameter.GetItem(x => x.Selection))
+            if (commandLine.Selection)
             {
                 _roboNuGetFile.SelectedSolution = default;
             }

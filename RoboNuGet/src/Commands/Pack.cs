@@ -18,6 +18,7 @@ using Reusable.Commander;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
 using RoboNuGet.Files;
 using RoboNuGet.Services;
 using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
@@ -26,26 +27,32 @@ namespace RoboNuGet.Commands
 {
     [Description("Pack packages.")]
     [UsedImplicitly]
-    internal class Pack : Command
+    internal class Pack : Command<CommandLine>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
         private readonly IProcessExecutor _processExecutor;
+        private readonly ICommandExecutor _commandExecutor;
+        private readonly ICommandFactory _commandFactory;
 
         public Pack
         (
-            CommandServiceProvider<Pack> serviceProvider,
+            ILogger<Pack> logger,
             RoboNuGetFile roboNuGetFile,
             SolutionDirectoryTree solutionDirectoryTree,
-            IProcessExecutor processExecutor
-        ) : base(serviceProvider, nameof(Pack))
+            IProcessExecutor processExecutor,
+            ICommandExecutor commandExecutor,
+            ICommandFactory commandFactory
+        ) : base(logger)
         {
             _roboNuGetFile = roboNuGetFile;
             _solutionDirectoryTree = solutionDirectoryTree;
             _processExecutor = processExecutor;
+            _commandExecutor = commandExecutor;
+            _commandFactory = commandFactory;
         }
 
-        protected override async Task ExecuteAsync(ICommandLineReader<ICommandArgumentGroup> parameter, object context, CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CommandLine commandLine, object context, CancellationToken cancellationToken)
         {
             var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_roboNuGetFile.SelectedSolutionSafe().DirectoryName);
 
@@ -78,12 +85,13 @@ namespace RoboNuGet.Commands
 
         private async Task UpdateNuspec(string packageId, string packageVersion, CancellationToken cancellationToken)
         {
-            await Services.Executor.ExecuteAsync
+            await _commandExecutor.ExecuteAsync
             (
                 $"{nameof(Commands.UpdateNuspec)} " +
-                $"-{nameof(IUpdateNuspecParameter.NuspecFile)} {packageId} " +
-                $"-{nameof(IUpdateNuspecParameter.Version)} {packageVersion}",
+                $"-{nameof(UpdateNuspecCommandLine.NuspecFile)} {packageId} " +
+                $"-{nameof(UpdateNuspecCommandLine.Version)} {packageVersion}",
                 default(object),
+                _commandFactory,
                 cancellationToken
             );
         }

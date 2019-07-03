@@ -12,37 +12,42 @@ using Reusable.Commander.Annotations;
 using Reusable.Data.Annotations;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
 using RoboNuGet.Files;
 using RoboNuGet.Services;
 
 namespace RoboNuGet.Commands
 {
-    internal interface IListParameter : ICommandArgumentGroup
+    internal class ListCommandLine : CommandLine
     {
+        public ListCommandLine(CommandLineDictionary arguments) : base(arguments) { }
+
         [Description("Don't list dependencies.")]
         [Tags("s")]
-        bool Short { get; }
+        public bool Short => GetArgument(() => Short);
+
     }
 
     [Description("List packages.")]
     [Tags("lst", "l")]
     [UsedImplicitly]
-    internal class List : Command<IListParameter>
+    internal class List : Command<ListCommandLine>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
 
-        public List(
-            CommandServiceProvider<List> serviceProvider, 
+        public List
+        (
+            ILogger<List> logger, 
             RoboNuGetFile roboNuGetFile, 
             SolutionDirectoryTree solutionDirectoryTree
-        ) : base(serviceProvider)
+        ) : base(logger)
         {
             _roboNuGetFile = roboNuGetFile;
             _solutionDirectoryTree = solutionDirectoryTree;            
         }
 
-        protected override Task ExecuteAsync(ICommandLineReader<IListParameter> parameter, object context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(ListCommandLine commandLine, object context, CancellationToken cancellationToken)
         {
             var solution = _roboNuGetFile.SelectedSolutionSafe();
             var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName);
@@ -60,7 +65,7 @@ namespace RoboNuGet.Commands
 
                 //dependencyCount = nuspecFile.Dependencies.Count();
 
-                if (!parameter.GetItem(x => x.Short))
+                if (!commandLine.Short)
                 {
                     Logger.WriteLine(m => m);
                 }
@@ -69,7 +74,7 @@ namespace RoboNuGet.Commands
                     .text($"{Path.GetFileNameWithoutExtension(nuspecFile.FileName)} ")
                     .span(s => s.text($"({dependencyCount})").color(ConsoleColor.Magenta)));
 
-                if (!parameter.GetItem(x => x.Short))
+                if (!commandLine.Short)
                 {
                     ListDependencies("Projects", projectDependencies.OrderBy(x => x.Id));
                     ListDependencies("Packages", packageDependencies.OrderBy(x => x.Id));

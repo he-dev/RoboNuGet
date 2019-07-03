@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Autofac;
 using Reusable;
 using Reusable.Commander;
+using Reusable.Commander.DependencyInjection;
 using Reusable.Extensions;
 using Reusable.IOnymous;
 using Reusable.OmniLog;
@@ -33,10 +34,11 @@ namespace RoboNuGet
             {
                 var logger = scope.Resolve<ILogger<Program>>();
                 var executor = scope.Resolve<ICommandExecutor>();
+                var commandFactory = scope.Resolve<ICommandFactory>();
 
                 // main loop
 
-                await executor.ExecuteAsync("cls", default(object), CancellationToken.None);
+                await executor.ExecuteAsync("cls", default(object), commandFactory, CancellationToken.None);
 
                 do
                 {
@@ -51,7 +53,7 @@ namespace RoboNuGet
                         }
                         else
                         {
-                            await executor.ExecuteAsync<object>(commandLine, default);
+                            await executor.ExecuteAsync<object>(commandLine, default, commandFactory);
                         }
                     }
                     catch (Exception exception)
@@ -106,13 +108,13 @@ namespace RoboNuGet
             builder
                 .RegisterModule(new CommanderModule(commands));
 
-            builder
-                .Register(ctx =>
-                {
-                    var logger = ctx.Resolve<ILogger<Program>>();
-                    return (ExecuteExceptionCallback)(exception => { logger.ConsoleException(exception); });
-                })
-                .SingleInstance();
+//            builder
+//                .Register(ctx =>
+//                {
+//                    var logger = ctx.Resolve<ILogger<Program>>();
+//                    return (ExecuteExceptionCallback)(exception => { logger.ConsoleException(exception); });
+//                })
+//                .SingleInstance();
 
             return builder.Build();
         }

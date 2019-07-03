@@ -10,13 +10,14 @@ using Reusable.Commander;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
 using RoboNuGet.Files;
 using RoboNuGet.Services;
 
 namespace RoboNuGet.Commands
 {
     [Description("Push packages to the NuGet server.")]
-    internal class Push : Command
+    internal class Push : Command<CommandLine>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
@@ -29,11 +30,11 @@ namespace RoboNuGet.Commands
 
         public Push
         (
-            CommandServiceProvider<Push> serviceProvider,
+            ILogger<Push> logger,
             RoboNuGetFile roboNuGetFile,
             SolutionDirectoryTree solutionDirectoryTree,
             IProcessExecutor processExecutor
-        ) : base(serviceProvider, nameof(Push))
+        ) : base(logger)
         {
             _roboNuGetFile = roboNuGetFile;
             _solutionDirectoryTree = solutionDirectoryTree;
@@ -41,7 +42,7 @@ namespace RoboNuGet.Commands
         }
 
 
-        protected override async Task ExecuteAsync(ICommandLineReader<ICommandArgumentGroup> parameter, object context, CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CommandLine commandLine, object context, CancellationToken cancellationToken)
         {
             //this.ValidateWith(ParameterValidator).ThrowIfNotValid();
 
@@ -60,13 +61,13 @@ namespace RoboNuGet.Commands
             {
                 var packageStopwatch = Stopwatch.StartNew();
 
-                var commandLine = _roboNuGetFile.NuGet.Commands["push"].Format(new
+                var pushCommandLine = _roboNuGetFile.NuGet.Commands["push"].Format(new
                 {
                     NupkgFileName = Path.Combine(_roboNuGetFile.NuGet.OutputDirectoryName, $"{nuspecFile.Id}.{nuspecFile.Version}.nupkg"),
                     NuGetConfigName = _roboNuGetFile.NuGet.NuGetConfigName,
                 });
 
-                var result = await _processExecutor.NoWindowExecuteAsync("nuget", commandLine);
+                var result = await _processExecutor.NoWindowExecuteAsync("nuget", pushCommandLine);
                 success[result.ExitCode == ExitCode.Success]++;
 
                 Logger.WriteLine(m => m.text(result.Output.Trim()));

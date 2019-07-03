@@ -10,44 +10,47 @@ using Reusable.Commander;
 using Reusable.Commander.Annotations;
 using Reusable.Data.Annotations;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
 using RoboNuGet.Files;
 using RoboNuGet.Services;
 
 namespace RoboNuGet.Commands
 {
-    internal interface IUpdateNuspecParameter : ICommandArgumentGroup
+    internal class UpdateNuspecCommandLine : CommandLine
     {
-        string NuspecFile { get; }
+        public UpdateNuspecCommandLine(CommandLineDictionary arguments) : base(arguments) { }
 
-        string Version { get; }
+        public string NuspecFile => GetArgument(() => NuspecFile);
+
+        public string Version => GetArgument(() => Version);
     }
 
     [Internal]
     [Tags("update", "u")]
     [UsedImplicitly]
-    internal class UpdateNuspec : Command<IUpdateNuspecParameter>
+    internal class UpdateNuspec : Command<UpdateNuspecCommandLine>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
 
         public UpdateNuspec
         (
-            CommandServiceProvider<UpdateNuspec> serviceProvider,
+            ILogger<UpdateNuspec> logger,
             RoboNuGetFile roboNuGetFile,
             SolutionDirectoryTree solutionDirectoryTree
         )
-            : base(serviceProvider)
+            : base(logger)
         {
             _roboNuGetFile = roboNuGetFile;
             _solutionDirectoryTree = solutionDirectoryTree;
         }
 
-        protected override Task ExecuteAsync(ICommandLineReader<IUpdateNuspecParameter> parameter, object context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(UpdateNuspecCommandLine commandLine, object context, CancellationToken cancellationToken)
         {
             var solution = _roboNuGetFile.SelectedSolutionSafe();
             //var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName);
             
-            var nuspecFileId = parameter.GetItem(x => x.NuspecFile);
+            var nuspecFileId = commandLine.NuspecFile;
             //var nuspecFile = nuspecFiles.Single(nf => nf.Id == nuspecFileId);
             var nuspecFile = _solutionDirectoryTree.GetNuspecFile(solution.DirectoryName, nuspecFileId);
             
@@ -56,10 +59,10 @@ namespace RoboNuGet.Commands
             var csProj = CsProjFile.Load(Path.Combine(nuspecDirectoryName, $"{nuspecFile.Id}{CsProjFile.Extension}"));
 
             var packageDependencies = packagesConfig.Packages.Concat(csProj.PackageReferences).Select(package => new NuspecDependency { Id = package.Id, Version = package.Version });
-            var projectDependencies = csProj.ProjectReferences.Select(projectReferenceName => new NuspecDependency { Id = projectReferenceName, Version = parameter.GetItem(x => x.Version) });
+            var projectDependencies = csProj.ProjectReferences.Select(projectReferenceName => new NuspecDependency { Id = projectReferenceName, Version = commandLine.Version });
 
             nuspecFile.Dependencies = packageDependencies.Concat(projectDependencies);
-            nuspecFile.Version = parameter.GetItem(x => x.Version);
+            nuspecFile.Version = commandLine.Version;
             nuspecFile.Save();
 
             return Task.CompletedTask;
