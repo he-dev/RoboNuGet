@@ -129,6 +129,6 @@ namespace RoboNuGet
     {
         public const string Name = "RoboNuGet";
         
-        public const string Version = "6.0.2";
+        public const string Version = "6.0.3";
     }
 }
