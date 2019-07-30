@@ -135,7 +135,7 @@ namespace RoboNuGet.Console
                     .NewLine();
         }
 
-        public class NuGetCommandInfo : Model
+        public class NuGetCommand : Model
         {
             public TimeSpan Elapsed { get; set; }
 
@@ -147,6 +147,45 @@ namespace RoboNuGet.Console
                     .span(x => x
                         .Indent(width: 1)
                         .text($"Elapsed: {Elapsed.TotalSeconds:F1} sec [{ThreadId}]"))
+                    .NewLine();
+        }
+        
+        public class NuGetCommandOutput : Model
+        {
+            public string Text { get; set; }
+
+            public override HtmlElement Template =>
+                HtmlElement
+                    .Builder
+                    .span(x => x
+                        .Indent(width: 1)
+                        .text(Text))
+                    .NewLine();
+        }
+        
+        public class NuGetCommandError : Model
+        {
+            public string Text { get; set; }
+
+            public override HtmlElement Template =>
+                HtmlElement
+                    .Builder
+                    .span(x => x
+                        .Indent(width: 1)
+                        .text(Text)).color(Green)
+                    .NewLine();
+        }
+        
+        public class NuGetPackError : Model
+        {
+            public string PackageId { get; set; }
+
+            public override HtmlElement Template =>
+                HtmlElement
+                    .Builder
+                    .span(x => x
+                        .Indent(width: 1)
+                        .text($"Could not create package: {PackageId}")).color(Red)
                     .NewLine();
         }
     }
