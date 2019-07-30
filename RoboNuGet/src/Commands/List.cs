@@ -13,8 +13,10 @@ using Reusable.Data.Annotations;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Console;
 using RoboNuGet.Files;
 using RoboNuGet.Services;
+using m = RoboNuGet.Console.Models;
 
 namespace RoboNuGet.Commands
 {
@@ -25,7 +27,6 @@ namespace RoboNuGet.Commands
         [Description("Don't list dependencies.")]
         [Tags("s")]
         public bool Short => GetArgument(() => Short);
-
     }
 
     [Description("List packages.")]
@@ -38,13 +39,13 @@ namespace RoboNuGet.Commands
 
         public List
         (
-            ILogger<List> logger, 
-            RoboNuGetFile roboNuGetFile, 
+            ILogger<List> logger,
+            RoboNuGetFile roboNuGetFile,
             SolutionDirectoryTree solutionDirectoryTree
         ) : base(logger)
         {
             _roboNuGetFile = roboNuGetFile;
-            _solutionDirectoryTree = solutionDirectoryTree;            
+            _solutionDirectoryTree = solutionDirectoryTree;
         }
 
         protected override Task ExecuteAsync(ListCommandLine commandLine, object context, CancellationToken cancellationToken)
@@ -63,16 +64,16 @@ namespace RoboNuGet.Commands
 
                 var dependencyCount = projectDependencies.Count + packageDependencies.Count;
 
-                //dependencyCount = nuspecFile.Dependencies.Count();
-
                 if (!commandLine.Short)
                 {
-                    Logger.WriteLine(m => m);
+                    Logger.Console().Log(Model.Null);
                 }
-                Logger.WriteLine(m => m
-                    .Indent()
-                    .text($"{Path.GetFileNameWithoutExtension(nuspecFile.FileName)} ")
-                    .span(s => s.text($"({dependencyCount})").color(ConsoleColor.Magenta)));
+
+                Logger.Console().Log(new RoboNuGet.Console.Models.PackageInfo
+                {
+                    PackageId = Path.GetFileNameWithoutExtension(nuspecFile.FileName),
+                    DependencyCount = dependencyCount
+                });
 
                 if (!commandLine.Short)
                 {
@@ -86,14 +87,11 @@ namespace RoboNuGet.Commands
 
         private void ListDependencies(string header, IEnumerable<NuspecDependency> dependencies)
         {
-            Logger.WriteLine(p => p.Indent(2).span(s => s.text($"[{header}]").color(ConsoleColor.DarkGray)));
+            Logger.Console().Log(new m.PackageDependencySection { Name = header });
 
             foreach (var nuspecDependency in dependencies)
             {
-                Logger.WriteLine(p => p
-                    .Indent(2)
-                    .text($"- {nuspecDependency.Id} ")
-                    .span(s => s.text($"v{nuspecDependency.Version}").color(ConsoleColor.DarkGray)));
+                Logger.Console().Log(new m.PackageDependencyInfo { Name = nuspecDependency.Id, Version = nuspecDependency.Version });
             }
         }
     }

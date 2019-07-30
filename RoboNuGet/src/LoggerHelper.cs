@@ -46,9 +46,6 @@ namespace RoboNuGet
                 .color(ConsoleColor.DarkGray));
         }
 
-        public static HtmlElement Indent(this HtmlElement consoleTemplate, int depth = 1)
-        {
-            return consoleTemplate.span(s => s.text(new string(' ', depth)));
-        }
+        
     }
 }

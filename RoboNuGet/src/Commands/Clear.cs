@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -25,7 +26,6 @@ namespace RoboNuGet.Commands
         [Description("Clear solution selection.")]
         [Tags("s")]
         public bool Selection => GetArgument(() => Selection);
-
     }
 
     [Description("Clear the console and refresh package list.")]
@@ -49,41 +49,38 @@ namespace RoboNuGet.Commands
 
         protected override Task ExecuteAsync(ClearCommandLine commandLine, object context, CancellationToken cancellationToken)
         {
-            Console.Clear();
+            System.Console.Clear();
             if (commandLine.Selection)
             {
                 _roboNuGetFile.SelectedSolution = default;
             }
+
             RenderSplashScreen();
             return Task.CompletedTask;
         }
 
         private void RenderSplashScreen()
         {
-            Logger.WriteLine(m => m.Prompt().span(s => s.text($"{ProgramInfo.Name} v{ProgramInfo.Version}").color(ConsoleColor.DarkGray)));
+            Logger.Console().Log(new RoboNuGet.Console.Models.ProgramInfo());
 
             var solutionSelected = !(_roboNuGetFile.SelectedSolution is null);
             var solutions = !solutionSelected ? _roboNuGetFile.Solutions : new[] { _roboNuGetFile.SelectedSolution };
 
-            foreach (var (solution, index) in solutions.Select((s, i) => (s, i + 1)))//.OrderBy(t => Path.GetFileNameWithoutExtension(t.s.FileName), StringComparer.OrdinalIgnoreCase))
+            foreach (var (solution, index) in solutions.Select((s, i) => (s, i + 1))) //.OrderBy(t => Path.GetFileNameWithoutExtension(t.s.FileName), StringComparer.OrdinalIgnoreCase))
             {
                 var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName).ToList();
 
-                Logger.WriteLine(
-                    p => p
-                        .Prompt()
-                        .text($"Solution {(!solutionSelected ? $"[{index}] " : string.Empty)}")
-                        .span(s => s.text(Path.GetFileNameWithoutExtension(solution.FileName).QuoteWith("'")).color(ConsoleColor.Yellow))
-                        .text(" ")
-                        .span(s => s.text($"v{solution.FullVersion}").color(ConsoleColor.Magenta))
-                        .text(" ")
-                        .text($"({nuspecFiles.Count} package{(nuspecFiles.Count != 1 ? "s" : string.Empty)})")
-                );
+                Logger.Console().Log(new Console.Models.SolutionInfo
+                {
+                    Name = Path.GetFileNameWithoutExtension(solution.FileName),
+                    Version = solution.FullVersion,
+                    NuspecFileCount = nuspecFiles.Count
+                });
             }
 
             if (!solutionSelected)
             {
-                Logger.WriteLine(p => p.Prompt().text("Use the 'select' command to pick a solution."));
+                Logger.Console().Log(new Console.Models.SelectSolution());
             }
         }
     }

@@ -19,6 +19,7 @@ using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
+using RoboNuGet.Console.Models;
 using RoboNuGet.Files;
 using RoboNuGet.Services;
 using SoftKeySet = Reusable.Collections.ImmutableKeySet<Reusable.SoftString>;
@@ -70,15 +71,16 @@ namespace RoboNuGet.Commands
 
                 if (errorCount > 0)
                 {
-                    Logger.ConsoleError($"{tasks.Count(x => x.Result != ExitCode.Success)} error(s) occured.");
+                    Logger.Console().Log(new NuGetPackResultError { ErrorCount = errorCount });
                 }
                 else
                 {
-                    Logger.WriteLine(p => p.Indent().span(s => s.text("All packages successfully created.").color(ConsoleColor.Green)));
+                    Logger.Console().Log(new NuGetPackResultSuccess());
+
                 }
             }, cancellationToken);
 
-            Logger.WriteLine(p => p.Indent().text($"Elapsed: {packStopwatch.Elapsed.TotalSeconds:F1} sec [{Thread.CurrentThread.ManagedThreadId}]"));
+            Logger.Console().Log(new NuGetCommandInfo { Elapsed = packStopwatch.Elapsed, ThreadId = Thread.CurrentThread.ManagedThreadId });
         }
 
         private readonly object _consoleSyncLock = new object();

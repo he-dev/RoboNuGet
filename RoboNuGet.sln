@@ -65,6 +65,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.IOnymous.Config", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.IOnymous.Config.SqlServer", "..\Reusable\Reusable.IOnymous.Config.SqlServer\Reusable.IOnymous.Config.SqlServer.csproj", "{23D0EEA8-C765-4C38-94FC-05413CBE4C59}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Flawless", "..\Reusable\Reusable.Flawless\Reusable.Flawless.csproj", "{4B41FECD-2C0E-4B2F-B4FF-E45B4FFC9D11}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -187,6 +189,10 @@ Global
 		{23D0EEA8-C765-4C38-94FC-05413CBE4C59}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23D0EEA8-C765-4C38-94FC-05413CBE4C59}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23D0EEA8-C765-4C38-94FC-05413CBE4C59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B41FECD-2C0E-4B2F-B4FF-E45B4FFC9D11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B41FECD-2C0E-4B2F-B4FF-E45B4FFC9D11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B41FECD-2C0E-4B2F-B4FF-E45B4FFC9D11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B41FECD-2C0E-4B2F-B4FF-E45B4FFC9D11}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -221,6 +227,7 @@ Global
 		{351F86EB-3B84-4C7B-894A-47A2AE9D7D5E} = {3383018E-E36E-4987-B990-07804E1061A7}
 		{8F35DF40-FD96-48F3-80FF-6689D025413C} = {3383018E-E36E-4987-B990-07804E1061A7}
 		{23D0EEA8-C765-4C38-94FC-05413CBE4C59} = {3383018E-E36E-4987-B990-07804E1061A7}
+		{4B41FECD-2C0E-4B2F-B4FF-E45B4FFC9D11} = {3383018E-E36E-4987-B990-07804E1061A7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4CE808AA-E10A-4AFE-8658-3DC91B258179}
