@@ -51,7 +51,6 @@
    <ProjectReference Include="..\..\Reusable\Reusable.Core\Reusable.Core.csproj" />
    <ProjectReference Include="..\..\Reusable\Reusable.MarkupBuilder\Reusable.MarkupBuilder.csproj" />
    <ProjectReference Include="..\..\Reusable\Reusable.OmniLog.Abstractions\Reusable.OmniLog.Abstractions.csproj" />
-   <ProjectReference Include="..\..\Reusable\Reusable.OmniLog.ColoredConsoleRx\Reusable.OmniLog.ColoredConsoleRx.csproj" />
    <ProjectReference Include="..\..\Reusable\Reusable.OmniLog.NLogRx\Reusable.OmniLog.NLogRx.csproj" />
    <ProjectReference Include="..\..\Reusable\Reusable.OmniLog.SemanticExtensions\Reusable.OmniLog.SemanticExtensions.csproj" />
    <ProjectReference Include="..\..\Reusable\Reusable.OmniLog\Reusable.OmniLog.csproj" />
