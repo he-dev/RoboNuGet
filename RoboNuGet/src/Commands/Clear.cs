@@ -65,24 +65,33 @@ namespace RoboNuGet.Commands
         {
             Logger.WriteLine(Program.Style, new t.Prompt(), new t.ProgramInfo());
 
-            var solutionSelected = !(_roboNuGetFile.SelectedSolution is null);
-            var solutions = !solutionSelected ? _roboNuGetFile.Solutions : new[] { _roboNuGetFile.SelectedSolution };
-
-            foreach (var (solution, index) in solutions.Select((s, i) => (s, i + 1))) //.OrderBy(t => Path.GetFileNameWithoutExtension(t.s.FileName), StringComparer.OrdinalIgnoreCase))
+            if (_roboNuGetFile.SelectedSolution is null)
             {
-                var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName).ToList();
-
-                Logger.WriteLine(Program.Style, new t.Prompt(), new t.SolutionInfo
+                // todo - print select solution and solution list
+                Logger.WriteLine(Program.Style, new t.Indent(1), new t.Clear.AskForSolution());
+                foreach (var (solution, index) in _roboNuGetFile.Solutions.Select((s, i) => (s, i + 1)))
                 {
-                    Name = Path.GetFileNameWithoutExtension(solution.FileName),
-                    Version = solution.FullVersion,
+                    var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName).ToList();
+
+                    Logger.WriteLine(Program.Style, new t.Indent(1), new t.Clear.SolutionOption
+                    {
+                        Index = index,
+                        Name = Path.GetFileNameWithoutExtension(solution.FileName),
+                        Version = solution.FullVersion,
+                        NuspecFileCount = nuspecFiles.Count
+                    });
+                }
+            }
+            else
+            {
+                var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_roboNuGetFile.SelectedSolution.DirectoryName).ToList();
+                
+                Logger.WriteLine(Program.Style, new t.Indent(1), new t.Clear.SolutionSelection
+                {
+                    Name = Path.GetFileNameWithoutExtension(_roboNuGetFile.SelectedSolution.FileName),
+                    Version = _roboNuGetFile.SelectedSolution.FullVersion,
                     NuspecFileCount = nuspecFiles.Count
                 });
-            }
-
-            if (!solutionSelected)
-            {
-                Logger.WriteLine(Program.Style, new t.SelectSolution());
             }
         }
     }

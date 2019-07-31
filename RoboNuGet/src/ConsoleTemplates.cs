@@ -61,25 +61,61 @@ namespace RoboNuGet.ConsoleTemplates
                     .span(s => s.text($"{Name} v{Version}").color(DarkGray)));
     }
 
-    public class SolutionInfo : ConsoleTemplateBuilder
+    namespace Clear
     {
-        public string Name { get; set; }
+        public class AskForSolution : ConsoleTemplateBuilder
+        {
+            public override HtmlElement Build(ILog log) =>
+                HtmlElement
+                    .Builder
+                    .span(span => span.text("Use the 'select <n>' command to pick a solution."));
+        }
 
-        public string Version { get; set; }
+        public class SolutionOption : ConsoleTemplateBuilder
+        {
+            public int Index { get; set; }
 
-        public int NuspecFileCount { get; set; }
+            public string Name { get; set; }
 
-        public override HtmlElement Build(ILog log) =>
-            HtmlElement
-                .Builder
-                .span(span => span
-                    .text("Solution")
-                    .span(s => s.text($" '{Name}'").color(Yellow))
-                    .text(" ")
-                    .span(s => s.text($"v{Version}").color(Magenta))
-                    .text(" ")
-                    .text($" ({NuspecFileCount} package{(NuspecFileCount == 1 ? string.Empty : "s")})"));
+            public string Version { get; set; }
+
+            public int NuspecFileCount { get; set; }
+
+            public override HtmlElement Build(ILog log) =>
+                HtmlElement
+                    .Builder
+                    .span(span => span
+                        .text($"[{Index}]")
+                        .span(s => s.text($" '{Name}'").color(Blue))
+                        .text(" ")
+                        .span(s => s.text($"v{Version}").color(Magenta))
+                        .text(" ")
+                        .text($" ({NuspecFileCount} package{(NuspecFileCount == 1 ? string.Empty : "s")})"));
+        }
+        
+        public class SolutionSelection : ConsoleTemplateBuilder
+        {
+            public string Name { get; set; }
+
+            public string Version { get; set; }
+
+            public int NuspecFileCount { get; set; }
+
+            public override HtmlElement Build(ILog log) =>
+                HtmlElement
+                    .Builder
+                    .span(span => span
+                        .text("Current solution is")
+                        .text(" ")
+                        .span(s => s.text($"'{Name}'").color(Yellow))
+                        .text(" ")
+                        .span(s => s.text($"v{Version}").color(Magenta))
+                        .text(" ")
+                        .text($"({NuspecFileCount} package{(NuspecFileCount == 1 ? string.Empty : "s")})"));
+        }
     }
+
+    
 
     public class SelectSolution : ConsoleTemplateBuilder
     {
