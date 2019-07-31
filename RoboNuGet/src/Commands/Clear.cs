@@ -14,6 +14,8 @@ using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Console;
+using t = RoboNuGet.ConsoleTemplates;
 using RoboNuGet.Files;
 using RoboNuGet.Services;
 
@@ -61,7 +63,7 @@ namespace RoboNuGet.Commands
 
         private void RenderSplashScreen()
         {
-            Logger.Console().Log(new RoboNuGet.Console.Models.ProgramInfo());
+            Logger.WriteLine(Program.Style, new t.Prompt(), new t.ProgramInfo());
 
             var solutionSelected = !(_roboNuGetFile.SelectedSolution is null);
             var solutions = !solutionSelected ? _roboNuGetFile.Solutions : new[] { _roboNuGetFile.SelectedSolution };
@@ -70,7 +72,7 @@ namespace RoboNuGet.Commands
             {
                 var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName).ToList();
 
-                Logger.Console().Log(new Console.Models.SolutionInfo
+                Logger.WriteLine(Program.Style, new t.Prompt(), new t.SolutionInfo
                 {
                     Name = Path.GetFileNameWithoutExtension(solution.FileName),
                     Version = solution.FullVersion,
@@ -80,7 +82,7 @@ namespace RoboNuGet.Commands
 
             if (!solutionSelected)
             {
-                Logger.Console().Log(new Console.Models.SelectSolution());
+                Logger.WriteLine(Program.Style, new t.SelectSolution());
             }
         }
     }

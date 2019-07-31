@@ -10,6 +10,8 @@ using Reusable.Extensions;
 using Reusable.IOnymous;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Console;
+using t = RoboNuGet.ConsoleTemplates;
 using RoboNuGet.Files;
 using RoboNuGet.Services;
 
@@ -17,6 +19,8 @@ namespace RoboNuGet
 {
     internal class Program
     {
+        public static readonly ConsoleStyle Style = new ConsoleStyle(ConsoleColor.Black, ConsoleColor.Gray);
+        
         private static async Task Main(string[] args)
         {
             var configuration = RoboNuGetFile.Load();
@@ -42,14 +46,14 @@ namespace RoboNuGet
 
                 do
                 {
-                    logger.Write(m => m.Prompt());
-                    var commandLine = Console.ReadLine();
+                    logger.Write(Program.Style, new t.Prompt());
+                    var commandLine = System.Console.ReadLine();
 
                     try
                     {
                         if (commandLine.IsNullOrEmpty())
                         {
-                            logger.ConsoleError("Invalid command name.");
+                            logger.WriteLine(Program.Style, new t.Error { Text = "Invalid command name" });
                         }
                         else
                         {
@@ -58,7 +62,11 @@ namespace RoboNuGet
                     }
                     catch (Exception exception)
                     {
-                        logger.ConsoleException(exception);
+                        //logger.ConsoleException(exception);
+                        foreach (var (ex, _) in exception.SelectMany())
+                        {
+                            logger.WriteLine(Program.Style, new t.Error { Text = $"{ex.GetType().Name}: {ex.Message}" });
+                        }
                     }
                 } while (true);
             }

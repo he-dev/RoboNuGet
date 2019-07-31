@@ -9,6 +9,8 @@ using Reusable.Data.Annotations;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Console;
+using t = RoboNuGet.ConsoleTemplates;
 using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
@@ -20,7 +22,6 @@ namespace RoboNuGet.Commands
         [Description("Solution number (1-based).")]
         [Position(1)]
         public int Solution => GetArgument(() => Solution);
-
     }
 
     [Description("Select solution.")]
@@ -42,7 +43,10 @@ namespace RoboNuGet.Commands
                 _roboNuGetFile.SelectedSolution = solution;
             }
 
-            Logger.WriteLine(p => p.Indent(1).text($"Selected {Path.GetFileNameWithoutExtension(_roboNuGetFile.SelectedSolution.FileName)}"));
+            Logger.WriteLine(Program.Style, new t.Indent(1), new t.Select.Response
+            {
+                SolutionName = Path.GetFileNameWithoutExtension(_roboNuGetFile.SelectedSolution.FileName)
+            });
 
             return Task.CompletedTask;
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Reusable;
@@ -11,6 +12,8 @@ using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Console;
+using t = RoboNuGet.ConsoleTemplates;
 using RoboNuGet.Files;
 using RoboNuGet.Services;
 
@@ -46,7 +49,7 @@ namespace RoboNuGet.Commands
         {
             //this.ValidateWith(ParameterValidator).ThrowIfNotValid();
 
-            var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_roboNuGetFile.SelectedSolutionSafe().DirectoryName);
+            var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_roboNuGetFile.SelectedSolutionSafe().DirectoryName).ToList();
 
             var pushStopwatch = Stopwatch.StartNew();
 
@@ -70,14 +73,13 @@ namespace RoboNuGet.Commands
                 var result = await _processExecutor.NoWindowExecuteAsync("nuget", pushCommandLine);
                 success[result.ExitCode == ExitCode.Success]++;
 
-                Logger.WriteLine(m => m.text(result.Output.Trim()));
-                Logger.WriteLine(m => m.text(result.Error.Trim()));
-                Logger.WriteLine(p => p.text($"Elapsed: {packageStopwatch.Elapsed.TotalSeconds:F1} seconds"));
+                Logger.WriteLine(Program.Style, new t.NuGetCommandOutput { Text = result.Output.Trim() });
+                Logger.WriteLine(Program.Style, new t.NuGetCommandError { Text = result.Error.Trim() });
+                Logger.WriteLine(Program.Style, new t.NuGetCommandStopwatch { Elapsed = packageStopwatch.Elapsed });
             }
 
-            Logger.WriteLine(p => p.text($"Uploaded: {success[true]} package(s)."));
-            Logger.WriteLine(p => p.text($"Failed: {success[false]} package(s)."));
-            Logger.WriteLine(p => p.text($"Elapsed: {pushStopwatch.Elapsed.TotalSeconds:F1} seconds"));
+            Logger.WriteLine(Program.Style, new t.NuGetPushResult { TotalCount = nuspecFiles.Count, SuccessfulCount = success[true] });
+            Logger.WriteLine(Program.Style, new t.NuGetCommandStopwatch { Elapsed = pushStopwatch.Elapsed });
         }
     }
 }

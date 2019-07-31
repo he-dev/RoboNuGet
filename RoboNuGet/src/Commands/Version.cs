@@ -16,6 +16,8 @@ using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Console;
+using t = RoboNuGet.ConsoleTemplates;
 using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
@@ -32,7 +34,6 @@ namespace RoboNuGet.Commands
         [Tags("n", "inc", "increment")]
         [Description("Increase package version by one: [major|minor|patch]")]
         public string Next => GetArgument(() => Next);
-
     }
 
     [Description("Change package version.")]
@@ -67,7 +68,7 @@ namespace RoboNuGet.Commands
         protected override Task ExecuteAsync(VersionCommandLine commandLine, object context, CancellationToken cancellationToken)
         {
             _roboNuGetFile.SelectedSolutionSafe();
-            
+
             if (commandLine.Reset.IsNotNull())
             {
                 if (SemanticVersion.TryParse(commandLine.Reset, out var version))
@@ -76,7 +77,7 @@ namespace RoboNuGet.Commands
                 }
                 else
                 {
-                    Logger.ConsoleError("Invalid version.");
+                    Logger.WriteLine(Program.Style, new t.Error { Text = "Invalid version" });
                 }
             }
             else
@@ -100,7 +101,7 @@ namespace RoboNuGet.Commands
         {
             _roboNuGetFile.SelectedSolution.PackageVersion = newVersion;
             _roboNuGetFile.Save();
-            Logger.WriteLine(m => m.Indent().text($"New version: v{_roboNuGetFile.SelectedSolution.PackageVersion}"));
+            Logger.WriteLine(Program.Style, new t.Version.Response { NewVersion = _roboNuGetFile.SelectedSolution.PackageVersion });
         }
     }
 }
