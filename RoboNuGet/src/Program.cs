@@ -28,11 +28,7 @@ namespace RoboNuGet
             {
                 Observers =
                 {
-                    new ConsoleRx(new ConsoleRenderer())
-                    {
-                        //Style = new ConsoleStyle(ConsoleColor.Blue, ConsoleColor.Cyan)
-                    }
-                    //ConsoleTemplateRx.Create(new ConsoleTemplateRenderer())
+                    new ConsoleRx()
                 }
             };
 
@@ -118,15 +114,7 @@ namespace RoboNuGet
                     .Add<Reusable.Commander.Commands.Help>();
             builder
                 .RegisterModule(new CommanderModule(commands));
-
-//            builder
-//                .Register(ctx =>
-//                {
-//                    var logger = ctx.Resolve<ILogger<Program>>();
-//                    return (ExecuteExceptionCallback)(exception => { logger.ConsoleException(exception); });
-//                })
-//                .SingleInstance();
-
+            
             return builder.Build();
         }
     }
@@ -140,6 +128,6 @@ namespace RoboNuGet
     {
         public const string Name = "RoboNuGet";
         
-        public const string Version = "6.0.3";
+        public const string Version = "6.0.4";
     }
 }
