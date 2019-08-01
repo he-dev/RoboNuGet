@@ -66,10 +66,10 @@ namespace RoboNuGet.Commands
 
                 if (!commandLine.Short)
                 {
-                    Logger.WriteLine(Program.Style);
+                    Logger.WriteLine(default);
                 }
 
-                Logger.WriteLine(Program.Style, new t.PackageInfo
+                Logger.WriteLine(default, new t.PackageInfo
                 {
                     PackageId = Path.GetFileNameWithoutExtension(nuspecFile.FileName),
                     DependencyCount = dependencyCount
@@ -87,11 +87,11 @@ namespace RoboNuGet.Commands
 
         private void ListDependencies(string header, IEnumerable<NuspecDependency> dependencies)
         {
-            Logger.WriteLine(Program.Style, new t.PackageDependencySection { Name = header });
+            Logger.WriteLine(default, new t.PackageDependencySection { Name = header });
 
             foreach (var nuspecDependency in dependencies)
             {
-                Logger.WriteLine(Program.Style, new t.PackageDependencyInfo { Name = nuspecDependency.Id, Version = nuspecDependency.Version });
+                Logger.WriteLine(default, new t.PackageDependencyInfo { Name = nuspecDependency.Id, Version = nuspecDependency.Version });
             }
         }
     }

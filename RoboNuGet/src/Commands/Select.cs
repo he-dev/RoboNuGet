@@ -38,15 +38,20 @@ namespace RoboNuGet.Commands
         protected override Task ExecuteAsync(SelectCommandLine commandLine, object context, CancellationToken cancellationToken)
         {
             var solution = _roboNuGetFile.Solutions.ElementAtOrDefault(commandLine.Solution - 1);
-            if (!(solution is null))
+            if (solution is null)
+            {
+                Logger.WriteLine(default, new t.Indent(1), new t.Error { Text = $"Solution {commandLine.Solution} does not exist." });
+            }
+            else
             {
                 _roboNuGetFile.SelectedSolution = solution;
+
+                Logger.WriteLine(default, new t.Indent(1), new t.Select.Response
+                {
+                    SolutionName = Path.GetFileNameWithoutExtension(_roboNuGetFile.SelectedSolution.FileName)
+                });
             }
 
-            Logger.WriteLine(Program.Style, new t.Indent(1), new t.Select.Response
-            {
-                SolutionName = Path.GetFileNameWithoutExtension(_roboNuGetFile.SelectedSolution.FileName)
-            });
 
             return Task.CompletedTask;
         }

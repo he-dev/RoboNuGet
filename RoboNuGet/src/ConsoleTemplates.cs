@@ -105,7 +105,7 @@ namespace RoboNuGet.ConsoleTemplates
                 HtmlElement
                     .Builder
                     .span(span => span
-                        .text("Current solution is")
+                        .text("Current solution:")
                         .text(" ")
                         .span(s => s.text($"'{Name}'").color(Yellow))
                         .text(" ")

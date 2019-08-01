@@ -63,17 +63,15 @@ namespace RoboNuGet.Commands
 
         private void RenderSplashScreen()
         {
-            Logger.WriteLine(Program.Style, new t.Prompt(), new t.ProgramInfo());
+            Logger.WriteLine(default, new t.Prompt(), new t.ProgramInfo());
 
             if (_roboNuGetFile.SelectedSolution is null)
             {
-                // todo - print select solution and solution list
-                Logger.WriteLine(Program.Style, new t.Indent(1), new t.Clear.AskForSolution());
                 foreach (var (solution, index) in _roboNuGetFile.Solutions.Select((s, i) => (s, i + 1)))
                 {
                     var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName).ToList();
 
-                    Logger.WriteLine(Program.Style, new t.Indent(1), new t.Clear.SolutionOption
+                    Logger.WriteLine(default, new t.Indent(1), new t.Clear.SolutionOption
                     {
                         Index = index,
                         Name = Path.GetFileNameWithoutExtension(solution.FileName),
@@ -81,12 +79,13 @@ namespace RoboNuGet.Commands
                         NuspecFileCount = nuspecFiles.Count
                     });
                 }
+                Logger.WriteLine(new ConsoleStyle(ConsoleColor.Black, ConsoleColor.DarkGray), new t.Indent(1), new t.Clear.AskForSolution());
             }
             else
             {
                 var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_roboNuGetFile.SelectedSolution.DirectoryName).ToList();
                 
-                Logger.WriteLine(Program.Style, new t.Indent(1), new t.Clear.SolutionSelection
+                Logger.WriteLine(default, new t.Indent(1), new t.Clear.SolutionSelection
                 {
                     Name = Path.GetFileNameWithoutExtension(_roboNuGetFile.SelectedSolution.FileName),
                     Version = _roboNuGetFile.SelectedSolution.FullVersion,

@@ -72,15 +72,15 @@ namespace RoboNuGet.Commands
 
                 if (errorCount > 0)
                 {
-                    Logger.WriteLine(Program.Style, new t.NuGetPackResultError { ErrorCount = errorCount });
+                    Logger.WriteLine(default, new t.NuGetPackResultError { ErrorCount = errorCount });
                 }
                 else
                 {
-                    Logger.WriteLine(Program.Style, new t.NuGetPackResultSuccess());
+                    Logger.WriteLine(default, new t.NuGetPackResultSuccess());
                 }
             }, cancellationToken);
 
-            Logger.WriteLine(Program.Style, new t.NuGetCommandStopwatch { Elapsed = packStopwatch.Elapsed, ThreadId = Thread.CurrentThread.ManagedThreadId });
+            Logger.WriteLine(default, new t.NuGetCommandStopwatch { Elapsed = packStopwatch.Elapsed, ThreadId = Thread.CurrentThread.ManagedThreadId });
         }
 
         private readonly object _consoleSyncLock = new object();
@@ -117,14 +117,14 @@ namespace RoboNuGet.Commands
             {
                 //Logger.ConsoleMessageLine(m => m.text($"Executed: {result.Arguments}"));
                 //Logger.WriteLine(m => m.text(result.Output.Trim()));
-                Logger.WriteLine(Program.Style, new t.NuGetCommandOutput { Text = result.Output.Trim() });
+                Logger.WriteLine(default, new t.NuGetCommandOutput { Text = result.Output.Trim() });
 
                 if (result.ExitCode != ExitCode.Success)
                 {
                     //Logger.ConsoleError(result.Error.Trim());
                     //Logger.WriteLine(p => p.Indent().text($"Could not create package: {nuspecFile.Id}").color(ConsoleColor.Red));
-                    Logger.WriteLine(Program.Style, new t.NuGetCommandError { Text = result.Error.Trim() });
-                    Logger.WriteLine(Program.Style, new t.NuGetPackError { PackageId = nuspecFile.Id });
+                    Logger.WriteLine(default, new t.NuGetCommandError { Text = result.Error.Trim() });
+                    Logger.WriteLine(default, new t.NuGetPackError { PackageId = nuspecFile.Id });
                 }
 
                 //Logger.ConsoleMessageLine(p => p.text($"Elapsed: {packageStopwatch.Elapsed.TotalSeconds:F1} sec [{Thread.CurrentThread.ManagedThreadId}] ({nuspecFile.Id})"));
@@ -132,8 +132,8 @@ namespace RoboNuGet.Commands
                 //Logger.ConsoleMessageLine(p => p.text($"-"));
                 //Logger.WriteLine(_ => _);
 
-                Logger.WriteLine(Program.Style, new t.NuGetCommandStopwatch { Elapsed = packageStopwatch.Elapsed, ThreadId = Thread.CurrentThread.ManagedThreadId });
-                Logger.WriteLine(Program.Style);
+                Logger.WriteLine(default, new t.NuGetCommandStopwatch { Elapsed = packageStopwatch.Elapsed, ThreadId = Thread.CurrentThread.ManagedThreadId });
+                Logger.WriteLine(default);
             }
 
             return result.ExitCode;

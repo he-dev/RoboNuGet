@@ -19,7 +19,7 @@ namespace RoboNuGet
 {
     internal class Program
     {
-        public static readonly ConsoleStyle Style = new ConsoleStyle(ConsoleColor.Black, ConsoleColor.Gray);
+        //public static readonly ConsoleStyle Style = new ConsoleStyle(ConsoleColor.Black, ConsoleColor.Gray);
         
         private static async Task Main(string[] args)
         {
@@ -28,7 +28,10 @@ namespace RoboNuGet
             {
                 Observers =
                 {
-                    ColoredConsoleRx.Create(new ConsoleRenderer())
+                    new ConsoleRx(new ConsoleRenderer())
+                    {
+                        //Style = new ConsoleStyle(ConsoleColor.Blue, ConsoleColor.Cyan)
+                    }
                     //ConsoleTemplateRx.Create(new ConsoleTemplateRenderer())
                 }
             };
@@ -46,14 +49,14 @@ namespace RoboNuGet
 
                 do
                 {
-                    logger.Write(Program.Style, new t.Prompt());
+                    logger.Write(default, new t.Prompt());
                     var commandLine = System.Console.ReadLine();
 
                     try
                     {
                         if (commandLine.IsNullOrEmpty())
                         {
-                            logger.WriteLine(Program.Style, new t.Error { Text = "Invalid command name" });
+                            logger.WriteLine(default, new t.Error { Text = "Invalid command name" });
                         }
                         else
                         {
@@ -65,7 +68,7 @@ namespace RoboNuGet
                         //logger.ConsoleException(exception);
                         foreach (var (ex, _) in exception.SelectMany())
                         {
-                            logger.WriteLine(Program.Style, new t.Error { Text = $"{ex.GetType().Name}: {ex.Message}" });
+                            logger.WriteLine(default, new t.Error { Text = $"{ex.GetType().Name}: {ex.Message}" });
                         }
                     }
                 } while (true);

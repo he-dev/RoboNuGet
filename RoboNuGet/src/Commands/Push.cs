@@ -73,13 +73,13 @@ namespace RoboNuGet.Commands
                 var result = await _processExecutor.NoWindowExecuteAsync("nuget", pushCommandLine);
                 success[result.ExitCode == ExitCode.Success]++;
 
-                Logger.WriteLine(Program.Style, new t.NuGetCommandOutput { Text = result.Output.Trim() });
-                Logger.WriteLine(Program.Style, new t.NuGetCommandError { Text = result.Error.Trim() });
-                Logger.WriteLine(Program.Style, new t.NuGetCommandStopwatch { Elapsed = packageStopwatch.Elapsed });
+                Logger.WriteLine(default, new t.NuGetCommandOutput { Text = result.Output.Trim() });
+                Logger.WriteLine(default, new t.NuGetCommandError { Text = result.Error.Trim() });
+                Logger.WriteLine(default, new t.NuGetCommandStopwatch { Elapsed = packageStopwatch.Elapsed });
             }
 
-            Logger.WriteLine(Program.Style, new t.NuGetPushResult { TotalCount = nuspecFiles.Count, SuccessfulCount = success[true] });
-            Logger.WriteLine(Program.Style, new t.NuGetCommandStopwatch { Elapsed = pushStopwatch.Elapsed });
+            Logger.WriteLine(default, new t.NuGetPushResult { TotalCount = nuspecFiles.Count, SuccessfulCount = success[true] });
+            Logger.WriteLine(default, new t.NuGetCommandStopwatch { Elapsed = pushStopwatch.Elapsed });
         }
     }
 }

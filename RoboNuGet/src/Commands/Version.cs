@@ -27,12 +27,12 @@ namespace RoboNuGet.Commands
     {
         public VersionCommandLine(CommandLineDictionary arguments) : base(arguments) { }
 
-        [Tags("r", "new")]
-        [Description("Reset package version to a different one, e.g. 1.2.3")]
-        public string Reset => GetArgument(() => Reset);
+        [Tags("s")]
+        [Description("Set package version to a different one, e.g. 1.2.3")]
+        public string Set => GetArgument(() => Set);
 
         [Tags("n", "inc", "increment")]
-        [Description("Increase package version by one: [major|minor|patch]")]
+        [Description("Increment package version by one: [major|minor|patch]")]
         public string Next => GetArgument(() => Next);
     }
 
@@ -69,15 +69,15 @@ namespace RoboNuGet.Commands
         {
             _roboNuGetFile.SelectedSolutionSafe();
 
-            if (commandLine.Reset.IsNotNull())
+            if (commandLine.Set.IsNotNull())
             {
-                if (SemanticVersion.TryParse(commandLine.Reset, out var version))
+                if (SemanticVersion.TryParse(commandLine.Set, out var version))
                 {
                     UpdateVersion(version);
                 }
                 else
                 {
-                    Logger.WriteLine(Program.Style, new t.Error { Text = "Invalid version" });
+                    Logger.WriteLine(default, new t.Error { Text = "Invalid version" });
                 }
             }
             else
@@ -101,7 +101,7 @@ namespace RoboNuGet.Commands
         {
             _roboNuGetFile.SelectedSolution.PackageVersion = newVersion;
             _roboNuGetFile.Save();
-            Logger.WriteLine(Program.Style, new t.Version.Response { NewVersion = _roboNuGetFile.SelectedSolution.PackageVersion });
+            Logger.WriteLine(default, new t.Version.Response { NewVersion = _roboNuGetFile.SelectedSolution.PackageVersion });
         }
     }
 }
