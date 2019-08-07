@@ -16,7 +16,7 @@ using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Console;
+using Reusable.OmniLog.Extensions;
 using t = RoboNuGet.ConsoleTemplates;
 using RoboNuGet.Files;
 
@@ -77,7 +77,7 @@ namespace RoboNuGet.Commands
                 }
                 else
                 {
-                    Logger.WriteLine(default, new t.Error { Text = "Invalid version" });
+                    Logger.WriteLine(new t.Error { Text = "Invalid version" });
                 }
             }
             else
@@ -101,7 +101,7 @@ namespace RoboNuGet.Commands
         {
             _roboNuGetFile.SelectedSolution.PackageVersion = newVersion;
             _roboNuGetFile.Save();
-            Logger.WriteLine(default, new t.Version.Response { NewVersion = _roboNuGetFile.SelectedSolution.PackageVersion });
+            Logger.WriteLine(new t.Version.Response { NewVersion = _roboNuGetFile.SelectedSolution.PackageVersion });
         }
     }
 }

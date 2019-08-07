@@ -9,7 +9,7 @@ using Reusable.Data.Annotations;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Console;
+using Reusable.OmniLog.Extensions;
 using t = RoboNuGet.ConsoleTemplates;
 using RoboNuGet.Files;
 
@@ -40,13 +40,13 @@ namespace RoboNuGet.Commands
             var solution = _roboNuGetFile.Solutions.ElementAtOrDefault(commandLine.Solution - 1);
             if (solution is null)
             {
-                Logger.WriteLine(default, new t.Indent(1), new t.Error { Text = $"Solution {commandLine.Solution} does not exist." });
+                Logger.WriteLine(new t.Indent(1), new t.Error { Text = $"Solution {commandLine.Solution} does not exist." });
             }
             else
             {
                 _roboNuGetFile.SelectedSolution = solution;
 
-                Logger.WriteLine(default, new t.Indent(1), new t.Select.Response
+                Logger.WriteLine(new t.Indent(1), new t.Select.Response
                 {
                     SolutionName = Path.GetFileNameWithoutExtension(_roboNuGetFile.SelectedSolution.FileName)
                 });

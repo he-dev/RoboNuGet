@@ -13,7 +13,7 @@ using Reusable.Data.Annotations;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Console;
+using Reusable.OmniLog.Extensions;
 using RoboNuGet.Files;
 using RoboNuGet.Services;
 using t = RoboNuGet.ConsoleTemplates;
@@ -66,10 +66,10 @@ namespace RoboNuGet.Commands
 
                 if (!commandLine.Short)
                 {
-                    Logger.WriteLine(default);
+                    Logger.WriteLine();
                 }
 
-                Logger.WriteLine(default, new t.PackageInfo
+                Logger.WriteLine(new t.PackageInfo
                 {
                     PackageId = Path.GetFileNameWithoutExtension(nuspecFile.FileName),
                     DependencyCount = dependencyCount
@@ -87,11 +87,11 @@ namespace RoboNuGet.Commands
 
         private void ListDependencies(string header, IEnumerable<NuspecDependency> dependencies)
         {
-            Logger.WriteLine(default, new t.PackageDependencySection { Name = header });
+            Logger.WriteLine(new t.PackageDependencySection { Name = header });
 
             foreach (var nuspecDependency in dependencies)
             {
-                Logger.WriteLine(default, new t.PackageDependencyInfo { Name = nuspecDependency.Id, Version = nuspecDependency.Version });
+                Logger.WriteLine(new t.PackageDependencyInfo { Name = nuspecDependency.Id, Version = nuspecDependency.Version });
             }
         }
     }

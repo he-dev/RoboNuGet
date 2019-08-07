@@ -12,7 +12,7 @@ using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Console;
+using Reusable.OmniLog.Extensions;
 using t = RoboNuGet.ConsoleTemplates;
 using RoboNuGet.Files;
 using RoboNuGet.Services;
@@ -73,13 +73,13 @@ namespace RoboNuGet.Commands
                 var result = await _processExecutor.NoWindowExecuteAsync("nuget", pushCommandLine);
                 success[result.ExitCode == ExitCode.Success]++;
 
-                Logger.WriteLine(default, new t.NuGetCommandOutput { Text = result.Output.Trim() });
-                Logger.WriteLine(default, new t.NuGetCommandError { Text = result.Error.Trim() });
-                Logger.WriteLine(default, new t.NuGetCommandStopwatch { Elapsed = packageStopwatch.Elapsed });
+                Logger.WriteLine(new t.NuGetCommandOutput { Text = result.Output.Trim() });
+                Logger.WriteLine(new t.NuGetCommandError { Text = result.Error.Trim() });
+                Logger.WriteLine(new t.NuGetCommandStopwatch { Elapsed = packageStopwatch.Elapsed });
             }
 
-            Logger.WriteLine(default, new t.NuGetPushResult { TotalCount = nuspecFiles.Count, SuccessfulCount = success[true] });
-            Logger.WriteLine(default, new t.NuGetCommandStopwatch { Elapsed = pushStopwatch.Elapsed });
+            Logger.WriteLine(new t.NuGetPushResult { TotalCount = nuspecFiles.Count, SuccessfulCount = success[true] });
+            Logger.WriteLine(new t.NuGetCommandStopwatch { Elapsed = pushStopwatch.Elapsed });
         }
     }
 }

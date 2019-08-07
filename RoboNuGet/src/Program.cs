@@ -5,12 +5,19 @@ using System.Threading.Tasks;
 using Autofac;
 using Reusable;
 using Reusable.Commander;
+using Reusable.Commander.Commands;
 using Reusable.Commander.DependencyInjection;
 using Reusable.Extensions;
 using Reusable.IOnymous;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Console;
+using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Extensions;
+using Reusable.OmniLog.Nodes;
+using Reusable.OmniLog.Rx;
+using Reusable.OmniLog.Rx.ConsoleRenderers;
+using Reusable.OmniLog.SemanticExtensions.Nodes;
+using Reusable.OmniLog.Utilities;
 using t = RoboNuGet.ConsoleTemplates;
 using RoboNuGet.Files;
 using RoboNuGet.Services;
@@ -19,16 +26,66 @@ namespace RoboNuGet
 {
     internal class Program
     {
-        //public static readonly ConsoleStyle Style = new ConsoleStyle(ConsoleColor.Black, ConsoleColor.Gray);
-        
+        public static readonly ConsoleStyle Style = new ConsoleStyle(ConsoleColor.Black, ConsoleColor.Gray);
+
         private static async Task Main(string[] args)
         {
             var configuration = RoboNuGetFile.Load();
             var loggerFactory = new LoggerFactory
             {
-                Observers =
+                Nodes =
                 {
-                    new ConsoleRx()
+                    new ConstantNode
+                    {
+                        { "Environment", "Demo" },
+                        { "Product", "Reusable.app.Console" }
+                    },
+                    new StopwatchNode
+                    {
+                        GetValue = elapsed => elapsed.TotalMilliseconds
+                    },
+                    new ComputableNode
+                    {
+                        Computables =
+                        {
+                            new Reusable.OmniLog.Computables.Timestamp<DateTimeUtc>()
+                        }
+                    },
+                    new LambdaNode(),
+                    //new CorrelationNode(),
+                    //new SemanticNode(),
+                    //new DumpNode(),
+                    //new SerializationNode(),
+                    //new FilterNode(logEntry => true),
+                    // Renames properties.
+//                    new RenameNode
+//                    {
+//                        Changes =
+//                        {
+//                            { CorrelationNode.DefaultLogEntryItemNames.Scope, "Scope" },
+//                            { DumpNode.DefaultLogEntryItemNames.Variable, "Identifier" },
+//                            { DumpNode.DefaultLogEntryItemNames.Dump, "Snapshot" },
+//                        }
+//                    },
+//                    new FallbackNode
+//                    {
+//                        Defaults =
+//                        {
+//                            [LogEntry.BasicPropertyNames.Level] = LogLevel.Information
+//                        }
+//                    },
+                    //new TransactionNode(),
+                    new EchoNode
+                    {
+                        Rx =
+                        {
+                            //new NLogRx(),
+                            new ConsoleRx // Use console.
+                            {
+                                Renderer = new HtmlConsoleRenderer() { }
+                            }
+                        },
+                    }
                 }
             };
 
@@ -45,14 +102,14 @@ namespace RoboNuGet
 
                 do
                 {
-                    logger.Write(default, new t.Prompt());
+                    logger.Write(new t.Prompt());
                     var commandLine = System.Console.ReadLine();
 
                     try
                     {
                         if (commandLine.IsNullOrEmpty())
                         {
-                            logger.WriteLine(default, new t.Error { Text = "Invalid command name" });
+                            logger.WriteLine(new t.Error { Text = "Invalid command name" });
                         }
                         else
                         {
@@ -64,7 +121,7 @@ namespace RoboNuGet
                         //logger.ConsoleException(exception);
                         foreach (var (ex, _) in exception.SelectMany())
                         {
-                            logger.WriteLine(default, new t.Error { Text = $"{ex.GetType().Name}: {ex.Message}" });
+                            logger.WriteLine(new t.Error { Text = $"{ex.GetType().Name}: {ex.Message}" });
                         }
                     }
                 } while (true);
@@ -111,11 +168,24 @@ namespace RoboNuGet
                     .Add<Commands.List>()
                     .Add<Commands.Push>()
                     .Add<Commands.Exit>()
-                    .Add<Reusable.Commander.Commands.Help>();
+                    .Add<Reusable.Commander.Commands.Help>(b => b.WithProperty(nameof(Help.Style), Program.Style));
             builder
                 .RegisterModule(new CommanderModule(commands));
-            
+
             return builder.Build();
+        }
+    }
+
+    public static class LoggerExtensions
+    {
+        public static void WriteLine(this ILogger logger, params HtmlConsoleTemplateBuilder[] builders)
+        {
+            logger.WriteLine(Program.Style, builders);
+        }
+        
+        public static void Write(this ILogger logger, params HtmlConsoleTemplateBuilder[] builders)
+        {
+            logger.Write(Program.Style, builders);
         }
     }
 
@@ -127,7 +197,7 @@ namespace RoboNuGet
     public static class ProgramInfo
     {
         public const string Name = "RoboNuGet";
-        
+
         public const string Version = "6.0.4";
     }
 }
