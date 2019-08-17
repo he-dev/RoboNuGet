@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Custom;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
-using Reusable.IOnymous;
+using Reusable.IO;
 using RoboNuGet.Files;
 
 namespace RoboNuGet.Services

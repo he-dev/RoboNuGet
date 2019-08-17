@@ -1,12 +1,9 @@
 using System;
 using System.ComponentModel;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using JetBrains.Annotations;
 using Reusable.Commander;
-using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 
 namespace RoboNuGet.Commands

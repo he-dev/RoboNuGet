@@ -1,10 +1,5 @@
 using System;
-using System.Globalization;
-using JetBrains.Annotations;
-using Reusable.Extensions;
-using Reusable.MarkupBuilder;
 using Reusable.MarkupBuilder.Html;
-using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Rx.ConsoleRenderers;
 

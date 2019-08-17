@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using Reusable.Exceptionize;
-using Reusable.Reflection;
+﻿using Reusable.Exceptionize;
 using RoboNuGet.Commands;
 
 namespace RoboNuGet.Files

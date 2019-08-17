@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -9,10 +8,7 @@ using System.Threading.Tasks;
 using Reusable;
 using Reusable.Commander;
 using Reusable.Extensions;
-using Reusable.MarkupBuilder.Html;
-using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Extensions;
 using t = RoboNuGet.ConsoleTemplates;
 using RoboNuGet.Files;
 using RoboNuGet.Services;
