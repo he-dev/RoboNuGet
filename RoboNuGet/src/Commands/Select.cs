@@ -12,18 +12,11 @@ using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
-    internal class SelectCommandLine : CommandLine
-    {
-        public SelectCommandLine(CommandLineDictionary arguments) : base(arguments) { }
-
-        [Description("Solution number (1-based).")]
-        [Position(1)]
-        public int Solution => GetArgument(() => Solution);
-    }
+    
 
     [Description("Select solution.")]
     [Tags("s")]
-    internal class Select : Command<SelectCommandLine>
+    internal class Select : Command<Select.CommandLine>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
 
@@ -32,7 +25,7 @@ namespace RoboNuGet.Commands
             _roboNuGetFile = roboNuGetFile;
         }
 
-        protected override Task ExecuteAsync(SelectCommandLine commandLine, object context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(CommandLine commandLine, object context, CancellationToken cancellationToken)
         {
             var solution = _roboNuGetFile.Solutions.ElementAtOrDefault(commandLine.Solution - 1);
             if (solution is null)
@@ -51,6 +44,15 @@ namespace RoboNuGet.Commands
 
 
             return Task.CompletedTask;
+        }
+        
+        internal class CommandLine : CommandLineBase
+        {
+            public CommandLine(CommandLineDictionary arguments) : base(arguments) { }
+
+            [Description("Solution number (1-based).")]
+            [Position(1)]
+            public int Solution => GetArgument(() => Solution);
         }
     }
 }

@@ -16,24 +16,12 @@ using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
-    [PublicAPI]
-    internal class VersionCommandLine : CommandLine
-    {
-        public VersionCommandLine(CommandLineDictionary arguments) : base(arguments) { }
-
-        [Tags("s")]
-        [Description("Set package version to a different one, e.g. 1.2.3")]
-        public string Set => GetArgument(() => Set);
-
-        [Tags("n", "inc", "increment")]
-        [Description("Increment package version by one: [major|minor|patch]")]
-        public string Next => GetArgument(() => Next);
-    }
+    
 
     [Description("Change package version.")]
     [UsedImplicitly]
     [Tags("ver", "v")]
-    internal class Version : Command<VersionCommandLine>
+    internal class Version : Command<Version.CommandLine>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
 
@@ -59,7 +47,7 @@ namespace RoboNuGet.Commands
             _roboNuGetFile = roboNuGetFile;
         }
 
-        protected override Task ExecuteAsync(VersionCommandLine commandLine, object context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(CommandLine commandLine, object context, CancellationToken cancellationToken)
         {
             _roboNuGetFile.SelectedSolutionSafe();
 
@@ -96,6 +84,20 @@ namespace RoboNuGet.Commands
             _roboNuGetFile.SelectedSolution.PackageVersion = newVersion;
             _roboNuGetFile.Save();
             Logger.WriteLine(new t.Version.Response { NewVersion = _roboNuGetFile.SelectedSolution.PackageVersion });
+        }
+        
+        [PublicAPI]
+        internal class CommandLine : CommandLineBase
+        {
+            public CommandLine(CommandLineDictionary arguments) : base(arguments) { }
+
+            [Tags("s")]
+            [Description("Set package version to a different one, e.g. 1.2.3")]
+            public string Set => GetArgument(() => Set);
+
+            [Tags("n", "inc", "increment")]
+            [Description("Increment package version by one: [major|minor|patch]")]
+            public string Next => GetArgument(() => Next);
         }
     }
 }

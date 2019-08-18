@@ -82,7 +82,7 @@ namespace RoboNuGet.ConsoleTemplates
                     .Builder
                     .span(span => span
                         .text($"[{Index}]")
-                        .span(s => s.text($" '{Name}'").color(Blue))
+                        .span(s => s.text($" '{Name}'").color(DarkYellow))
                         .text(" ")
                         .span(s => s.text($"v{Version}").color(Magenta))
                         .text(" ")

@@ -12,19 +12,10 @@ using RoboNuGet.Services;
 
 namespace RoboNuGet.Commands
 {
-    internal class UpdateNuspecCommandLine : CommandLine
-    {
-        public UpdateNuspecCommandLine(CommandLineDictionary arguments) : base(arguments) { }
-
-        public string NuspecFile => GetArgument(() => NuspecFile);
-
-        public string Version => GetArgument(() => Version);
-    }
-
     [Internal]
     [Tags("update", "u")]
     [UsedImplicitly]
-    internal class UpdateNuspec : Command<UpdateNuspecCommandLine>
+    internal class UpdateNuspec : Command<UpdateNuspec.CommandLine>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
@@ -41,15 +32,15 @@ namespace RoboNuGet.Commands
             _solutionDirectoryTree = solutionDirectoryTree;
         }
 
-        protected override Task ExecuteAsync(UpdateNuspecCommandLine commandLine, object context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(CommandLine commandLine, object context, CancellationToken cancellationToken)
         {
             var solution = _roboNuGetFile.SelectedSolutionSafe();
             //var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName);
-            
+
             var nuspecFileId = commandLine.NuspecFile;
             //var nuspecFile = nuspecFiles.Single(nf => nf.Id == nuspecFileId);
             var nuspecFile = _solutionDirectoryTree.GetNuspecFile(solution.DirectoryName, nuspecFileId);
-            
+
             var nuspecDirectoryName = Path.GetDirectoryName(nuspecFile.FileName);
             var packagesConfig = PackagesConfigFile.Load(nuspecDirectoryName);
             var csProj = CsProjFile.Load(Path.Combine(nuspecDirectoryName, $"{nuspecFile.Id}{CsProjFile.Extension}"));
@@ -62,6 +53,15 @@ namespace RoboNuGet.Commands
             nuspecFile.Save();
 
             return Task.CompletedTask;
+        }
+
+        internal class CommandLine : CommandLineBase
+        {
+            public CommandLine(CommandLineDictionary arguments) : base(arguments) { }
+
+            public string NuspecFile => GetArgument(() => NuspecFile);
+
+            public string Version => GetArgument(() => Version);
         }
     }
 }

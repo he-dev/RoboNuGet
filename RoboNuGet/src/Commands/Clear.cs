@@ -13,19 +13,10 @@ using RoboNuGet.Services;
 
 namespace RoboNuGet.Commands
 {
-    internal class ClearCommandLine : CommandLine
-    {
-        public ClearCommandLine(CommandLineDictionary arguments) : base(arguments) { }
-
-        [Description("Clear solution selection.")]
-        [Tags("s")]
-        public bool Selection => GetArgument(() => Selection);
-    }
-
     [Description("Clear the console and refresh package list.")]
     [UsedImplicitly]
     [Tags("cls")]
-    internal class Clear : Command<ClearCommandLine>
+    internal class Clear : Command<Clear.CommandLine>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
@@ -41,7 +32,7 @@ namespace RoboNuGet.Commands
             _solutionDirectoryTree = solutionDirectoryTree;
         }
 
-        protected override Task ExecuteAsync(ClearCommandLine commandLine, object context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(CommandLine commandLine, object context, CancellationToken cancellationToken)
         {
             System.Console.Clear();
             if (commandLine.Selection)
@@ -71,12 +62,13 @@ namespace RoboNuGet.Commands
                         NuspecFileCount = nuspecFiles.Count
                     });
                 }
+
                 Logger.WriteLine(new t.Indent(1), new t.Clear.AskForSolution());
             }
             else
             {
                 var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_roboNuGetFile.SelectedSolution.DirectoryName).ToList();
-                
+
                 Logger.WriteLine(new t.Indent(1), new t.Clear.SolutionSelection
                 {
                     Name = Path.GetFileNameWithoutExtension(_roboNuGetFile.SelectedSolution.FileName),
@@ -84,6 +76,15 @@ namespace RoboNuGet.Commands
                     NuspecFileCount = nuspecFiles.Count
                 });
             }
+        }
+
+        internal class CommandLine : CommandLineBase
+        {
+            public CommandLine(CommandLineDictionary arguments) : base(arguments) { }
+
+            [Description("Clear solution selection.")]
+            [Tags("s")]
+            public bool Selection => GetArgument(() => Selection);
         }
     }
 }

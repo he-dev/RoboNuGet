@@ -14,19 +14,12 @@ using t = RoboNuGet.ConsoleTemplates;
 
 namespace RoboNuGet.Commands
 {
-    internal class ListCommandLine : CommandLine
-    {
-        public ListCommandLine(CommandLineDictionary arguments) : base(arguments) { }
-
-        [Description("Don't list dependencies.")]
-        [Tags("s")]
-        public bool Short => GetArgument(() => Short);
-    }
+    
 
     [Description("List packages.")]
     [Tags("lst", "l")]
     [UsedImplicitly]
-    internal class List : Command<ListCommandLine>
+    internal class List : Command<List.CommandLine>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
@@ -42,7 +35,7 @@ namespace RoboNuGet.Commands
             _solutionDirectoryTree = solutionDirectoryTree;
         }
 
-        protected override Task ExecuteAsync(ListCommandLine commandLine, object context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(CommandLine commandLine, object context, CancellationToken cancellationToken)
         {
             var solution = _roboNuGetFile.SelectedSolutionSafe();
             var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName);
@@ -87,6 +80,15 @@ namespace RoboNuGet.Commands
             {
                 Logger.WriteLine(new t.PackageDependencyInfo { Name = nuspecDependency.Id, Version = nuspecDependency.Version });
             }
+        }
+        
+        internal class CommandLine : CommandLineBase
+        {
+            public CommandLine(CommandLineDictionary arguments) : base(arguments) { }
+
+            [Description("Don't list dependencies.")]
+            [Tags("s")]
+            public bool Short => GetArgument(() => Short);
         }
     }
 }
