@@ -53,6 +53,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Translucent", "..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Translucent.file", "..\Reusable\Reusable.Translucent.file\Reusable.Translucent.file.csproj", "{C4E212F8-246F-4B3C-9CFF-3BBB493969CA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Utilities.Autofac", "..\Reusable\Reusable.Utilities.Autofac\Reusable.Utilities.Autofac.csproj", "{D81830DD-AFE2-4B05-9D2F-BCF329C00B34}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -151,6 +153,10 @@ Global
 		{C4E212F8-246F-4B3C-9CFF-3BBB493969CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4E212F8-246F-4B3C-9CFF-3BBB493969CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4E212F8-246F-4B3C-9CFF-3BBB493969CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D81830DD-AFE2-4B05-9D2F-BCF329C00B34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D81830DD-AFE2-4B05-9D2F-BCF329C00B34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D81830DD-AFE2-4B05-9D2F-BCF329C00B34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D81830DD-AFE2-4B05-9D2F-BCF329C00B34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -179,6 +185,7 @@ Global
 		{4B41FECD-2C0E-4B2F-B4FF-E45B4FFC9D11} = {3383018E-E36E-4987-B990-07804E1061A7}
 		{7A415112-E3DA-45A0-AD32-3C660CF19236} = {3383018E-E36E-4987-B990-07804E1061A7}
 		{C4E212F8-246F-4B3C-9CFF-3BBB493969CA} = {3383018E-E36E-4987-B990-07804E1061A7}
+		{D81830DD-AFE2-4B05-9D2F-BCF329C00B34} = {3383018E-E36E-4987-B990-07804E1061A7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4CE808AA-E10A-4AFE-8658-3DC91B258179}
