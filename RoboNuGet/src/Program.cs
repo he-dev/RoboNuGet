@@ -9,6 +9,7 @@ using Reusable.Commander.Commands;
 using Reusable.Commander.DependencyInjection;
 using Reusable.Extensions;
 using Reusable.IO;
+using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Rx;
@@ -133,12 +134,12 @@ namespace RoboNuGet
 
     public static class LoggerExtensions
     {
-        public static void WriteLine(this ILogger logger, params HtmlConsoleTemplateBuilder[] builders)
+        public static void WriteLine(this ILogger logger, params ConsoleTemplateBuilder<HtmlElement>[] builders)
         {
             logger.WriteLine(Program.Style, builders);
         }
 
-        public static void Write(this ILogger logger, params HtmlConsoleTemplateBuilder[] builders)
+        public static void Write(this ILogger logger, params ConsoleTemplateBuilder<HtmlElement>[] builders)
         {
             logger.Write(Program.Style, builders);
         }

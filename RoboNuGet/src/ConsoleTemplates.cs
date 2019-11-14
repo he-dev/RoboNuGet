@@ -8,7 +8,7 @@ namespace RoboNuGet.ConsoleTemplates
 {
     using static ConsoleColor;
 
-    public class Prompt : HtmlConsoleTemplateBuilder
+    public class Prompt : ConsoleTemplateBuilder<HtmlElement>
     {
         public DateTime Timestamp => DateTime.Now;
 
@@ -18,7 +18,7 @@ namespace RoboNuGet.ConsoleTemplates
                 .span(span => span.text($"[{Timestamp:yyyy-MM-dd HH:mm:ss}]>"));
     }
 
-    public class Indent : HtmlConsoleTemplateBuilder
+    public class Indent : ConsoleTemplateBuilder<HtmlElement>
     {
         private readonly int _depth;
 
@@ -32,7 +32,7 @@ namespace RoboNuGet.ConsoleTemplates
         public override HtmlElement Build(LogEntry log) => HtmlElement.Builder.span(x => x.Indent(Width, _depth));
     }
 
-    public class Error : HtmlConsoleTemplateBuilder
+    public class Error : ConsoleTemplateBuilder<HtmlElement>
     {
         public string Text { get; set; }
 
@@ -44,7 +44,7 @@ namespace RoboNuGet.ConsoleTemplates
                     .text(Text)).color(Red);
     }
 
-    public class ProgramInfo : HtmlConsoleTemplateBuilder
+    public class ProgramInfo : ConsoleTemplateBuilder<HtmlElement>
     {
         public string Name => RoboNuGet.ProgramInfo.Name;
 
@@ -59,7 +59,7 @@ namespace RoboNuGet.ConsoleTemplates
 
     namespace Clear
     {
-        public class AskForSolution : HtmlConsoleTemplateBuilder
+        public class AskForSolution : ConsoleTemplateBuilder<HtmlElement>
         {
             public override HtmlElement Build(LogEntry log) =>
                 HtmlElement
@@ -67,7 +67,7 @@ namespace RoboNuGet.ConsoleTemplates
                     .span(span => span.text("Use the 'select <n>' command to pick a solution."));
         }
 
-        public class SolutionOption : HtmlConsoleTemplateBuilder
+        public class SolutionOption : ConsoleTemplateBuilder<HtmlElement>
         {
             public int Index { get; set; }
 
@@ -89,7 +89,7 @@ namespace RoboNuGet.ConsoleTemplates
                         .text($" ({NuspecFileCount} package{(NuspecFileCount == 1 ? string.Empty : "s")})"));
         }
         
-        public class SolutionSelection : HtmlConsoleTemplateBuilder
+        public class SolutionSelection : ConsoleTemplateBuilder<HtmlElement>
         {
             public string Name { get; set; }
 
@@ -113,7 +113,7 @@ namespace RoboNuGet.ConsoleTemplates
 
     
 
-    public class SelectSolution : HtmlConsoleTemplateBuilder
+    public class SelectSolution : ConsoleTemplateBuilder<HtmlElement>
     {
         public override HtmlElement Build(LogEntry log) =>
             HtmlElement
@@ -123,7 +123,7 @@ namespace RoboNuGet.ConsoleTemplates
                     .text("Use the 'select' command to pick a solution."));
     }
 
-    public class PackageInfo : HtmlConsoleTemplateBuilder
+    public class PackageInfo : ConsoleTemplateBuilder<HtmlElement>
     {
         public string PackageId { get; set; }
 
@@ -138,7 +138,7 @@ namespace RoboNuGet.ConsoleTemplates
                     .span(s => s.text($"({DependencyCount})").color(Magenta)));
     }
 
-    public class PackageDependencySection : HtmlConsoleTemplateBuilder
+    public class PackageDependencySection : ConsoleTemplateBuilder<HtmlElement>
     {
         public string Name { get; set; }
 
@@ -150,7 +150,7 @@ namespace RoboNuGet.ConsoleTemplates
                     .span(s => s.text($"[{Name}]").color(DarkGray)));
     }
 
-    public class PackageDependencyInfo : HtmlConsoleTemplateBuilder
+    public class PackageDependencyInfo : ConsoleTemplateBuilder<HtmlElement>
     {
         public string Name { get; set; }
 
@@ -165,7 +165,7 @@ namespace RoboNuGet.ConsoleTemplates
                     .span(s => s.text($"v{Version}").color(DarkGray)));
     }
 
-    public class NuGetPackResultError : HtmlConsoleTemplateBuilder
+    public class NuGetPackResultError : ConsoleTemplateBuilder<HtmlElement>
     {
         public int ErrorCount { get; set; }
 
@@ -179,7 +179,7 @@ namespace RoboNuGet.ConsoleTemplates
                         .color(Red)));
     }
 
-    public class NuGetPackResultSuccess : HtmlConsoleTemplateBuilder
+    public class NuGetPackResultSuccess : ConsoleTemplateBuilder<HtmlElement>
     {
         public override HtmlElement Build(LogEntry log) =>
             HtmlElement
@@ -189,7 +189,7 @@ namespace RoboNuGet.ConsoleTemplates
                     .span(s => s.text("All packages successfully created.").color(Green)));
     }
 
-    public class NuGetCommandStopwatch : HtmlConsoleTemplateBuilder
+    public class NuGetCommandStopwatch : ConsoleTemplateBuilder<HtmlElement>
     {
         public TimeSpan Elapsed { get; set; }
 
@@ -203,7 +203,7 @@ namespace RoboNuGet.ConsoleTemplates
                     .text($"Elapsed: {Elapsed.TotalSeconds:F1} sec [{ThreadId}]"));
     }
 
-    public class NuGetCommandOutput : HtmlConsoleTemplateBuilder
+    public class NuGetCommandOutput : ConsoleTemplateBuilder<HtmlElement>
     {
         public string Text { get; set; }
 
@@ -215,7 +215,7 @@ namespace RoboNuGet.ConsoleTemplates
                     .text(Text));
     }
 
-    public class NuGetCommandError : HtmlConsoleTemplateBuilder
+    public class NuGetCommandError : ConsoleTemplateBuilder<HtmlElement>
     {
         public string Text { get; set; }
 
@@ -227,7 +227,7 @@ namespace RoboNuGet.ConsoleTemplates
                     .text(Text)).color(Red);
     }
 
-    public class NuGetPackError : HtmlConsoleTemplateBuilder
+    public class NuGetPackError : ConsoleTemplateBuilder<HtmlElement>
     {
         public string PackageId { get; set; }
 
@@ -239,7 +239,7 @@ namespace RoboNuGet.ConsoleTemplates
                     .text($"Could not create package: {PackageId}")).color(Red);
     }
 
-    public class NuGetPushResult : HtmlConsoleTemplateBuilder
+    public class NuGetPushResult : ConsoleTemplateBuilder<HtmlElement>
     {
         public int TotalCount { get; set; }
 
@@ -258,7 +258,7 @@ namespace RoboNuGet.ConsoleTemplates
 
     namespace Select
     {
-        public class Response : HtmlConsoleTemplateBuilder
+        public class Response : ConsoleTemplateBuilder<HtmlElement>
         {
             public string SolutionName { get; set; }
 
@@ -271,7 +271,7 @@ namespace RoboNuGet.ConsoleTemplates
 
     namespace Version
     {
-        public class Response : HtmlConsoleTemplateBuilder
+        public class Response : ConsoleTemplateBuilder<HtmlElement>
         {
             public string NewVersion { get; set; }
 
