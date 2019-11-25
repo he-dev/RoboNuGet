@@ -15,8 +15,8 @@ namespace RoboNuGet.Commands
 {
     [Description("Clear the console and refresh package list.")]
     [UsedImplicitly]
-    [Tags("cls")]
-    internal class Clear : Command<Clear.CommandLine>
+    [Alias("cls")]
+    internal class Clear : Command<Clear.Parameter>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
@@ -32,10 +32,10 @@ namespace RoboNuGet.Commands
             _solutionDirectoryTree = solutionDirectoryTree;
         }
 
-        protected override Task ExecuteAsync(CommandLine commandLine, object context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(Parameter parameter, CancellationToken cancellationToken)
         {
             System.Console.Clear();
-            if (commandLine.Selection)
+            if (parameter.Selection)
             {
                 _roboNuGetFile.SelectedSolution = default;
             }
@@ -78,13 +78,11 @@ namespace RoboNuGet.Commands
             }
         }
 
-        internal class CommandLine : CommandLineBase
+        internal class Parameter : CommandParameter
         {
-            public CommandLine(CommandLineDictionary arguments) : base(arguments) { }
-
             [Description("Clear solution selection.")]
-            [Tags("s")]
-            public bool Selection => GetArgument(() => Selection);
+            [Alias("s")]
+            public bool Selection { get; set; }
         }
     }
 }

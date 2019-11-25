@@ -13,9 +13,9 @@ using RoboNuGet.Services;
 namespace RoboNuGet.Commands
 {
     [Internal]
-    [Tags("update", "u")]
+    [Alias("update", "u")]
     [UsedImplicitly]
-    internal class UpdateNuspec : Command<UpdateNuspec.CommandLine>
+    internal class UpdateNuspec : Command<UpdateNuspec.Parameter>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
@@ -32,12 +32,12 @@ namespace RoboNuGet.Commands
             _solutionDirectoryTree = solutionDirectoryTree;
         }
 
-        protected override Task ExecuteAsync(CommandLine commandLine, object context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(Parameter parameter, CancellationToken cancellationToken)
         {
             var solution = _roboNuGetFile.SelectedSolutionSafe();
             //var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName);
 
-            var nuspecFileId = commandLine.NuspecFile;
+            var nuspecFileId = parameter.NuspecFile;
             //var nuspecFile = nuspecFiles.Single(nf => nf.Id == nuspecFileId);
             var nuspecFile = _solutionDirectoryTree.GetNuspecFile(solution.DirectoryName, nuspecFileId);
 
@@ -46,22 +46,20 @@ namespace RoboNuGet.Commands
             var csProj = CsProjFile.Load(Path.Combine(nuspecDirectoryName, $"{nuspecFile.Id}{CsProjFile.Extension}"));
 
             var packageDependencies = packagesConfig.Packages.Concat(csProj.PackageReferences).Select(package => new NuspecDependency { Id = package.Id, Version = package.Version });
-            var projectDependencies = csProj.ProjectReferences.Select(projectReferenceName => new NuspecDependency { Id = projectReferenceName, Version = commandLine.Version });
+            var projectDependencies = csProj.ProjectReferences.Select(projectReferenceName => new NuspecDependency { Id = projectReferenceName, Version = parameter.Version });
 
             nuspecFile.Dependencies = packageDependencies.Concat(projectDependencies);
-            nuspecFile.Version = commandLine.Version;
+            nuspecFile.Version = parameter.Version;
             nuspecFile.Save();
 
             return Task.CompletedTask;
         }
 
-        internal class CommandLine : CommandLineBase
+        internal class Parameter : CommandParameter
         {
-            public CommandLine(CommandLineDictionary arguments) : base(arguments) { }
+            public string NuspecFile { get; set; }
 
-            public string NuspecFile => GetArgument(() => NuspecFile);
-
-            public string Version => GetArgument(() => Version);
+            public string Version { get; set; }
         }
     }
 }

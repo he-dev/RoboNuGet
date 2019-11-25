@@ -12,11 +12,9 @@ using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
-    
-
     [Description("Select solution.")]
-    [Tags("s")]
-    internal class Select : Command<Select.CommandLine>
+    [Alias("s")]
+    internal class Select : Command<Select.Parameter>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
 
@@ -25,12 +23,12 @@ namespace RoboNuGet.Commands
             _roboNuGetFile = roboNuGetFile;
         }
 
-        protected override Task ExecuteAsync(CommandLine commandLine, object context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(Parameter parameter, CancellationToken cancellationToken)
         {
-            var solution = _roboNuGetFile.Solutions.ElementAtOrDefault(commandLine.Solution - 1);
+            var solution = _roboNuGetFile.Solutions.ElementAtOrDefault(parameter.Solution - 1);
             if (solution is null)
             {
-                Logger.WriteLine(new t.Indent(1), new t.Error { Text = $"Solution {commandLine.Solution} does not exist." });
+                Logger.WriteLine(new t.Indent(1), new t.Error { Text = $"Solution {parameter.Solution} does not exist." });
             }
             else
             {
@@ -45,14 +43,12 @@ namespace RoboNuGet.Commands
 
             return Task.CompletedTask;
         }
-        
-        internal class CommandLine : CommandLineBase
-        {
-            public CommandLine(CommandLineDictionary arguments) : base(arguments) { }
 
+        internal class Parameter : CommandParameter
+        {
             [Description("Solution number (1-based).")]
             [Position(1)]
-            public int Solution => GetArgument(() => Solution);
+            public int Solution { get; set; }
         }
     }
 }

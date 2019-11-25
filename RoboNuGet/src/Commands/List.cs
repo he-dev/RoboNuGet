@@ -17,9 +17,9 @@ namespace RoboNuGet.Commands
     
 
     [Description("List packages.")]
-    [Tags("lst", "l")]
+    [Alias("lst", "l")]
     [UsedImplicitly]
-    internal class List : Command<List.CommandLine>
+    internal class List : Command<List.Parameter>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
@@ -35,7 +35,7 @@ namespace RoboNuGet.Commands
             _solutionDirectoryTree = solutionDirectoryTree;
         }
 
-        protected override Task ExecuteAsync(CommandLine commandLine, object context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(Parameter parameter, CancellationToken cancellationToken)
         {
             var solution = _roboNuGetFile.SelectedSolutionSafe();
             var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName);
@@ -51,7 +51,7 @@ namespace RoboNuGet.Commands
 
                 var dependencyCount = projectDependencies.Count + packageDependencies.Count;
 
-                if (!commandLine.Short)
+                if (!parameter.Short)
                 {
                     Logger.WriteLine();
                 }
@@ -62,7 +62,7 @@ namespace RoboNuGet.Commands
                     DependencyCount = dependencyCount
                 });
 
-                if (!commandLine.Short)
+                if (!parameter.Short)
                 {
                     ListDependencies("Projects", projectDependencies.OrderBy(x => x.Id));
                     ListDependencies("Packages", packageDependencies.OrderBy(x => x.Id));
@@ -82,13 +82,11 @@ namespace RoboNuGet.Commands
             }
         }
         
-        internal class CommandLine : CommandLineBase
+        internal class Parameter : CommandParameter
         {
-            public CommandLine(CommandLineDictionary arguments) : base(arguments) { }
-
             [Description("Don't list dependencies.")]
-            [Tags("s")]
-            public bool Short => GetArgument(() => Short);
+            [Alias("s")]
+            public bool Short { get; set; }
         }
     }
 }

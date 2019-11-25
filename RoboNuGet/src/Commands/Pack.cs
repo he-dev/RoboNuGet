@@ -17,7 +17,7 @@ namespace RoboNuGet.Commands
 {
     [Description("Pack packages.")]
     [UsedImplicitly]
-    internal class Pack : Command<CommandLineBase>
+    internal class Pack : Command<CommandParameter>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
@@ -42,7 +42,7 @@ namespace RoboNuGet.Commands
             _commandFactory = commandFactory;
         }
 
-        protected override async Task ExecuteAsync(CommandLineBase commandLine, object context, CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CommandParameter parameter, CancellationToken cancellationToken)
         {
             var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_roboNuGetFile.SelectedSolutionSafe().DirectoryName);
 
@@ -78,10 +78,9 @@ namespace RoboNuGet.Commands
             await _commandExecutor.ExecuteAsync
             (
                 $"{nameof(Commands.UpdateNuspec)} " +
-                $"-{nameof(UpdateNuspec.CommandLine.NuspecFile)} {packageId} " +
-                $"-{nameof(UpdateNuspec.CommandLine.Version)} {packageVersion}",
+                $"-{nameof(UpdateNuspec.Parameter.NuspecFile)} {packageId} " +
+                $"-{nameof(UpdateNuspec.Parameter.Version)} {packageVersion}",
                 default(object),
-                _commandFactory,
                 cancellationToken
             );
         }

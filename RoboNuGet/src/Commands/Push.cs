@@ -16,7 +16,7 @@ using RoboNuGet.Services;
 namespace RoboNuGet.Commands
 {
     [Description("Push packages to the NuGet server.")]
-    internal class Push : Command<CommandLineBase>
+    internal class Push : Command<CommandParameter>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
@@ -41,7 +41,7 @@ namespace RoboNuGet.Commands
         }
 
 
-        protected override async Task ExecuteAsync(CommandLineBase commandLine, object context, CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CommandParameter parameter, CancellationToken cancellationToken)
         {
             //this.ValidateWith(ParameterValidator).ThrowIfNotValid();
 

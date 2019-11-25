@@ -20,8 +20,8 @@ namespace RoboNuGet.Commands
 
     [Description("Change package version.")]
     [UsedImplicitly]
-    [Tags("ver", "v")]
-    internal class Version : Command<Version.CommandLine>
+    [Alias("ver", "v")]
+    internal class Version : Command<Version.Parameter>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
 
@@ -47,13 +47,13 @@ namespace RoboNuGet.Commands
             _roboNuGetFile = roboNuGetFile;
         }
 
-        protected override Task ExecuteAsync(CommandLine commandLine, object context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(Parameter parameter, CancellationToken cancellationToken)
         {
             _roboNuGetFile.SelectedSolutionSafe();
 
-            if (commandLine.Set.IsNotNull())
+            if (parameter.Set.IsNotNull())
             {
-                if (SemanticVersion.TryParse(commandLine.Set, out var version))
+                if (SemanticVersion.TryParse(parameter.Set, out var version))
                 {
                     UpdateVersion(version);
                 }
@@ -66,7 +66,7 @@ namespace RoboNuGet.Commands
             {
                 var currentVersion = SemanticVersion.Parse(_roboNuGetFile.SelectedSolution.PackageVersion);
 
-                var next = commandLine.Next;
+                var next = parameter.Next;
                 foreach (var (_, increment) in Updates.Where(x => x.IsNext(next)))
                 {
                     UpdateVersion(increment(currentVersion));
@@ -87,17 +87,15 @@ namespace RoboNuGet.Commands
         }
         
         [PublicAPI]
-        internal class CommandLine : CommandLineBase
+        internal class Parameter : CommandParameter
         {
-            public CommandLine(CommandLineDictionary arguments) : base(arguments) { }
-
-            [Tags("s")]
+            [Alias("s")]
             [Description("Set package version to a different one, e.g. 1.2.3")]
-            public string Set => GetArgument(() => Set);
+            public string Set { get; set; }
 
-            [Tags("n", "inc", "increment")]
+            [Alias("n", "inc", "increment")]
             [Description("Increment package version by one: [major|minor|patch]")]
-            public string Next => GetArgument(() => Next);
+            public string Next { get; set; }
         }
     }
 }

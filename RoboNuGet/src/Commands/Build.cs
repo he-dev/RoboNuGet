@@ -12,7 +12,7 @@ namespace RoboNuGet.Commands
 {
     [Description("Build the solution.")]
     [UsedImplicitly]
-    internal class Build : Command<CommandLineBase>
+    internal class Build : Command<CommandParameter>
     {
         private readonly RoboNuGetFile _roboNuGetFile;
         private readonly IDirectoryTree _directoryTree;
@@ -28,7 +28,7 @@ namespace RoboNuGet.Commands
             _directoryTree = directoryTree;
         }
 
-        protected override Task ExecuteAsync(CommandLineBase commandLine, object context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(CommandParameter parameter, CancellationToken cancellationToken)
         {
             var arguments = _roboNuGetFile.MsBuild.ToString(_roboNuGetFile.SelectedSolutionSafe().FileName);
             var processExecutor = new ProcessExecutor();

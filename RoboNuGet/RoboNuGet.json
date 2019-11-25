@@ -11,7 +11,7 @@
   ],
   "Solutions": [
     {
-      "FileName": "C:\\.home\\.engineer\\projects\\Reusable\\Reusable.sln",
+      "FileName": "C:\\.stuff\\a\\dev\\reusable\\Reusable.sln",
       "PackageVersion": "13.0.0",
       "IsPrerelease": false
     }
@@ -27,8 +27,8 @@
     }
   },
   "NuGet": {
-    "OutputDirectoryName": "C:\\Home\\Projects\\NuGet\\packages",
-    "NuGetConfigName": "C:\\Home\\Projects\\NuGet\\NuGet.config",
+    "OutputDirectoryName": "C:\\.stuff\\a\\lib\\NuGet\\packages",
+    "NuGetConfigName": "C:\\.stuff\\a\\lib\\NuGet\\NuGet.config",
     "Commands": {
       "pack": "pack \"{NuspecFileName}\" -properties Configuration=Release -outputdirectory \"{OutputDirectoryName}\"",
       "push": "push {NupkgFileName} -configfile {NuGetConfigName}"

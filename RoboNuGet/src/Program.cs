@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
-using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
 using Reusable;
@@ -52,10 +50,9 @@ namespace RoboNuGet
             {
                 var logger = scope.Resolve<ILogger<Program>>();
                 var executor = scope.Resolve<ICommandExecutor>();
-                var commandFactory = scope.Resolve<ICommandFactory>();
 
                 // main loop
-                await executor.ExecuteAsync("cls", default(object), commandFactory, CancellationToken.None);
+                await executor.ExecuteAsync<object>("cls");
                 do
                 {
                     logger.Write(new t.Prompt());
@@ -69,7 +66,7 @@ namespace RoboNuGet
                         }
                         else
                         {
-                            await executor.ExecuteAsync<object>(commandLine, default, commandFactory);
+                            await executor.ExecuteAsync<object>(commandLine);
                         }
                     }
                     catch (Exception exception)
@@ -112,22 +109,21 @@ namespace RoboNuGet
                 .RegisterGeneric(typeof(Logger<>))
                 .As(typeof(ILogger<>));
 
-            var commands =
-                ImmutableList<CommandModule>
-                    .Empty
-                    .Add<Commands.UpdateNuspec>()
-                    .Add<Commands.Version>()
-                    .Add<Commands.Clear>()
-                    .Add<Commands.Select>()
-                    .Add<Commands.Build>()
-                    .Add<Commands.Pack>()
-                    .Add<Commands.List>()
-                    .Add<Commands.Push>()
-                    .Add<Commands.Exit>()
-                    .Add<Help>(b => b.WithProperty(nameof(Help.Style), Style));
-
             builder
-                .RegisterModule(new CommanderModule(commands));
+                .RegisterModule(new CommanderModule
+                {
+                    Command.Registration<Commands.UpdateNuspec>(),
+                    Command.Registration<Commands.Version>(),
+                    Command.Registration<Commands.Clear>(),
+                    Command.Registration<Commands.Select>(),
+                    Command.Registration<Commands.Build>(),
+                    Command.Registration<Commands.Pack>(),
+                    Command.Registration<Commands.List>(),
+                    Command.Registration<Commands.Push>(),
+                    Command.Registration<Commands.Exit>(),
+                    Command.Registration<Help>(b => b.WithProperty(nameof(Help.Style), Style))
+                });
+            
             return builder.Build();
         }
     }
