@@ -19,11 +19,11 @@ using RoboNuGet.Services;
 
 namespace RoboNuGet
 {
-    internal class Program
+    public class Program
     {
         public static readonly ConsoleStyle Style = new ConsoleStyle(ConsoleColor.Black, ConsoleColor.Gray);
 
-        private static async Task Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var configuration = RoboNuGetFile.Load();
             var loggerFactory =

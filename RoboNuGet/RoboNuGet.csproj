@@ -61,45 +61,4 @@
    <ProjectReference Include="..\..\Reusable\Reusable.Utilities.NLog\Reusable.Utilities.NLog.csproj" />
  </ItemGroup>
 
- <ItemGroup>
-   <_UnmanagedRegistrationCache Remove="obj\RoboNuGet.csproj.UnmanagedRegistration.cache" />
- </ItemGroup>
-
- <ItemGroup>
-   <_ResolveComReferenceCache Remove="obj\Debug\netcoreapp2.2\win10-x64\RoboNuGet.csproj.ResolveComReference.cache" />
- </ItemGroup>
-
- <ItemGroup>
-   <IntermediateAssembly Remove="obj\Debug\netcoreapp2.2\win10-x64\RoboNuGet.dll" />
- </ItemGroup>
-
- <ItemGroup>
-   <_DebugSymbolsIntermediatePath Remove="obj\Debug\netcoreapp2.2\win10-x64\RoboNuGet.pdb" />
- </ItemGroup>
-
- <ItemGroup>
-   <_DeploymentManifestEntryPoint Remove="obj\Debug\netcoreapp2.2\win10-x64\RoboNuGet.dll" />
- </ItemGroup>
-
- <ItemGroup>
-   <ApplicationManifest Remove="obj\Debug\netcoreapp2.2\win10-x64\RoboNuGet.dll.manifest" />
- </ItemGroup>
-
- <ItemGroup>
-   <DeployManifest Remove="obj\Debug\netcoreapp2.2\win10-x64\RoboNuGet.application" />
- </ItemGroup>
-
- <ItemGroup>
-   <Clean Remove="obj\Debug\netcoreapp2.2\win10-x64\\TempCA\RoboNuGet.pdb" />
-   <Clean Remove="obj\Debug\netcoreapp2.2\win10-x64\\TempCA\RoboNuGet.dll" />
- </ItemGroup>
-
- <ItemGroup>
-   <ClsidMap Remove="obj\Debug\netcoreapp2.2\win10-x64\RoboNuGet.clsidmap" />
- </ItemGroup>
-
- <ItemGroup>
-   <RegFreeComManifest Remove="obj\Debug\netcoreapp2.2\win10-x64\RoboNuGet.X.manifest" />
- </ItemGroup>
-
 </Project>
