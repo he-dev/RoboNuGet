@@ -18,24 +18,20 @@ namespace RoboNuGet.Commands
     [Description("Push packages to the NuGet server.")]
     internal class Push : Command<CommandParameter>
     {
-        private readonly RoboNuGetFile _roboNuGetFile;
+        private readonly Session _session;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
         private readonly IProcessExecutor _processExecutor;
 
-        //private static readonly IValidator<Push> ParameterValidator =
-        //    Validator<Push>.Empty
-        //        .IsNotValidWhen(cmd => cmd.PackageId.IsNullOrEmpty())
-        //        .IsNotValidWhen(cmd => cmd.Version.IsNullOrEmpty());
 
         public Push
         (
             ILogger<Push> logger,
-            RoboNuGetFile roboNuGetFile,
+            Session session,
             SolutionDirectoryTree solutionDirectoryTree,
             IProcessExecutor processExecutor
         ) : base(logger)
         {
-            _roboNuGetFile = roboNuGetFile;
+            _session = session;
             _solutionDirectoryTree = solutionDirectoryTree;
             _processExecutor = processExecutor;
         }
@@ -45,7 +41,7 @@ namespace RoboNuGet.Commands
         {
             //this.ValidateWith(ParameterValidator).ThrowIfNotValid();
 
-            var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_roboNuGetFile.SelectedSolutionSafe().DirectoryName).ToList();
+            var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_session.SolutionOrThrow().DirectoryName).ToList();
 
             var pushStopwatch = Stopwatch.StartNew();
 
@@ -58,12 +54,14 @@ namespace RoboNuGet.Commands
             // We're not pushing packages in parallel.
             foreach (var nuspecFile in nuspecFiles)
             {
+                var nuGet = _session.SolutionOrThrow().NuGet;
+                
                 var packageStopwatch = Stopwatch.StartNew();
 
-                var pushCommandLine = _roboNuGetFile.NuGet.Commands["push"].Format(new
+                var pushCommandLine = nuGet.Commands["push"].Format(new
                 {
-                    NupkgFileName = Path.Combine(_roboNuGetFile.NuGet.OutputDirectoryName, $"{nuspecFile.Id}.{nuspecFile.Version}.nupkg"),
-                    NuGetConfigName = _roboNuGetFile.NuGet.NuGetConfigName,
+                    NupkgFileName = Path.Combine(nuGet.OutputDirectoryName, $"{nuspecFile.Id}.{nuspecFile.Version}.nupkg"),
+                    NuGetConfigName = nuGet.NuGetConfigName,
                 });
 
                 var result = await _processExecutor.NoWindowExecuteAsync("nuget", pushCommandLine);

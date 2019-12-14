@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
 using Reusable;
@@ -23,72 +24,57 @@ namespace RoboNuGet
     {
         public static readonly ConsoleStyle Style = new ConsoleStyle(ConsoleColor.Black, ConsoleColor.Gray);
 
-        public static async Task Main(string[] args)
+        public static async Task Main()
         {
-            var configuration = RoboNuGetFile.Load();
-            var loggerFactory =
-                new LoggerFactory()
-                    .UseConstant
-                    (
-                        ("Environment", "Demo"),
-                        ("Product", "Reusable.app.Console")
-                    )
-                    .UseStopwatch()
-                    .UseScalar
-                    (
-                        new Reusable.OmniLog.Scalars.Timestamp<DateTimeUtc>()
-                    )
-                    .UseLambda()
-                    .UseEcho
-                    (
-                        new ConsoleRx { Renderer = new HtmlConsoleRenderer() { } }
-                    );
+            using var container = InitializeContainer(InitializeLogger());
+            using var scope = container.BeginLifetimeScope();
 
+            var logger = scope.Resolve<ILogger<Program>>();
+            var executor = scope.Resolve<ICommandExecutor>();
 
-            using (var container = InitializeContainer(configuration, loggerFactory))
-            using (var scope = container.BeginLifetimeScope())
+            var initialCommandLine = "clear -r";
+
+            // main loop
+            do
             {
-                var logger = scope.Resolve<ILogger<Program>>();
-                var executor = scope.Resolve<ICommandExecutor>();
+                logger.Write(new t.Prompt());
+                var commandLine = initialCommandLine ?? Console.ReadLine();
 
-                // main loop
-                await executor.ExecuteAsync<object>("cls");
-                do
+                try
                 {
-                    logger.Write(new t.Prompt());
-                    var commandLine = Console.ReadLine();
-
-                    try
+                    if (commandLine.IsNullOrEmpty())
                     {
-                        if (commandLine.IsNullOrEmpty())
-                        {
-                            logger.WriteLine(new t.Error { Text = "Invalid command name" });
-                        }
-                        else
-                        {
-                            await executor.ExecuteAsync<object>(commandLine);
-                        }
+                        logger.WriteLine(new t.Error { Text = "Invalid command name" });
                     }
-                    catch (Exception exception)
+                    else
                     {
-                        //logger.ConsoleException(exception);
-                        foreach (var (ex, _) in exception.SelectMany())
-                        {
-                            logger.WriteLine(new t.Error { Text = $"{ex.GetType().Name}: {ex.Message}" });
-                        }
+                        await executor.ExecuteAsync<object>(commandLine);
                     }
-                } while (true);
-            }
+                }
+                catch (Exception exception)
+                {
+                    //logger.ConsoleException(exception);
+                    foreach (var (ex, _) in exception.SelectMany())
+                    {
+                        logger.WriteLine(new t.Error { Text = $"{ex.GetType().Name}: {ex.Message}" });
+                    }
+                }
+                finally
+                {
+                    initialCommandLine = default;
+                }
+            } while (true);
 
             // ReSharper disable once FunctionNeverReturns - it does return when you execute the 'exit' command
         }
 
-        private static IContainer InitializeContainer(RoboNuGetFile roboNuGetFile, ILoggerFactory loggerFactory)
+        private static IContainer InitializeContainer(ILoggerFactory loggerFactory)
         {
             var builder = new ContainerBuilder();
 
             builder
-                .RegisterInstance(roboNuGetFile);
+                .RegisterType<Session>()
+                .SingleInstance();
 
             builder
                 .RegisterType<ProcessExecutor>()
@@ -123,8 +109,29 @@ namespace RoboNuGet
                     Command.Registration<Commands.Exit>(),
                     Command.Registration<Help>(b => b.WithProperty(nameof(Help.Style), Style))
                 });
-            
+
             return builder.Build();
+        }
+
+        private static ILoggerFactory InitializeLogger()
+        {
+            return
+                new LoggerFactory()
+                    .UseConstant
+                    (
+                        ("Environment", "Demo"),
+                        ("Product", "Reusable.app.Console")
+                    )
+                    .UseStopwatch()
+                    .UseScalar
+                    (
+                        new Reusable.OmniLog.Scalars.Timestamp<DateTimeUtc>()
+                    )
+                    .UseLambda()
+                    .UseEcho
+                    (
+                        new ConsoleRx { Renderer = new HtmlConsoleRenderer() { } }
+                    );
         }
     }
 
@@ -149,6 +156,16 @@ namespace RoboNuGet
     public static class ProgramInfo
     {
         public const string Name = "RoboNuGet";
-        public const string Version = "6.0.4";
+        public const string Version = "7.0.0";
+    }
+
+    internal class Session
+    {
+        public RoboNuGetFile Config { get; set; } = default!;
+
+        /// <summary>
+        /// Gets or sets the selected solution.
+        /// </summary>
+        public Solution? Solution { get; set; }
     }
 }

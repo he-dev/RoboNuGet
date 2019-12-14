@@ -16,14 +16,12 @@ using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
-    
-
     [Description("Change package version.")]
     [UsedImplicitly]
     [Alias("ver", "v")]
     internal class Version : Command<Version.Parameter>
     {
-        private readonly RoboNuGetFile _roboNuGetFile;
+        private readonly Session _session;
 
         private static readonly IEnumerable<(Func<string, bool> IsNext, Func<SemanticVersion, SemanticVersion> Increment)> Updates =
             new (Func<string, bool> IsNext, Func<SemanticVersion, SemanticVersion> Increment)[]
@@ -42,16 +40,16 @@ namespace RoboNuGet.Commands
                 )
             };
 
-        public Version(ILogger<Version> logger, RoboNuGetFile roboNuGetFile) : base(logger)
+        public Version(ILogger<Version> logger, Session session) : base(logger)
         {
-            _roboNuGetFile = roboNuGetFile;
+            _session = session;
         }
 
         protected override Task ExecuteAsync(Parameter parameter, CancellationToken cancellationToken)
         {
-            _roboNuGetFile.SelectedSolutionSafe();
+            var solution = _session.SolutionOrThrow();
 
-            if (parameter.Set.IsNotNull())
+            if (parameter.Set is {})
             {
                 if (SemanticVersion.TryParse(parameter.Set, out var version))
                 {
@@ -64,16 +62,19 @@ namespace RoboNuGet.Commands
             }
             else
             {
-                var currentVersion = SemanticVersion.Parse(_roboNuGetFile.SelectedSolution.PackageVersion);
-
-                var next = parameter.Next;
-                foreach (var (_, increment) in Updates.Where(x => x.IsNext(next)))
+                if (parameter.Next is {})
                 {
-                    UpdateVersion(increment(currentVersion));
-                    break;
+                    var currentVersion = SemanticVersion.Parse(solution.PackageVersion);
+                    foreach (var (_, increment) in Updates.Where(x => x.IsNext(parameter.Next)))
+                    {
+                        UpdateVersion(increment(currentVersion));
+                        break;
+                    }
                 }
-
-                Logger.Error("Invalid arguments.");
+                else
+                {
+                    Logger.Error("Invalid arguments.");
+                }
             }
 
             return Task.CompletedTask;
@@ -81,21 +82,21 @@ namespace RoboNuGet.Commands
 
         private void UpdateVersion(SemanticVersion newVersion)
         {
-            _roboNuGetFile.SelectedSolution.PackageVersion = newVersion;
-            _roboNuGetFile.Save();
-            Logger.WriteLine(new t.Version.Response { NewVersion = _roboNuGetFile.SelectedSolution.PackageVersion });
+            _session.SolutionOrThrow().PackageVersion = newVersion;
+            _session.Config.Save();
+            Logger.WriteLine(new t.Version.Response { NewVersion = newVersion });
         }
-        
+
         [PublicAPI]
         internal class Parameter : CommandParameter
         {
             [Alias("s")]
             [Description("Set package version to a different one, e.g. 1.2.3")]
-            public string Set { get; set; }
+            public string? Set { get; set; }
 
             [Alias("n", "inc", "increment")]
             [Description("Increment package version by one: [major|minor|patch]")]
-            public string Next { get; set; }
+            public string? Next { get; set; }
         }
     }
 }

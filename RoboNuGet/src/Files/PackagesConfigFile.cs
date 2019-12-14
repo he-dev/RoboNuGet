@@ -51,16 +51,16 @@ namespace RoboNuGet.Files
 
     internal class PackageElement
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = default!;
 
-        public string Version { get; set; }
+        public string Version { get; set; } = default!;
 
         public static PackageElement Create(XElement xPackage)
         {
             return new PackageElement
             {
-                Id = xPackage.Attribute("id").Value,
-                Version = xPackage.Attribute("version").Value
+                Id = xPackage.Attribute("id")!.Value,
+                Version = xPackage.Attribute("version")!.Value
             };
         }
     }

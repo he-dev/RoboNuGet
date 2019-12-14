@@ -13,25 +13,25 @@
     {
       "FileName": "C:\\.stuff\\a\\dev\\reusable\\Reusable.sln",
       "PackageVersion": "13.0.0",
-      "IsPrerelease": false
+      "IsPrerelease": false,
+      "MsBuild": {
+        "Target": "Rebuild",
+        "NoLogo": true,
+        "Properties": {
+          "Configuration": "Release"
+        },
+        "Switches": {
+          "m": null
+        }
+      },
+      "NuGet": {
+        "OutputDirectoryName": "C:\\.stuff\\a\\lib\\NuGet\\packages",
+        "NuGetConfigName": "C:\\.stuff\\a\\lib\\NuGet\\NuGet.config",
+        "Commands": {
+          "pack": "pack \"{NuspecFileName}\" -properties Configuration=Release -outputdirectory \"{OutputDirectoryName}\"",
+          "push": "push {NupkgFileName} -configfile {NuGetConfigName}"
+        }
+      }
     }
-  ],
-  "MsBuild": {
-    "Target": "Rebuild",
-    "NoLogo": true,
-    "Properties": {
-      "Configuration": "Release"
-    },
-    "Switches": {
-      "m": null
-    }
-  },
-  "NuGet": {
-    "OutputDirectoryName": "C:\\.stuff\\a\\lib\\NuGet\\packages",
-    "NuGetConfigName": "C:\\.stuff\\a\\lib\\NuGet\\NuGet.config",
-    "Commands": {
-      "pack": "pack \"{NuspecFileName}\" -properties Configuration=Release -outputdirectory \"{OutputDirectoryName}\"",
-      "push": "push {NupkgFileName} -configfile {NuGetConfigName}"
-    }
-  }
+  ]
 }

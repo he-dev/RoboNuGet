@@ -18,26 +18,33 @@ namespace RoboNuGet.Commands
     [Alias("cls")]
     internal class Clear : Command<Clear.Parameter>
     {
-        private readonly RoboNuGetFile _roboNuGetFile;
+        private readonly Session _session;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
 
         public Clear
-        (
-            ILogger<Clear> logger,
-            RoboNuGetFile roboNuGetFile,
-            SolutionDirectoryTree solutionDirectoryTree
-        ) : base(logger)
+        (ILogger<Clear> logger,
+            Session session,
+            SolutionDirectoryTree solutionDirectoryTree) : base(logger)
         {
-            _roboNuGetFile = roboNuGetFile;
+            _session = session;
             _solutionDirectoryTree = solutionDirectoryTree;
         }
 
         protected override Task ExecuteAsync(Parameter parameter, CancellationToken cancellationToken)
         {
             System.Console.Clear();
-            if (parameter.Selection)
+
+            if (parameter?.Reload == true)
             {
-                _roboNuGetFile.SelectedSolution = default;
+                _session.Config = RoboNuGetFile.Load();
+                _session.Solution = default;
+            }
+            else
+            {
+                if (parameter?.Solution == true)
+                {
+                    _session.Solution = default;
+                }
             }
 
             RenderSplashScreen();
@@ -48,9 +55,9 @@ namespace RoboNuGet.Commands
         {
             Logger.WriteLine(new t.Prompt(), new t.ProgramInfo());
 
-            if (_roboNuGetFile.SelectedSolution is null)
+            if (_session.Solution is null)
             {
-                foreach (var (solution, index) in _roboNuGetFile.Solutions.Select((s, i) => (s, i + 1)))
+                foreach (var (solution, index) in _session.Config.Solutions.Select((s, i) => (s, i + 1)))
                 {
                     var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName).ToList();
 
@@ -67,12 +74,12 @@ namespace RoboNuGet.Commands
             }
             else
             {
-                var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_roboNuGetFile.SelectedSolution.DirectoryName).ToList();
+                var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_session.Solution.DirectoryName).ToList();
 
                 Logger.WriteLine(new t.Indent(1), new t.Clear.SolutionSelection
                 {
-                    Name = Path.GetFileNameWithoutExtension(_roboNuGetFile.SelectedSolution.FileName),
-                    Version = _roboNuGetFile.SelectedSolution.FullVersion,
+                    Name = Path.GetFileNameWithoutExtension(_session.Solution.FileName),
+                    Version = _session.Solution.FullVersion,
                     NuspecFileCount = nuspecFiles.Count
                 });
             }
@@ -80,9 +87,13 @@ namespace RoboNuGet.Commands
 
         internal class Parameter : CommandParameter
         {
-            [Description("Clear solution selection.")]
+            [Description("Reload config.")]
+            [Alias("r")]
+            public bool Reload { get; set; }
+            
+            [Description("Clear selected solution.")]
             [Alias("s")]
-            public bool Selection { get; set; }
+            public bool Solution { get; set; }
         }
     }
 }

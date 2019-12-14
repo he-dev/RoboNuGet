@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable;
 using Reusable.Commander;
-using Reusable.IO;
 using Reusable.OmniLog.Abstractions;
 using RoboNuGet.Files;
 
@@ -14,23 +13,20 @@ namespace RoboNuGet.Commands
     [UsedImplicitly]
     internal class Build : Command<CommandParameter>
     {
-        private readonly RoboNuGetFile _roboNuGetFile;
-        private readonly IDirectoryTree _directoryTree;
+        private readonly Session _session;
 
         public Build
         (
             ILogger<Build> logger,
-            RoboNuGetFile roboNuGetFile,
-            IDirectoryTree directoryTree
+            Session session
         ) : base(logger)
         {
-            _roboNuGetFile = roboNuGetFile;
-            _directoryTree = directoryTree;
+            _session = session;
         }
 
         protected override Task ExecuteAsync(CommandParameter parameter, CancellationToken cancellationToken)
         {
-            var arguments = _roboNuGetFile.MsBuild.ToString(_roboNuGetFile.SelectedSolutionSafe().FileName);
+            var arguments = _session.SolutionOrThrow().MsBuild.RenderArgs(_session.SolutionOrThrow().FileName);
             var processExecutor = new ProcessExecutor();
             var result = processExecutor.ShellCmdExecute("/q /c pause |", "msbuild", arguments);
             return Task.CompletedTask;

@@ -83,9 +83,9 @@ namespace RoboNuGet.Files
             _xNuspec.Save(FileName, SaveOptions.None);
         }
 
-        private IEnumerable<XElement> XPathSelectElements([CallerMemberName] string memeberName = null)
+        private IEnumerable<XElement> XPathSelectElements([CallerMemberName] string? memberName = null)
         {
-            var xPath = typeof(NuspecFile).GetProperty(memeberName).GetCustomAttribute<XPathAttribute>();
+            var xPath = typeof(NuspecFile).GetProperty(memberName).GetCustomAttribute<XPathAttribute>();
             return _xNuspec.XPathSelectElements(xPath);
         }
     }
@@ -104,9 +104,9 @@ namespace RoboNuGet.Files
 
     public static class XDocumentExtensions
     {
-        public static IEnumerable<XElement> XPathSelectElements<T>(this XDocument xDocument, [CallerMemberName] string memeberName = null)
+        public static IEnumerable<XElement> XPathSelectElements<T>(this XDocument xDocument, [CallerMemberName] string? memberName = null)
         {
-            var xPath = typeof(T).GetProperty(memeberName).GetCustomAttribute<XPathAttribute>();
+            var xPath = typeof(T).GetProperty(memberName).GetCustomAttribute<XPathAttribute>();
             return xDocument.XPathSelectElements(xPath);
         }
     }

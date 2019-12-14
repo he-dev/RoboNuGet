@@ -1,31 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable;
+using Reusable.Exceptionize;
 
 namespace RoboNuGet.Files
 {
-    internal class SolutionInfo
-    {
-        //[DefaultValue("*.sln")]
-        [JsonRequired]
-        public string FileName { get; set; }
-
-        [JsonIgnore]
-        public string DirectoryName => Path.GetDirectoryName(FileName);
-
-        [JsonRequired]
-        public string PackageVersion { get; set; }
-
-        public bool IsPrerelease { get; set; }
-
-        [JsonIgnore]
-        public string FullVersion => $"{PackageVersion}{(IsPrerelease ? "-pre" : string.Empty)}";
-        
-        //public IEnumerable<NuspecFile> NuspecFiles => _directoryTree.WalkSilently(DirectoryName).
-    }
-
     [UsedImplicitly]
     internal class RoboNuGetFile
     {
@@ -38,16 +20,10 @@ namespace RoboNuGet.Files
 
         private const string DefaultFileName = "RoboNuGet.json";
 
-        public string[] ExcludeDirectories { get; set; }
-        
+        public IEnumerable<string> ExcludeDirectories { get; set; } = Enumerable.Empty<string>(); 
+
         [JsonRequired]
-        public IEnumerable<SolutionInfo> Solutions { get; set; }
-
-        public MsBuild MsBuild { get; set; }
-
-        public NuGetSection NuGet { get; set; }
-
-        // Computed properties
+        public IEnumerable<Solution> Solutions { get; set; } = default!;
 
         [JsonIgnore]
         public static string FileName
@@ -59,15 +35,11 @@ namespace RoboNuGet.Files
                 return fileName;
             }
         }
-        
-        [JsonIgnore]
-        internal SolutionInfo SelectedSolution { get; set; }
 
         public static RoboNuGetFile Load()
         {
             var json = File.ReadAllText(FileName);
-            var config = JsonConvert.DeserializeObject<RoboNuGetFile>(json, DefaultSerializerSettings);
-            return config;
+            return JsonConvert.DeserializeObject<RoboNuGetFile>(json, DefaultSerializerSettings) ?? throw DynamicException.Create("Configuration", $"Could not load '{FileName}'.");
         }
 
         public void Save()
@@ -77,67 +49,40 @@ namespace RoboNuGet.Files
         }
     }
 
-    [UsedImplicitly]
-    internal class NuGetSection
+    internal class Solution
     {
-        public string OutputDirectoryName { get; set; }
+        //[DefaultValue("*.sln")]
+        [JsonRequired]
+        public string FileName { get; set; } = default!;
 
-        public string NuGetConfigName { get; set; }
+        [JsonIgnore]
+        public string DirectoryName => Path.GetDirectoryName(FileName);
 
-        public Dictionary<SoftString, string> Commands { get; set; }
+        [JsonRequired]
+        public string PackageVersion { get; set; } = default!;
+
+        public bool IsPrerelease { get; set; }
+
+        [JsonIgnore]
+        public string FullVersion => $"{PackageVersion}{(IsPrerelease ? "-pre" : string.Empty)}";
+
+        [JsonRequired]
+        public MsBuild MsBuild { get; set; } = default!;
+
+        [JsonRequired]
+        public NuGet NuGet { get; set; } = default!;
     }
 
-    //[PublicAPI]
-    //public class Overrideable<T>
-    //{
-    //    private readonly T _value;
+    [UsedImplicitly]
+    internal class NuGet
+    {
+        [JsonRequired]
+        public string OutputDirectoryName { get; set; } = default!;
 
-    //    [JsonConstructor]
-    //    public Overrideable(T value)
-    //    {
-    //        _value = value;
-    //        Value = value;
-    //    }
+        [JsonRequired]
+        public string NuGetConfigName { get; set; } = default!;
 
-    //    public T Value
-    //    {
-    //        get => _value;
-    //        set => Current = value;
-    //    }
-
-    //    [JsonIgnore]
-    //    public T Current { get; private set; }
-
-    //    public static implicit operator T(Overrideable<T> overridable) => overridable.Current;
-    //}
-
-    //public class JsonOverridableConverter : JsonConverter
-    //{
-    //    public override bool CanConvert(Type objectType)
-    //    {
-    //        var genericArguments = objectType.GetGenericArguments();
-    //        if (genericArguments.Length == 1)
-    //        {
-    //            var overridable = typeof(Overrideable<>).MakeGenericType(genericArguments[0]);
-    //            return (objectType == overridable);
-    //        }
-    //        return false;
-    //    }
-
-    //    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-    //    {
-    //        // .Single is safe here because CanConvert will prevent invalid types.
-    //        var overridableGeneringArgument = objectType.GetGenericArguments().Single();
-    //        var value = serializer.Deserialize(reader, overridableGeneringArgument);
-    //        return Activator.CreateInstance(objectType, new[] {value});
-    //    }
-
-    //    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-    //    {
-    //        // .Single is safe here because CanConvert will prevent invalid types.
-    //        var valueType = value.GetType().GetGenericArguments().Single();
-    //        var actualValue = value.GetType().GetProperty(nameof(Overrideable<object>.Value)).GetValue(value);
-    //        serializer.Serialize(writer, actualValue);
-    //    }
-    //}
+        [JsonRequired]
+        public Dictionary<SoftString, string> Commands { get; set; } = default!;
+    }
 }

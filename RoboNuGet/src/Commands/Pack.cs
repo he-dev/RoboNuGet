@@ -19,38 +19,34 @@ namespace RoboNuGet.Commands
     [UsedImplicitly]
     internal class Pack : Command<CommandParameter>
     {
-        private readonly RoboNuGetFile _roboNuGetFile;
+        private readonly Session _session;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
         private readonly IProcessExecutor _processExecutor;
         private readonly ICommandExecutor _commandExecutor;
-        private readonly ICommandFactory _commandFactory;
 
         public Pack
         (
             ILogger<Pack> logger,
-            RoboNuGetFile roboNuGetFile,
+            Session session,
             SolutionDirectoryTree solutionDirectoryTree,
             IProcessExecutor processExecutor,
-            ICommandExecutor commandExecutor,
-            ICommandFactory commandFactory
+            ICommandExecutor commandExecutor
         ) : base(logger)
         {
-            _roboNuGetFile = roboNuGetFile;
+            _session = session;
             _solutionDirectoryTree = solutionDirectoryTree;
             _processExecutor = processExecutor;
             _commandExecutor = commandExecutor;
-            _commandFactory = commandFactory;
         }
 
         protected override async Task ExecuteAsync(CommandParameter parameter, CancellationToken cancellationToken)
         {
-            var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_roboNuGetFile.SelectedSolutionSafe().DirectoryName);
+            var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_session.SolutionOrThrow().DirectoryName);
 
             var packStopwatch = Stopwatch.StartNew();
 
             var tasks =
                 nuspecFiles
-                    //.Take(5)
                     .Select(nuspecFile => Task.Run(() => CreatePackage(nuspecFile, cancellationToken), cancellationToken))
                     .ToArray();
 
@@ -91,11 +87,12 @@ namespace RoboNuGet.Commands
 
             var result = await Task.Run(async () =>
             {
-                await UpdateNuspecAsync(nuspecFile.Id, _roboNuGetFile.SelectedSolution.PackageVersion, cancellationToken);
-                var commandLine = _roboNuGetFile.NuGet.Commands["pack"].Format(new
+                var solution = _session.SolutionOrThrow();
+                await UpdateNuspecAsync(nuspecFile.Id, solution.PackageVersion, cancellationToken);
+                var commandLine = solution.NuGet.Commands["pack"].Format(new
                 {
                     NuspecFileName = nuspecFile.FileName,
-                    OutputDirectoryName = _roboNuGetFile.NuGet.OutputDirectoryName,
+                    OutputDirectoryName = solution.NuGet.OutputDirectoryName,
                 });
                 return await _processExecutor.NoWindowExecuteAsync("nuget", commandLine);
             }, cancellationToken);

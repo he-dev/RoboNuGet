@@ -8,7 +8,6 @@ using Reusable.Commander.Annotations;
 using Reusable.Data.Annotations;
 using Reusable.OmniLog.Abstractions;
 using t = RoboNuGet.ConsoleTemplates;
-using RoboNuGet.Files;
 
 namespace RoboNuGet.Commands
 {
@@ -16,27 +15,27 @@ namespace RoboNuGet.Commands
     [Alias("s")]
     internal class Select : Command<Select.Parameter>
     {
-        private readonly RoboNuGetFile _roboNuGetFile;
+        private readonly Session _session;
 
-        public Select(ILogger<Select> logger, RoboNuGetFile roboNuGetFile) : base(logger)
+        public Select(ILogger<Select> logger, Session session) : base(logger)
         {
-            _roboNuGetFile = roboNuGetFile;
+            _session = session;
         }
 
         protected override Task ExecuteAsync(Parameter parameter, CancellationToken cancellationToken)
         {
-            var solution = _roboNuGetFile.Solutions.ElementAtOrDefault(parameter.Solution - 1);
+            var solution = _session.Config.Solutions.ElementAtOrDefault(parameter.Solution - 1);
             if (solution is null)
             {
                 Logger.WriteLine(new t.Indent(1), new t.Error { Text = $"Solution {parameter.Solution} does not exist." });
             }
             else
             {
-                _roboNuGetFile.SelectedSolution = solution;
+                _session.Solution = solution;
 
                 Logger.WriteLine(new t.Indent(1), new t.Select.Response
                 {
-                    SolutionName = Path.GetFileNameWithoutExtension(_roboNuGetFile.SelectedSolution.FileName)
+                    SolutionName = Path.GetFileNameWithoutExtension(_session.Solution.FileName)
                 });
             }
 

@@ -34,7 +34,7 @@ namespace RoboNuGet.ConsoleTemplates
 
     public class Error : ConsoleTemplateBuilder<HtmlElement>
     {
-        public string Text { get; set; }
+        public string Text { get; set; } = default!;
 
         public override HtmlElement Build(LogEntry log) =>
             HtmlElement
@@ -88,12 +88,12 @@ namespace RoboNuGet.ConsoleTemplates
                         .text(" ")
                         .text($" ({NuspecFileCount} package{(NuspecFileCount == 1 ? string.Empty : "s")})"));
         }
-        
+
         public class SolutionSelection : ConsoleTemplateBuilder<HtmlElement>
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = default!;
 
-            public string Version { get; set; }
+            public string Version { get; set; } = default!;
 
             public int NuspecFileCount { get; set; }
 
@@ -111,7 +111,6 @@ namespace RoboNuGet.ConsoleTemplates
         }
     }
 
-    
 
     public class SelectSolution : ConsoleTemplateBuilder<HtmlElement>
     {
@@ -125,7 +124,7 @@ namespace RoboNuGet.ConsoleTemplates
 
     public class PackageInfo : ConsoleTemplateBuilder<HtmlElement>
     {
-        public string PackageId { get; set; }
+        public string PackageId { get; set; } = default!;
 
         public int DependencyCount { get; set; }
 
@@ -140,7 +139,7 @@ namespace RoboNuGet.ConsoleTemplates
 
     public class PackageDependencySection : ConsoleTemplateBuilder<HtmlElement>
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
 
         public override HtmlElement Build(LogEntry log) =>
             HtmlElement
@@ -260,7 +259,7 @@ namespace RoboNuGet.ConsoleTemplates
     {
         public class Response : ConsoleTemplateBuilder<HtmlElement>
         {
-            public string SolutionName { get; set; }
+            public string SolutionName { get; set; } = default!;
 
             public override HtmlElement Build(LogEntry log) =>
                 HtmlElement
@@ -273,7 +272,7 @@ namespace RoboNuGet.ConsoleTemplates
     {
         public class Response : ConsoleTemplateBuilder<HtmlElement>
         {
-            public string NewVersion { get; set; }
+            public string NewVersion { get; set; } = default!;
 
             public override HtmlElement Build(LogEntry log) =>
                 HtmlElement

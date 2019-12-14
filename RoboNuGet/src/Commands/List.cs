@@ -21,23 +21,23 @@ namespace RoboNuGet.Commands
     [UsedImplicitly]
     internal class List : Command<List.Parameter>
     {
-        private readonly RoboNuGetFile _roboNuGetFile;
+        private readonly Session _session;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
 
         public List
         (
             ILogger<List> logger,
-            RoboNuGetFile roboNuGetFile,
+            Session session,
             SolutionDirectoryTree solutionDirectoryTree
         ) : base(logger)
         {
-            _roboNuGetFile = roboNuGetFile;
+            _session = session;
             _solutionDirectoryTree = solutionDirectoryTree;
         }
 
         protected override Task ExecuteAsync(Parameter parameter, CancellationToken cancellationToken)
         {
-            var solution = _roboNuGetFile.SelectedSolutionSafe();
+            var solution = _session.SolutionOrThrow();
             var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName);
 
             foreach (var nuspecFile in nuspecFiles.OrderBy(x => x.FileName))

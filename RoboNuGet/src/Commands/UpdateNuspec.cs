@@ -17,24 +17,24 @@ namespace RoboNuGet.Commands
     [UsedImplicitly]
     internal class UpdateNuspec : Command<UpdateNuspec.Parameter>
     {
-        private readonly RoboNuGetFile _roboNuGetFile;
+        private readonly Session _session;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
 
         public UpdateNuspec
         (
             ILogger<UpdateNuspec> logger,
-            RoboNuGetFile roboNuGetFile,
+            Session session,
             SolutionDirectoryTree solutionDirectoryTree
         )
             : base(logger)
         {
-            _roboNuGetFile = roboNuGetFile;
+            _session = session;
             _solutionDirectoryTree = solutionDirectoryTree;
         }
 
         protected override Task ExecuteAsync(Parameter parameter, CancellationToken cancellationToken)
         {
-            var solution = _roboNuGetFile.SelectedSolutionSafe();
+            var solution = _session.SolutionOrThrow();
             //var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName);
 
             var nuspecFileId = parameter.NuspecFile;

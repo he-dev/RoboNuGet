@@ -19,7 +19,8 @@ namespace RoboNuGet.Files
 
         public XElement ToXElement()
         {
-            return new XElement(
+            return new XElement
+            (
                 "dependency",
                 new XAttribute("id", Id),
                 new XAttribute("version", Version)
