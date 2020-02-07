@@ -1,24 +1,24 @@
 using System;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Rx.ConsoleRenderers;
+using Reusable.OmniLog.Helpers;
 
 // ReSharper disable once CheckNamespace
 namespace RoboNuGet.ConsoleTemplates
 {
     using static ConsoleColor;
 
-    public class Prompt : ConsoleTemplateBuilder<HtmlElement>
+    public class Prompt : IHtmlConsoleTemplateBuilder
     {
         public DateTime Timestamp => DateTime.Now;
 
-        public override HtmlElement Build(LogEntry log) =>
+        public HtmlElement Build(LogEntry log) =>
             HtmlElement
                 .Builder
                 .span(span => span.text($"[{Timestamp:yyyy-MM-dd HH:mm:ss}]>"));
     }
 
-    public class Indent : ConsoleTemplateBuilder<HtmlElement>
+    public class Indent : IHtmlConsoleTemplateBuilder
     {
         private readonly int _depth;
 
@@ -29,14 +29,14 @@ namespace RoboNuGet.ConsoleTemplates
 
         public int Width { get; set; } = 1;
 
-        public override HtmlElement Build(LogEntry log) => HtmlElement.Builder.span(x => x.Indent(Width, _depth));
+        public HtmlElement Build(LogEntry log) => HtmlElement.Builder.span(x => x.Indent(Width, _depth));
     }
 
-    public class Error : ConsoleTemplateBuilder<HtmlElement>
+    public class Error : IHtmlConsoleTemplateBuilder
     {
         public string Text { get; set; } = default!;
 
-        public override HtmlElement Build(LogEntry log) =>
+        public HtmlElement Build(LogEntry log) =>
             HtmlElement
                 .Builder
                 .span(x => x
@@ -44,13 +44,13 @@ namespace RoboNuGet.ConsoleTemplates
                     .text(Text)).color(Red);
     }
 
-    public class ProgramInfo : ConsoleTemplateBuilder<HtmlElement>
+    public class ProgramInfo : IHtmlConsoleTemplateBuilder
     {
         public string Name => RoboNuGet.ProgramInfo.Name;
 
         public string Version => RoboNuGet.ProgramInfo.Version;
 
-        public override HtmlElement Build(LogEntry log) =>
+        public HtmlElement Build(LogEntry log) =>
             HtmlElement
                 .Builder
                 .span(x => x
@@ -59,15 +59,15 @@ namespace RoboNuGet.ConsoleTemplates
 
     namespace Clear
     {
-        public class AskForSolution : ConsoleTemplateBuilder<HtmlElement>
+        public class AskForSolution : IHtmlConsoleTemplateBuilder
         {
-            public override HtmlElement Build(LogEntry log) =>
+            public HtmlElement Build(LogEntry log) =>
                 HtmlElement
                     .Builder
                     .span(span => span.text("Use the 'select <n>' command to pick a solution."));
         }
 
-        public class SolutionOption : ConsoleTemplateBuilder<HtmlElement>
+        public class SolutionOption : IHtmlConsoleTemplateBuilder
         {
             public int Index { get; set; }
 
@@ -77,7 +77,7 @@ namespace RoboNuGet.ConsoleTemplates
 
             public int NuspecFileCount { get; set; }
 
-            public override HtmlElement Build(LogEntry log) =>
+            public HtmlElement Build(LogEntry log) =>
                 HtmlElement
                     .Builder
                     .span(span => span
@@ -89,7 +89,7 @@ namespace RoboNuGet.ConsoleTemplates
                         .text($" ({NuspecFileCount} package{(NuspecFileCount == 1 ? string.Empty : "s")})"));
         }
 
-        public class SolutionSelection : ConsoleTemplateBuilder<HtmlElement>
+        public class SolutionSelection : IHtmlConsoleTemplateBuilder
         {
             public string Name { get; set; } = default!;
 
@@ -97,7 +97,7 @@ namespace RoboNuGet.ConsoleTemplates
 
             public int NuspecFileCount { get; set; }
 
-            public override HtmlElement Build(LogEntry log) =>
+            public HtmlElement Build(LogEntry log) =>
                 HtmlElement
                     .Builder
                     .span(span => span
@@ -112,9 +112,9 @@ namespace RoboNuGet.ConsoleTemplates
     }
 
 
-    public class SelectSolution : ConsoleTemplateBuilder<HtmlElement>
+    public class SelectSolution : IHtmlConsoleTemplateBuilder
     {
-        public override HtmlElement Build(LogEntry log) =>
+        public HtmlElement Build(LogEntry log) =>
             HtmlElement
                 .Builder
                 .span(span => span
@@ -122,13 +122,13 @@ namespace RoboNuGet.ConsoleTemplates
                     .text("Use the 'select' command to pick a solution."));
     }
 
-    public class PackageInfo : ConsoleTemplateBuilder<HtmlElement>
+    public class PackageInfo : IHtmlConsoleTemplateBuilder
     {
         public string PackageId { get; set; } = default!;
 
         public int DependencyCount { get; set; }
 
-        public override HtmlElement Build(LogEntry log) =>
+        public HtmlElement Build(LogEntry log) =>
             HtmlElement
                 .Builder
                 .span(x => x
@@ -137,11 +137,11 @@ namespace RoboNuGet.ConsoleTemplates
                     .span(s => s.text($"({DependencyCount})").color(Magenta)));
     }
 
-    public class PackageDependencySection : ConsoleTemplateBuilder<HtmlElement>
+    public class PackageDependencySection : IHtmlConsoleTemplateBuilder
     {
         public string Name { get; set; } = default!;
 
-        public override HtmlElement Build(LogEntry log) =>
+        public HtmlElement Build(LogEntry log) =>
             HtmlElement
                 .Builder
                 .span(x => x
@@ -149,13 +149,13 @@ namespace RoboNuGet.ConsoleTemplates
                     .span(s => s.text($"[{Name}]").color(DarkGray)));
     }
 
-    public class PackageDependencyInfo : ConsoleTemplateBuilder<HtmlElement>
+    public class PackageDependencyInfo : IHtmlConsoleTemplateBuilder
     {
         public string Name { get; set; }
 
         public string Version { get; set; }
 
-        public override HtmlElement Build(LogEntry log) =>
+        public HtmlElement Build(LogEntry log) =>
             HtmlElement
                 .Builder
                 .span(x => x
@@ -164,11 +164,11 @@ namespace RoboNuGet.ConsoleTemplates
                     .span(s => s.text($"v{Version}").color(DarkGray)));
     }
 
-    public class NuGetPackResultError : ConsoleTemplateBuilder<HtmlElement>
+    public class NuGetPackResultError : IHtmlConsoleTemplateBuilder
     {
         public int ErrorCount { get; set; }
 
-        public override HtmlElement Build(LogEntry log) =>
+        public HtmlElement Build(LogEntry log) =>
             HtmlElement
                 .Builder
                 .span(x => x
@@ -178,9 +178,9 @@ namespace RoboNuGet.ConsoleTemplates
                         .color(Red)));
     }
 
-    public class NuGetPackResultSuccess : ConsoleTemplateBuilder<HtmlElement>
+    public class NuGetPackResultSuccess : IHtmlConsoleTemplateBuilder
     {
-        public override HtmlElement Build(LogEntry log) =>
+        public HtmlElement Build(LogEntry log) =>
             HtmlElement
                 .Builder
                 .span(x => x
@@ -188,13 +188,13 @@ namespace RoboNuGet.ConsoleTemplates
                     .span(s => s.text("All packages successfully created.").color(Green)));
     }
 
-    public class NuGetCommandStopwatch : ConsoleTemplateBuilder<HtmlElement>
+    public class NuGetCommandStopwatch : IHtmlConsoleTemplateBuilder
     {
         public TimeSpan Elapsed { get; set; }
 
         public int ThreadId { get; set; }
 
-        public override HtmlElement Build(LogEntry log) =>
+        public HtmlElement Build(LogEntry log) =>
             HtmlElement
                 .Builder
                 .span(x => x
@@ -202,11 +202,11 @@ namespace RoboNuGet.ConsoleTemplates
                     .text($"Elapsed: {Elapsed.TotalSeconds:F1} sec [{ThreadId}]"));
     }
 
-    public class NuGetCommandOutput : ConsoleTemplateBuilder<HtmlElement>
+    public class NuGetCommandOutput : IHtmlConsoleTemplateBuilder
     {
         public string Text { get; set; }
 
-        public override HtmlElement Build(LogEntry log) =>
+        public HtmlElement Build(LogEntry log) =>
             HtmlElement
                 .Builder
                 .span(x => x
@@ -214,11 +214,11 @@ namespace RoboNuGet.ConsoleTemplates
                     .text(Text));
     }
 
-    public class NuGetCommandError : ConsoleTemplateBuilder<HtmlElement>
+    public class NuGetCommandError : IHtmlConsoleTemplateBuilder
     {
         public string Text { get; set; }
 
-        public override HtmlElement Build(LogEntry log) =>
+        public HtmlElement Build(LogEntry log) =>
             HtmlElement
                 .Builder
                 .span(x => x
@@ -226,11 +226,11 @@ namespace RoboNuGet.ConsoleTemplates
                     .text(Text)).color(Red);
     }
 
-    public class NuGetPackError : ConsoleTemplateBuilder<HtmlElement>
+    public class NuGetPackError : IHtmlConsoleTemplateBuilder
     {
         public string PackageId { get; set; }
 
-        public override HtmlElement Build(LogEntry log) =>
+        public HtmlElement Build(LogEntry log) =>
             HtmlElement
                 .Builder
                 .span(x => x
@@ -238,7 +238,7 @@ namespace RoboNuGet.ConsoleTemplates
                     .text($"Could not create package: {PackageId}")).color(Red);
     }
 
-    public class NuGetPushResult : ConsoleTemplateBuilder<HtmlElement>
+    public class NuGetPushResult : IHtmlConsoleTemplateBuilder
     {
         public int TotalCount { get; set; }
 
@@ -246,7 +246,7 @@ namespace RoboNuGet.ConsoleTemplates
 
         public bool Success => SuccessfulCount == TotalCount;
 
-        public override HtmlElement Build(LogEntry log) =>
+        public HtmlElement Build(LogEntry log) =>
             HtmlElement
                 .Builder
                 .span(x => x
@@ -257,11 +257,11 @@ namespace RoboNuGet.ConsoleTemplates
 
     namespace Select
     {
-        public class Response : ConsoleTemplateBuilder<HtmlElement>
+        public class Response : IHtmlConsoleTemplateBuilder
         {
             public string SolutionName { get; set; } = default!;
 
-            public override HtmlElement Build(LogEntry log) =>
+            public HtmlElement Build(LogEntry log) =>
                 HtmlElement
                     .Builder
                     .span(x => x.text("Selected ").span(s => s.text($"'{SolutionName}'").color(Yellow)));
@@ -270,11 +270,11 @@ namespace RoboNuGet.ConsoleTemplates
 
     namespace Version
     {
-        public class Response : ConsoleTemplateBuilder<HtmlElement>
+        public class Response : IHtmlConsoleTemplateBuilder
         {
             public string NewVersion { get; set; } = default!;
 
-            public override HtmlElement Build(LogEntry log) =>
+            public HtmlElement Build(LogEntry log) =>
                 HtmlElement
                     .Builder
                     .span(x => x

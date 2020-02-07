@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
       <!--<TargetFramework>net47</TargetFramework>-->
 <!--      <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>-->
-      <TargetFramework>netcoreapp2.2</TargetFramework>
+      <TargetFramework>netcoreapp3.1</TargetFramework>
       <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
       <Nullable>enable</Nullable>
   </PropertyGroup>

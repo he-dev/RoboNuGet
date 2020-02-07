@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
 using Reusable;
@@ -8,11 +7,11 @@ using Reusable.Commander.Commands;
 using Reusable.Commander.DependencyInjection;
 using Reusable.Extensions;
 using Reusable.IO;
-using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Rx;
-using Reusable.OmniLog.Rx.ConsoleRenderers;
+using Reusable.OmniLog.Helpers;
+using Reusable.OmniLog.Rx.Consoles;
+using Reusable.OmniLog.Services;
 using Reusable.OmniLog.Utilities;
 using t = RoboNuGet.ConsoleTemplates;
 using RoboNuGet.Files;
@@ -116,33 +115,32 @@ namespace RoboNuGet
         private static ILoggerFactory InitializeLogger()
         {
             return
-                new LoggerFactory()
-                    .UseConstant
+                LoggerFactory
+                    .Builder()
+                    .UseService
                     (
-                        ("Environment", "Demo"),
-                        ("Product", "Reusable.app.Console")
+                        new Constant("Environment", "Demo"),
+                        new Constant("Product", "Reusable.app.Console"),
+                        new Timestamp<DateTimeUtc>()
                     )
                     .UseStopwatch()
-                    .UseScalar
-                    (
-                        new Reusable.OmniLog.Scalars.Timestamp<DateTimeUtc>()
-                    )
-                    .UseLambda()
+                    .UseDelegate()
                     .UseEcho
                     (
-                        new ConsoleRx { Renderer = new HtmlConsoleRenderer() { } }
-                    );
+                        new HtmlConsoleRx()
+                    )
+                    .Build();
         }
     }
 
     public static class LoggerExtensions
     {
-        public static void WriteLine(this ILogger logger, params ConsoleTemplateBuilder<HtmlElement>[] builders)
+        public static void WriteLine(this ILogger logger, params IHtmlConsoleTemplateBuilder[] builders)
         {
             logger.WriteLine(Program.Style, builders);
         }
 
-        public static void Write(this ILogger logger, params ConsoleTemplateBuilder<HtmlElement>[] builders)
+        public static void Write(this ILogger logger, params IHtmlConsoleTemplateBuilder[] builders)
         {
             logger.Write(Program.Style, builders);
         }
