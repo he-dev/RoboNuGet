@@ -10,7 +10,6 @@ using Reusable.IO;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Helpers;
-using Reusable.OmniLog.Rx.Consoles;
 using Reusable.OmniLog.Services;
 using Reusable.OmniLog.Utilities;
 using t = RoboNuGet.ConsoleTemplates;
@@ -95,19 +94,19 @@ namespace RoboNuGet
                 .As(typeof(ILogger<>));
 
             builder
-                .RegisterModule(new CommanderModule
+                .RegisterModule(new CommanderModule(m =>
                 {
-                    Command.Registration<Commands.UpdateNuspec>(),
-                    Command.Registration<Commands.Version>(),
-                    Command.Registration<Commands.Clear>(),
-                    Command.Registration<Commands.Select>(),
-                    Command.Registration<Commands.Build>(),
-                    Command.Registration<Commands.Pack>(),
-                    Command.Registration<Commands.List>(),
-                    Command.Registration<Commands.Push>(),
-                    Command.Registration<Commands.Exit>(),
-                    Command.Registration<Help>(b => b.WithProperty(nameof(Help.Style), Style))
-                });
+                    m.Register<Commands.UpdateNuspec>();
+                    m.Register<Commands.Version>();
+                    m.Register<Commands.Clear>();
+                    m.Register<Commands.Select>();
+                    m.Register<Commands.Build>();
+                    m.Register<Commands.Pack>();
+                    m.Register<Commands.List>();
+                    m.Register<Commands.Push>();
+                    m.Register<Commands.Exit>();
+                    m.Register<Help>().WithProperty(nameof(Help.Style), Style);
+                }));
 
             return builder.Build();
         }
