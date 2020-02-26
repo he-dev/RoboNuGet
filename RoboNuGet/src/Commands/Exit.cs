@@ -12,8 +12,6 @@ namespace RoboNuGet.Commands
     [UsedImplicitly]
     internal class Exit : Command<CommandParameter>
     {
-        public Exit(ILogger<Exit> logger) : base(logger) { }
-
         protected override Task ExecuteAsync(CommandParameter parameter, CancellationToken cancellationToken)
         {
             Environment.Exit(0);

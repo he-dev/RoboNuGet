@@ -18,14 +18,18 @@ namespace RoboNuGet.Commands
     [Alias("cls")]
     internal class Clear : Command<Clear.Parameter>
     {
+        private readonly ILogger<Clear> _logger;
         private readonly Session _session;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
 
         public Clear
-        (ILogger<Clear> logger,
+        (
+            ILogger<Clear> logger,
             Session session,
-            SolutionDirectoryTree solutionDirectoryTree) : base(logger)
+            SolutionDirectoryTree solutionDirectoryTree
+        )
         {
+            _logger = logger;
             _session = session;
             _solutionDirectoryTree = solutionDirectoryTree;
         }
@@ -53,7 +57,7 @@ namespace RoboNuGet.Commands
 
         private void RenderSplashScreen()
         {
-            Logger.WriteLine(new t.Prompt(), new t.ProgramInfo());
+            _logger.WriteLine(new t.Prompt(), new t.ProgramInfo());
 
             if (_session.Solution is null)
             {
@@ -61,7 +65,7 @@ namespace RoboNuGet.Commands
                 {
                     var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName).ToList();
 
-                    Logger.WriteLine(new t.Indent(1), new t.Clear.SolutionOption
+                    _logger.WriteLine(new t.Indent(1), new t.Clear.SolutionOption
                     {
                         Index = index,
                         Name = Path.GetFileNameWithoutExtension(solution.FileName),
@@ -70,13 +74,13 @@ namespace RoboNuGet.Commands
                     });
                 }
 
-                Logger.WriteLine(new t.Indent(1), new t.Clear.AskForSolution());
+                _logger.WriteLine(new t.Indent(1), new t.Clear.AskForSolution());
             }
             else
             {
                 var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_session.Solution.DirectoryName).ToList();
 
-                Logger.WriteLine(new t.Indent(1), new t.Clear.SolutionSelection
+                _logger.WriteLine(new t.Indent(1), new t.Clear.SolutionSelection
                 {
                     Name = Path.GetFileNameWithoutExtension(_session.Solution.FileName),
                     Version = _session.Solution.FullVersion,
@@ -90,7 +94,7 @@ namespace RoboNuGet.Commands
             [Description("Reload config.")]
             [Alias("r")]
             public bool Reload { get; set; }
-            
+
             [Description("Clear selected solution.")]
             [Alias("s")]
             public bool Solution { get; set; }

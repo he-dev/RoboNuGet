@@ -15,10 +15,12 @@ namespace RoboNuGet.Commands
     [Alias("s")]
     internal class Select : Command<Select.Parameter>
     {
+        private readonly ILogger<Select> _logger;
         private readonly Session _session;
 
-        public Select(ILogger<Select> logger, Session session) : base(logger)
+        public Select(ILogger<Select> logger, Session session)
         {
+            _logger = logger;
             _session = session;
         }
 
@@ -27,13 +29,13 @@ namespace RoboNuGet.Commands
             var solution = _session.Config.Solutions.ElementAtOrDefault(parameter.Solution - 1);
             if (solution is null)
             {
-                Logger.WriteLine(new t.Indent(1), new t.Error { Text = $"Solution {parameter.Solution} does not exist." });
+                _logger.WriteLine(new t.Indent(1), new t.Error { Text = $"Solution {parameter.Solution} does not exist." });
             }
             else
             {
                 _session.Solution = solution;
 
-                Logger.WriteLine(new t.Indent(1), new t.Select.Response
+                _logger.WriteLine(new t.Indent(1), new t.Select.Response
                 {
                     SolutionName = Path.GetFileNameWithoutExtension(_session.Solution.FileName)
                 });

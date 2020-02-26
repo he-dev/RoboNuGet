@@ -26,7 +26,6 @@ namespace RoboNuGet.Commands
             Session session,
             SolutionDirectoryTree solutionDirectoryTree
         )
-            : base(logger)
         {
             _session = session;
             _solutionDirectoryTree = solutionDirectoryTree;

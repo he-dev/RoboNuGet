@@ -21,6 +21,7 @@ namespace RoboNuGet.Commands
     [Alias("ver", "v")]
     internal class Version : Command<Version.Parameter>
     {
+        private readonly ILogger<Version> _logger;
         private readonly Session _session;
 
         private static readonly IEnumerable<(Func<string, bool> IsNext, Func<SemanticVersion, SemanticVersion> Increment)> Updates =
@@ -40,8 +41,9 @@ namespace RoboNuGet.Commands
                 )
             };
 
-        public Version(ILogger<Version> logger, Session session) : base(logger)
+        public Version(ILogger<Version> logger, Session session)
         {
+            _logger = logger;
             _session = session;
         }
 
@@ -57,7 +59,7 @@ namespace RoboNuGet.Commands
                 }
                 else
                 {
-                    Logger.WriteLine(new t.Error { Text = "Invalid version" });
+                    _logger.WriteLine(new t.Error { Text = "Invalid version" });
                 }
             }
             else
@@ -73,7 +75,7 @@ namespace RoboNuGet.Commands
                 }
                 else
                 {
-                    Logger.Error("Invalid arguments.");
+                    _logger.Error("Invalid arguments.");
                 }
             }
 
@@ -84,7 +86,7 @@ namespace RoboNuGet.Commands
         {
             _session.SolutionOrThrow().PackageVersion = newVersion;
             _session.Config.Save();
-            Logger.WriteLine(new t.Version.Response { NewVersion = newVersion });
+            _logger.WriteLine(new t.Version.Response { NewVersion = newVersion });
         }
 
         [PublicAPI]

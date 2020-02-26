@@ -19,7 +19,7 @@ namespace RoboNuGet.Commands
         (
             ILogger<Build> logger,
             Session session
-        ) : base(logger)
+        )
         {
             _session = session;
         }

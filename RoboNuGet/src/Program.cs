@@ -94,7 +94,7 @@ namespace RoboNuGet
                 .As(typeof(ILogger<>));
 
             builder
-                .RegisterModule(new CommanderModule(m =>
+                .RegisterModule(new CommandModule(m =>
                 {
                     m.Register<Commands.UpdateNuspec>();
                     m.Register<Commands.Version>();

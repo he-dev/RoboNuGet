@@ -18,6 +18,7 @@ namespace RoboNuGet.Commands
     [Description("Push packages to the NuGet server.")]
     internal class Push : Command<CommandParameter>
     {
+        private readonly ILogger<Push> _logger;
         private readonly Session _session;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
         private readonly IProcessExecutor _processExecutor;
@@ -29,8 +30,9 @@ namespace RoboNuGet.Commands
             Session session,
             SolutionDirectoryTree solutionDirectoryTree,
             IProcessExecutor processExecutor
-        ) : base(logger)
+        ) 
         {
+            _logger = logger;
             _session = session;
             _solutionDirectoryTree = solutionDirectoryTree;
             _processExecutor = processExecutor;
@@ -67,13 +69,13 @@ namespace RoboNuGet.Commands
                 var result = await _processExecutor.NoWindowExecuteAsync("nuget", pushCommandLine);
                 success[result.ExitCode == ExitCode.Success]++;
 
-                Logger.WriteLine(new t.NuGetCommandOutput { Text = result.Output.Trim() });
-                Logger.WriteLine(new t.NuGetCommandError { Text = result.Error.Trim() });
-                Logger.WriteLine(new t.NuGetCommandStopwatch { Elapsed = packageStopwatch.Elapsed });
+                _logger.WriteLine(new t.NuGetCommandOutput { Text = result.Output.Trim() });
+                _logger.WriteLine(new t.NuGetCommandError { Text = result.Error.Trim() });
+                _logger.WriteLine(new t.NuGetCommandStopwatch { Elapsed = packageStopwatch.Elapsed });
             }
 
-            Logger.WriteLine(new t.NuGetPushResult { TotalCount = nuspecFiles.Count, SuccessfulCount = success[true] });
-            Logger.WriteLine(new t.NuGetCommandStopwatch { Elapsed = pushStopwatch.Elapsed });
+            _logger.WriteLine(new t.NuGetPushResult { TotalCount = nuspecFiles.Count, SuccessfulCount = success[true] });
+            _logger.WriteLine(new t.NuGetCommandStopwatch { Elapsed = pushStopwatch.Elapsed });
         }
     }
 }

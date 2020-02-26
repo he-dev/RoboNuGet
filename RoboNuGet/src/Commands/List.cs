@@ -21,6 +21,7 @@ namespace RoboNuGet.Commands
     [UsedImplicitly]
     internal class List : Command<List.Parameter>
     {
+        private readonly ILogger<List> _logger;
         private readonly Session _session;
         private readonly SolutionDirectoryTree _solutionDirectoryTree;
 
@@ -29,8 +30,9 @@ namespace RoboNuGet.Commands
             ILogger<List> logger,
             Session session,
             SolutionDirectoryTree solutionDirectoryTree
-        ) : base(logger)
+        ) 
         {
+            _logger = logger;
             _session = session;
             _solutionDirectoryTree = solutionDirectoryTree;
         }
@@ -53,10 +55,10 @@ namespace RoboNuGet.Commands
 
                 if (!parameter.Short)
                 {
-                    Logger.WriteLine();
+                    _logger.WriteLine();
                 }
 
-                Logger.WriteLine(new t.PackageInfo
+                _logger.WriteLine(new t.PackageInfo
                 {
                     PackageId = Path.GetFileNameWithoutExtension(nuspecFile.FileName),
                     DependencyCount = dependencyCount
@@ -74,11 +76,11 @@ namespace RoboNuGet.Commands
 
         private void ListDependencies(string header, IEnumerable<NuspecDependency> dependencies)
         {
-            Logger.WriteLine(new t.PackageDependencySection { Name = header });
+            _logger.WriteLine(new t.PackageDependencySection { Name = header });
 
             foreach (var nuspecDependency in dependencies)
             {
-                Logger.WriteLine(new t.PackageDependencyInfo { Name = nuspecDependency.Id, Version = nuspecDependency.Version });
+                _logger.WriteLine(new t.PackageDependencyInfo { Name = nuspecDependency.Id, Version = nuspecDependency.Version });
             }
         }
         
