@@ -15,6 +15,7 @@ using Reusable.OmniLog.Utilities;
 using t = RoboNuGet.ConsoleTemplates;
 using RoboNuGet.Files;
 using RoboNuGet.Services;
+using Version = Reusable.Commander.Commands.Version;
 
 namespace RoboNuGet
 {
@@ -106,6 +107,7 @@ namespace RoboNuGet
                     m.Register<Commands.Push>();
                     m.Register<Commands.Exit>();
                     m.Register<Help>().WithProperty(nameof(Help.Style), Style);
+                    //m.Register<Version>().WithParameter("version", ProgramInfo.Version).WithProperty(nameof(Help.Style), Style);
                 }));
 
             return builder.Build();
