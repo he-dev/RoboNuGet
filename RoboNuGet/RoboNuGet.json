@@ -2,7 +2,7 @@
   "ExcludeDirectories": [
     ".git",
     ".idea",
-    ".vs",
+    ".vs$",
     "_nuget",
     "packages",
     "TestResults",

@@ -23,24 +23,24 @@ namespace RoboNuGet.Commands
     {
         private readonly ILogger<List> _logger;
         private readonly Session _session;
-        private readonly SolutionDirectoryTree _solutionDirectoryTree;
+        private readonly SolutionDirectory _solutionDirectory;
 
         public List
         (
             ILogger<List> logger,
             Session session,
-            SolutionDirectoryTree solutionDirectoryTree
+            SolutionDirectory solutionDirectory
         ) 
         {
             _logger = logger;
             _session = session;
-            _solutionDirectoryTree = solutionDirectoryTree;
+            _solutionDirectory = solutionDirectory;
         }
 
         protected override Task ExecuteAsync(Parameter parameter, CancellationToken cancellationToken)
         {
             var solution = _session.SolutionOrThrow();
-            var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName);
+            var nuspecFiles = _solutionDirectory.NuspecFiles(solution.DirectoryName);
 
             foreach (var nuspecFile in nuspecFiles.OrderBy(x => x.FileName))
             {

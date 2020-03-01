@@ -9,26 +9,25 @@ using RoboNuGet.Files;
 
 namespace RoboNuGet.Services
 {
-    internal class SolutionDirectoryTree
+    internal class SolutionDirectory
     {
         private readonly IDirectoryTree _directoryTree;
         private readonly Session _session;
 
-        public SolutionDirectoryTree(IDirectoryTree directoryTree, Session session)
+        public SolutionDirectory(IDirectoryTree directoryTree, Session session)
         {
             _directoryTree = directoryTree;
             _session = session;
         }
-
-        [NotNull, ItemNotNull]
-        public IEnumerable<NuspecFile> FindNuspecFiles(string solutionDirectoryName)
+        
+        public IEnumerable<NuspecFile> NuspecFiles(string solutionDirectoryName)
         {
             return
                 _directoryTree
-                    .Walk(solutionDirectoryName, PhysicalDirectoryTree.MaxDepth(2), PhysicalDirectoryTree.IgnoreExceptions)
-                    .SkipDirectories($"({CreateDirectoryFilter()})")
+                    .Walk(solutionDirectoryName, DirectoryTreePredicates.MaxDepth(2), PhysicalDirectoryTree.IgnoreExceptions)
+                    .IgnoreDirectories(CreateDirectoryFilter(_session.Config.ExcludeDirectories))
                     .WhereFiles("\\.nuspec$")
-                    .SelectMany(node => node.FileNames.Select(name => Path.Combine(node.DirectoryName, name)))
+                    .FullNames()
                     .Select(NuspecFile.Load);
         }
 
@@ -37,14 +36,17 @@ namespace RoboNuGet.Services
         {
             return
                 _directoryTree
-                    .Walk(solutionDirectoryName, PhysicalDirectoryTree.MaxDepth(2), PhysicalDirectoryTree.IgnoreExceptions)
-                    .SkipDirectories($"({CreateDirectoryFilter()})")
+                    .Walk(solutionDirectoryName, DirectoryTreePredicates.MaxDepth(2), PhysicalDirectoryTree.IgnoreExceptions)
+                    .IgnoreDirectories(CreateDirectoryFilter(_session.Config.ExcludeDirectories))
                     .WhereFiles($"{Regex.Escape(packageId)}\\.nuspec$")
-                    .SelectMany(node => node.FileNames.Select(name => Path.Combine(node.DirectoryName, name)))
+                    .FullNames()
                     .Select(NuspecFile.Load)
                     .SingleOrThrow(onEmpty:("NuspecFileNotFound", $"Could not find nuspec-file '{packageId}'"));
         }
 
-        private string CreateDirectoryFilter() => _session.Config.ExcludeDirectories.Select(Regex.Escape).Join("|");
+        private static string CreateDirectoryFilter(IEnumerable<string> directoryNames)
+        {
+            return $"({directoryNames.Select(Regex.Escape).Join("|")})" ;
+        }
     }
 }

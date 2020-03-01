@@ -84,7 +84,7 @@ namespace RoboNuGet
                 .As<IDirectoryTree>();
 
             builder
-                .RegisterType<SolutionDirectoryTree>();
+                .RegisterType<SolutionDirectory>();
 
             builder
                 .RegisterInstance(loggerFactory)

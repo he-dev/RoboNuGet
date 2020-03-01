@@ -20,18 +20,18 @@ namespace RoboNuGet.Commands
     {
         private readonly ILogger<Clear> _logger;
         private readonly Session _session;
-        private readonly SolutionDirectoryTree _solutionDirectoryTree;
+        private readonly SolutionDirectory _solutionDirectory;
 
         public Clear
         (
             ILogger<Clear> logger,
             Session session,
-            SolutionDirectoryTree solutionDirectoryTree
+            SolutionDirectory solutionDirectory
         )
         {
             _logger = logger;
             _session = session;
-            _solutionDirectoryTree = solutionDirectoryTree;
+            _solutionDirectory = solutionDirectory;
         }
 
         protected override Task ExecuteAsync(Parameter parameter, CancellationToken cancellationToken)
@@ -63,7 +63,7 @@ namespace RoboNuGet.Commands
             {
                 foreach (var (solution, index) in _session.Config.Solutions.Select((s, i) => (s, i + 1)))
                 {
-                    var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(solution.DirectoryName).ToList();
+                    var nuspecFiles = _solutionDirectory.NuspecFiles(solution.DirectoryName).ToList();
 
                     _logger.WriteLine(new t.Indent(1), new t.Clear.SolutionOption
                     {
@@ -78,7 +78,7 @@ namespace RoboNuGet.Commands
             }
             else
             {
-                var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_session.Solution.DirectoryName).ToList();
+                var nuspecFiles = _solutionDirectory.NuspecFiles(_session.Solution.DirectoryName).ToList();
 
                 _logger.WriteLine(new t.Indent(1), new t.Clear.SolutionSelection
                 {

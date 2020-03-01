@@ -21,7 +21,7 @@ namespace RoboNuGet.Commands
     {
         private readonly ILogger<Pack> _logger;
         private readonly Session _session;
-        private readonly SolutionDirectoryTree _solutionDirectoryTree;
+        private readonly SolutionDirectory _solutionDirectory;
         private readonly IProcessExecutor _processExecutor;
         private readonly ICommandExecutor _commandExecutor;
 
@@ -29,21 +29,21 @@ namespace RoboNuGet.Commands
         (
             ILogger<Pack> logger,
             Session session,
-            SolutionDirectoryTree solutionDirectoryTree,
+            SolutionDirectory solutionDirectory,
             IProcessExecutor processExecutor,
             ICommandExecutor commandExecutor
         )
         {
             _logger = logger;
             _session = session;
-            _solutionDirectoryTree = solutionDirectoryTree;
+            _solutionDirectory = solutionDirectory;
             _processExecutor = processExecutor;
             _commandExecutor = commandExecutor;
         }
 
         protected override async Task ExecuteAsync(CommandParameter parameter, CancellationToken cancellationToken)
         {
-            var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_session.SolutionOrThrow().DirectoryName);
+            var nuspecFiles = _solutionDirectory.NuspecFiles(_session.SolutionOrThrow().DirectoryName);
 
             var packStopwatch = Stopwatch.StartNew();
 

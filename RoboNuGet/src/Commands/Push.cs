@@ -20,7 +20,7 @@ namespace RoboNuGet.Commands
     {
         private readonly ILogger<Push> _logger;
         private readonly Session _session;
-        private readonly SolutionDirectoryTree _solutionDirectoryTree;
+        private readonly SolutionDirectory _solutionDirectory;
         private readonly IProcessExecutor _processExecutor;
 
 
@@ -28,13 +28,13 @@ namespace RoboNuGet.Commands
         (
             ILogger<Push> logger,
             Session session,
-            SolutionDirectoryTree solutionDirectoryTree,
+            SolutionDirectory solutionDirectory,
             IProcessExecutor processExecutor
         ) 
         {
             _logger = logger;
             _session = session;
-            _solutionDirectoryTree = solutionDirectoryTree;
+            _solutionDirectory = solutionDirectory;
             _processExecutor = processExecutor;
         }
 
@@ -43,7 +43,7 @@ namespace RoboNuGet.Commands
         {
             //this.ValidateWith(ParameterValidator).ThrowIfNotValid();
 
-            var nuspecFiles = _solutionDirectoryTree.FindNuspecFiles(_session.SolutionOrThrow().DirectoryName).ToList();
+            var nuspecFiles = _solutionDirectory.NuspecFiles(_session.SolutionOrThrow().DirectoryName).ToList();
 
             var pushStopwatch = Stopwatch.StartNew();
 
