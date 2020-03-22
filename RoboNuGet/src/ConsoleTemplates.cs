@@ -1,7 +1,7 @@
 using System;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Helpers;
+using Reusable.OmniLog.Services;
 
 // ReSharper disable once CheckNamespace
 namespace RoboNuGet.ConsoleTemplates

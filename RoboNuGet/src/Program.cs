@@ -9,7 +9,11 @@ using Reusable.Extensions;
 using Reusable.IO;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Helpers;
+using Reusable.OmniLog.Extensions;
+using Reusable.OmniLog.Connectors;
+using Reusable.OmniLog.Data;
+using Reusable.OmniLog.Nodes;
+using Reusable.OmniLog.Properties;
 using Reusable.OmniLog.Services;
 using Reusable.OmniLog.Utilities;
 using t = RoboNuGet.ConsoleTemplates;
@@ -115,22 +119,43 @@ namespace RoboNuGet
 
         private static ILoggerFactory InitializeLogger()
         {
-            return
-                LoggerFactory
-                    .Builder()
-                    .UseService
-                    (
-                        new Constant("Environment", "Demo"),
-                        new Constant("Product", "Reusable.app.Console"),
-                        new Timestamp<DateTimeUtc>()
-                    )
-                    .UseStopwatch()
-                    .UseDelegate()
-                    .UseEcho
-                    (
-                        new HtmlConsoleRx()
-                    )
-                    .Build();
+            return new LoggerFactory
+            {
+                CreateNodes = () => new ILoggerNode[]
+                {
+                    new AttachProperty
+                    {
+                        Properties =
+                        {
+                            new Constant("Environment", "Demo"),
+                            new Constant("Product", "Reusable.app.Console"),
+                            new Timestamp<DateTimeUtc>()
+                        }
+                    },
+                    new InjectAnonymousDelegate(), 
+                    new Branch(), 
+                    new Echo
+                    {
+                        Connectors =
+                        {
+                            new HtmlConsoleRx()
+                        }
+                    }, 
+                }
+            };
+            
+            // LoggerFactory
+            //     .Builder()
+            //     .UseService
+            //     (
+            //     )
+            //     .UseStopwatch()
+            //     .UseDelegate()
+            //     .UseEcho
+            //     (
+            //         new HtmlConsoleRx()
+            //     )
+            //     .Build();
         }
     }
 

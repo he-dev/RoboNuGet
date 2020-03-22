@@ -51,10 +51,9 @@
    <ProjectReference Include="..\..\Reusable\Reusable.Commander\Reusable.Commander.csproj" />
    <ProjectReference Include="..\..\Reusable\Reusable.Core\Reusable.Core.csproj" />
    <ProjectReference Include="..\..\Reusable\Reusable.MarkupBuilder\Reusable.MarkupBuilder.csproj" />
-   <ProjectReference Include="..\..\Reusable\Reusable.OmniLog.Abstractions\Reusable.OmniLog.Abstractions.csproj" />
-   <ProjectReference Include="..\..\Reusable\Reusable.OmniLog.NLogRx\Reusable.OmniLog.NLogRx.csproj" />
-   <ProjectReference Include="..\..\Reusable\Reusable.OmniLog.SemanticExtensions\Reusable.OmniLog.SemanticExtensions.csproj" />
    <ProjectReference Include="..\..\Reusable\Reusable.OmniLog\Reusable.OmniLog.csproj" />
+   <ProjectReference Include="..\..\Reusable\Reusable.OmniLog.Abstractions\Reusable.OmniLog.Abstractions.csproj" />
+   <ProjectReference Include="..\..\Reusable\Reusable.OmniLog.Connectors.NLog\Reusable.OmniLog.Connectors.NLog.csproj" />
    <ProjectReference Include="..\..\Reusable\Reusable.OneTo1\Reusable.OneTo1.csproj" />
    <ProjectReference Include="..\..\Reusable\Reusable.SemanticVersion\Reusable.SemanticVersion.csproj" />
    <ProjectReference Include="..\..\Reusable\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
